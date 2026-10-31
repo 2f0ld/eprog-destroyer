@@ -1,0 +1,1137 @@
+/*
+ * IntelliJ IDEA "Islands" look. Colors are CSS variables set by theme/uiThemes.ts.
+ * Metrics follow the New UI defaults (non-compact mode): 40px main toolbar,
+ * 40px stripes, 24px tree rows, 10px island radius, ~5px island gaps, 13px Inter.
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background: var(--main-bg);
+  color: var(--fg);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  line-height: 1.3;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: default;
+}
+
+img {
+  display: block;
+  flex-shrink: 0;
+}
+
+.ij-svg-icon {
+  color: var(--fg-muted);
+  flex-shrink: 0;
+}
+[data-theme='dark'] .ij-svg-icon {
+  color: #ced0d6;
+}
+[data-theme='light'] .ij-svg-icon {
+  color: #6c707e;
+}
+
+.ij-muted {
+  color: var(--fg-muted);
+}
+
+/* scrollbars like IntelliJ: thin, rounded, transparent track */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+body.ij-resizing-v,
+body.ij-resizing-v * {
+  cursor: col-resize !important;
+}
+body.ij-resizing-h,
+body.ij-resizing-h * {
+  cursor: row-resize !important;
+}
+
+/* ---------------------------------------------------------------- window */
+
+.ij-window {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--main-bg);
+}
+
+.ij-middle {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.ij-islands {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0 0 0 0;
+}
+
+.ij-islands-top {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.ij-island,
+.ij-editor-island {
+  background: var(--island-bg);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.ij-editor-island {
+  flex: 1;
+}
+
+.ij-splitter {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+.ij-splitter-v {
+  width: 5px;
+  cursor: col-resize;
+}
+.ij-splitter-h {
+  height: 5px;
+  cursor: row-resize;
+}
+
+/* ---------------------------------------------------------------- main toolbar */
+
+.ij-main-toolbar {
+  position: relative;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 6px 0 6px;
+  background: var(--main-bg);
+  overflow: hidden;
+}
+
+.ij-toolbar-gradient {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 600px;
+  background: radial-gradient(ellipse 600px 300px at 0 0, var(--project-gradient), transparent 70%);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.ij-toolbar-left,
+.ij-toolbar-right {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ij-toolbar-center {
+  flex: 1;
+}
+
+.ij-tb-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ij-tb-icon:hover {
+  background: var(--hover-bg);
+}
+.ij-tb-icon:active {
+  background: var(--pressed-bg);
+}
+.ij-stop-btn {
+  background: var(--stop-bg);
+}
+.ij-stop-btn:hover {
+  background: var(--stop-bg);
+  filter: brightness(1.1);
+}
+.ij-stop-btn img {
+  filter: brightness(0) invert(1);
+}
+
+.ij-tb-gap {
+  width: 10px;
+}
+
+.ij-tb-widget {
+  height: 30px;
+  padding: 0 6px 0 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  font-weight: 400;
+}
+.ij-tb-widget:hover {
+  background: var(--hover-bg);
+}
+.ij-tb-widget img:last-child {
+  margin-left: -2px;
+}
+
+.ij-project-widget {
+  margin-left: 2px;
+}
+.ij-project-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, var(--avatar-start), var(--avatar-end));
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.2px;
+}
+.ij-project-name {
+  font-weight: 600;
+}
+
+.ij-run-config {
+  margin-right: 2px;
+}
+
+/* ---------------------------------------------------------------- stripes */
+
+.ij-stripe {
+  width: 40px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0 6px;
+}
+.ij-stripe-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.ij-stripe-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ij-stripe-btn:hover {
+  background: var(--hover-bg);
+}
+.ij-stripe-btn.selected {
+  background: var(--accent);
+}
+.ij-stripe-btn.selected img {
+  filter: brightness(0) invert(1);
+}
+.ij-stripe-sep {
+  width: 20px;
+  height: 1px;
+  background: var(--separator);
+  margin: 2px 0;
+}
+.ij-stripe-badge-wrap {
+  position: relative;
+}
+.ij-stripe-running-dot,
+.ij-stripe-error-dot,
+.ij-stripe-notif-dot {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1px solid var(--main-bg);
+  pointer-events: none;
+}
+.ij-stripe-running-dot {
+  background: var(--success);
+}
+.ij-stripe-error-dot {
+  background: var(--error);
+}
+.ij-stripe-notif-dot {
+  background: var(--accent);
+  top: 3px;
+  bottom: auto;
+}
+
+/* ---------------------------------------------------------------- tool windows */
+
+.ij-toolwindow {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.ij-tw-header {
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 6px 0 14px;
+  gap: 8px;
+}
+.ij-tw-title {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+}
+.ij-tw-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
+}
+.ij-tw-tab {
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px 0 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.ij-tw-tab.selected {
+  background: var(--hover-bg);
+}
+.ij-tw-tab:not(:has(.ij-tab-close)) {
+  padding-right: 8px;
+}
+.ij-tw-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ij-tw-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ij-icon-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ij-icon-btn.small {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+.ij-icon-btn:hover:not(:disabled) {
+  background: var(--hover-bg);
+}
+.ij-icon-btn:active:not(:disabled) {
+  background: var(--pressed-bg);
+}
+.ij-icon-btn.toggled {
+  background: var(--pressed-bg);
+}
+.ij-icon-btn:disabled img {
+  opacity: 0.4;
+}
+
+.ij-empty-text {
+  color: var(--fg-muted);
+  padding: 24px 16px;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------- tree */
+
+.ij-tree {
+  flex: 1;
+  overflow: auto;
+  padding: 0 0 8px;
+  outline: none;
+}
+.ij-tree-row {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 8px;
+  padding-right: 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.ij-tree-row:hover {
+  background: var(--tree-hover-bg);
+}
+.ij-tree-row.selected {
+  background: var(--selection-inactive-bg);
+}
+.ij-tree:focus .ij-tree-row.selected,
+.ij-tree:focus-within .ij-tree-row.selected {
+  background: var(--selection-bg);
+}
+.ij-tree-chevron {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-left: -8px;
+}
+.ij-tree-icon {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-right: 2px;
+}
+.ij-tree-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.ij-tree-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ij-tree-label.bold {
+  font-weight: 600;
+}
+.ij-tree-secondary {
+  color: var(--fg-muted);
+  margin-left: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ij-tree-secondary-inline {
+  color: var(--fg-muted);
+}
+
+/* ---------------------------------------------------------------- editor */
+
+.ij-editor-tabs {
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+.ij-editor-tabs::-webkit-scrollbar {
+  display: none;
+}
+.ij-editor-tab {
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px 0 8px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.ij-editor-tab:hover {
+  background: var(--hover-bg);
+}
+.ij-editor-tab.selected {
+  background: var(--tab-inactive-selected-bg);
+  border-color: var(--tab-inactive-selected-border);
+}
+.ij-editor-island:focus-within .ij-editor-tab.selected {
+  background: var(--tab-selected-bg);
+  border-color: var(--tab-selected-border);
+}
+.ij-tab-close {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+}
+.ij-editor-tab:hover .ij-tab-close,
+.ij-editor-tab.selected .ij-tab-close,
+.ij-tw-tab .ij-tab-close {
+  visibility: visible;
+}
+.ij-tab-close:hover {
+  background: var(--hover-bg);
+}
+
+.ij-editor-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+.ij-monaco-host {
+  position: absolute;
+  inset: 0;
+}
+
+.ij-editor-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg-muted);
+}
+.ij-editor-empty-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  line-height: 32px;
+}
+.ij-editor-empty-key {
+  color: var(--link);
+}
+
+.ij-inspection-widget {
+  position: absolute;
+  top: 6px;
+  right: 18px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: var(--island-bg);
+  font-size: 12px;
+}
+.ij-inspection-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 2px;
+}
+
+/* Monaco tweaks to look like IntelliJ */
+.monaco-editor .margin-view-overlays .line-numbers {
+  font-family: 'JetBrains Mono', monospace;
+}
+.monaco-editor .ij-gutter-run {
+  cursor: pointer;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 14px 14px;
+  margin-left: 4px;
+  width: 16px !important;
+}
+[data-theme='dark'] .monaco-editor .ij-gutter-run {
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.5 7.13397C14.1667 7.51888 14.1667 8.48112 13.5 8.86602L4.5 14.0622C3.83333 14.4471 3 13.966 3 13.1962L3 2.80385C3 2.03405 3.83333 1.55292 4.5 1.93782L13.5 7.13397Z' fill='%23253627' stroke='%2357965C'/%3E%3C/svg%3E");
+}
+[data-theme='light'] .monaco-editor .ij-gutter-run {
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.5 7.13397C14.1667 7.51888 14.1667 8.48112 13.5 8.86602L4.5 14.0622C3.83333 14.4471 3 13.966 3 13.1962L3 2.80385C3 2.03405 3.83333 1.55292 4.5 1.93782L13.5 7.13397Z' fill='%23E6F7E9' stroke='%23208A3C'/%3E%3C/svg%3E");
+}
+.monaco-editor .ij-gutter-run:hover {
+  background-color: var(--hover-bg);
+  border-radius: 3px;
+}
+
+/* completion popup ("lookup") */
+.monaco-editor .suggest-widget {
+  border-radius: 8px !important;
+  overflow: hidden;
+  box-shadow: var(--shadow) !important;
+}
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row {
+  font-family: 'JetBrains Mono', monospace;
+}
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row .label-description {
+  font-family: 'Inter', sans-serif;
+  opacity: 0.6;
+}
+.monaco-editor .monaco-hover,
+.monaco-editor .parameter-hints-widget,
+.monaco-editor .find-widget {
+  border-radius: 8px !important;
+  box-shadow: var(--shadow) !important;
+}
+.monaco-editor .find-widget {
+  font-family: 'Inter', sans-serif;
+}
+
+/* ---------------------------------------------------------------- run console */
+
+.ij-run {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+.ij-run-toolbar {
+  width: 36px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding-top: 2px;
+}
+.ij-run-toolbar-sep {
+  width: 18px;
+  height: 1px;
+  background: var(--separator);
+  margin: 2px 0;
+}
+.ij-console {
+  position: relative;
+  flex: 1;
+  overflow: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 20px;
+  white-space: pre;
+  padding: 2px 8px 8px 4px;
+  user-select: text;
+  cursor: text;
+  color: var(--console-fg);
+  outline: none;
+}
+.ij-console.wrap {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.ij-console-system {
+  color: var(--console-system);
+}
+.ij-console-stderr {
+  color: var(--console-error);
+}
+.ij-console-stdin {
+  color: var(--success);
+}
+[data-theme='dark'] .ij-console-stdin {
+  color: #6aab73;
+}
+[data-theme='light'] .ij-console-stdin {
+  color: #067d17;
+}
+.ij-console-exit {
+  color: var(--console-fg);
+}
+.ij-console-link {
+  color: var(--console-link);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.ij-console-caret {
+  display: inline-block;
+  width: 2px;
+  height: 16px;
+  vertical-align: -3px;
+  background: transparent;
+}
+.ij-console.focused .ij-console-caret {
+  background: var(--editor-fg);
+  animation: ij-blink 1s steps(1) infinite;
+}
+@keyframes ij-blink {
+  50% {
+    opacity: 0;
+  }
+}
+.ij-console-input {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  opacity: 0;
+}
+
+/* ---------------------------------------------------------------- notifications */
+
+.ij-notifications {
+  flex: 1;
+  overflow: auto;
+  padding: 0 8px 8px;
+}
+.ij-notification-item {
+  display: flex;
+  gap: 8px;
+  padding: 10px 8px;
+  border-radius: 6px;
+}
+.ij-notification-item:hover {
+  background: var(--tree-hover-bg);
+}
+.ij-notification-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.ij-notification-body {
+  color: var(--fg);
+  white-space: pre-wrap;
+  user-select: text;
+}
+.ij-notification-time {
+  color: var(--fg-muted);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* ---------------------------------------------------------------- status bar */
+
+.ij-status-bar {
+  height: 30px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px 0 10px;
+  color: var(--fg-muted);
+  background: var(--main-bg);
+}
+.ij-breadcrumbs {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.ij-crumb-wrap {
+  display: inline-flex;
+  align-items: center;
+}
+.ij-crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: 4px;
+}
+.ij-crumb:hover {
+  background: var(--hover-bg);
+  color: var(--fg);
+}
+.ij-crumb-sep {
+  opacity: 0.7;
+}
+.ij-status-right {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+}
+.ij-status-widget {
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 6px;
+  border-radius: 4px;
+}
+.ij-status-widget:hover {
+  background: var(--hover-bg);
+  color: var(--fg);
+}
+
+/* ---------------------------------------------------------------- menus / popups */
+
+.ij-menu {
+  position: fixed;
+  z-index: 1000;
+  background: var(--popup-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: var(--shadow);
+  min-width: 160px;
+  max-height: calc(100vh - 8px);
+  overflow-y: auto;
+}
+.ij-menu-item {
+  height: 26px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.ij-menu-item.active:not(.disabled) {
+  background: var(--selection-bg);
+}
+.ij-menu-item.disabled {
+  color: var(--fg-disabled);
+}
+.ij-menu-item.disabled img {
+  opacity: 0.4;
+}
+.ij-menu-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.ij-menu-text {
+  flex: 1;
+}
+.ij-menu-shortcut {
+  color: var(--fg-muted);
+  margin-left: 24px;
+}
+.ij-menu-chevron {
+  margin-right: -4px;
+  margin-left: 12px;
+}
+.ij-menu-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 8px;
+}
+
+.ij-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.ij-overlay.dim {
+  background: rgba(0, 0, 0, 0.25);
+  align-items: center;
+}
+
+.ij-name-popup,
+.ij-recent-popup,
+.ij-search-popup,
+.ij-dialog {
+  background: var(--popup-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.ij-name-popup {
+  margin-top: 18vh;
+  width: 380px;
+}
+.ij-popup-title {
+  text-align: center;
+  font-weight: 600;
+  padding: 10px 12px 6px;
+}
+.ij-popup-body {
+  padding: 4px 12px 12px;
+}
+.ij-popup-footer {
+  padding: 6px 12px 8px;
+  color: var(--fg-muted);
+  font-size: 12px;
+  min-height: 28px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ij-input,
+.ij-select {
+  width: 100%;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid var(--component-border);
+  background: var(--input-bg);
+  color: var(--fg);
+  font: inherit;
+  padding: 0 8px;
+  outline: none;
+  user-select: text;
+}
+.ij-input:focus,
+.ij-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.ij-input.error {
+  border-color: var(--error);
+  box-shadow: 0 0 0 1px var(--error);
+}
+.ij-input-error {
+  color: var(--error);
+  font-size: 12px;
+  margin-top: 6px;
+}
+.ij-select {
+  width: auto;
+  min-width: 180px;
+}
+
+.ij-kind-list {
+  margin-top: 8px;
+}
+.ij-list-row {
+  height: 26px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.ij-list-row:hover {
+  background: var(--tree-hover-bg);
+}
+.ij-list-row.selected,
+.ij-list-row.selected:hover {
+  background: var(--selection-bg);
+}
+.ij-list-row.indent {
+  padding-left: 20px;
+}
+.ij-list-secondary {
+  color: var(--fg-muted);
+  margin-left: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ij-recent-popup {
+  margin-top: 14vh;
+  width: 640px;
+}
+.ij-recent-body {
+  display: flex;
+  height: 340px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.ij-recent-tools {
+  width: 200px;
+  padding: 6px;
+  border-right: 1px solid var(--border);
+  overflow: auto;
+}
+.ij-recent-files {
+  flex: 1;
+  padding: 6px;
+  overflow: auto;
+}
+
+.ij-search-popup {
+  margin-top: 12vh;
+  width: 680px;
+  display: flex;
+  flex-direction: column;
+  max-height: 60vh;
+}
+.ij-search-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 8px 8px 0;
+}
+.ij-search-tab {
+  padding: 5px 10px;
+  border-radius: 6px;
+}
+.ij-search-tab:hover {
+  background: var(--hover-bg);
+}
+.ij-search-tab.selected {
+  background: var(--tab-selected-bg);
+  color: var(--fg);
+}
+.ij-search-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  margin-top: 6px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.ij-search-field input {
+  flex: 1;
+  height: 28px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 14px;
+  user-select: text;
+}
+.ij-search-results {
+  overflow: auto;
+  padding: 6px;
+  min-height: 80px;
+}
+.ij-search-group {
+  color: var(--fg-muted);
+  font-size: 12px;
+  padding: 6px 8px 2px;
+}
+
+.ij-dialog {
+  display: flex;
+  flex-direction: column;
+}
+.ij-dialog-title {
+  padding: 10px 14px;
+  font-weight: 600;
+  text-align: center;
+}
+.ij-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 14px 14px;
+}
+.ij-button {
+  height: 28px;
+  min-width: 72px;
+  padding: 0 14px;
+  border-radius: 6px;
+  border: 1px solid var(--component-border);
+  background: transparent;
+}
+.ij-button:hover {
+  background: var(--hover-bg);
+}
+.ij-button.default {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-fg);
+}
+.ij-button.default:hover {
+  filter: brightness(1.08);
+}
+
+.ij-settings {
+  width: min(860px, 92vw);
+  height: min(600px, 86vh);
+}
+.ij-settings-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.ij-settings-nav {
+  width: 240px;
+  padding: 8px;
+  border-right: 1px solid var(--border);
+  overflow: auto;
+}
+.ij-settings-group {
+  padding: 6px 8px;
+  color: var(--fg-muted);
+}
+.ij-settings-page {
+  flex: 1;
+  padding: 14px 20px;
+  overflow: auto;
+}
+.ij-settings-crumb {
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.ij-form-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.ij-keymap-list {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px;
+}
+.ij-keymap-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+}
+.ij-shortcut-chip {
+  color: var(--fg-muted);
+}
+
+.ij-about {
+  width: 440px;
+}
+.ij-about-body {
+  padding: 4px 20px;
+  user-select: text;
+}
+.ij-about-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
