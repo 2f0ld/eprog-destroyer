@@ -7,13 +7,16 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 
 ## Next up (resume here)
 
-1. **M2 polish** — see the open items under M2 below. The most visible gaps vs. real IntelliJ are:
-   on-the-fly error highlighting (red squiggles while typing, not only after Run), IntelliJ-style completion
-   popup icons, Rename refactoring (Shift+F6 currently does "change all occurrences"), Optimize Imports.
-2. Then **M3** (production-grade sandboxed Java execution) because M4/M5 depend on a real backend.
+1. **M3** (production-grade sandboxed Java execution) — now the most important gap: Run, live error
+   highlighting (`/api/compile`) and task checking all go through the DEV-ONLY runner. M3 must implement
+   `/api/run` and `/api/compile` (incl. `code`/`args` in diagnostics, DECISIONS D10/D15).
+2. **M5 follow-ups**: more tasks (weeks 6, 8, 10, 12–14: file input, inheritance/interfaces, ArrayList/Map,
+   exceptions, EBNF), a German version of the texts (D17), an IntelliJ-style test runner view for check details.
+3. **M2 leftovers**: Ctrl+Q docs, Navigate Back/Forward, Ctrl+click underline, more quick fixes, smart completion,
+   bundle size (lazy-load Monaco).
 
-Before continuing, run `cd web && npm install && npm test && npm run dev` and `npm run smoke`
-(with the dev server running) to make sure everything still works.
+Before continuing, run `cd web && npm install && npm test && npm run dev`, then `npm run smoke` and
+`npm run verify-tasks` (with the dev server running for smoke) to make sure everything still works.
 
 ---
 
@@ -106,12 +109,25 @@ Goal: a browser IDE that a student cannot easily tell apart from IntelliJ IDEA (
 - ⬜ Move file persistence from localStorage to the server (per user, per task)
 - ⬜ Privacy: data minimization, deletion on request (Swiss nDSG / GDPR)
 
-## M5 — Task catalog ⬜
+## M5 — Task catalog & practice tasks 🟡 (started 2026-10-31)
 
-- ⬜ Task model: statement (Markdown), starter project files, hidden + visible tests, difficulty, topic, week
-- ⬜ Task browser + task description tool window inside the IDE (like IntelliJ's "Task Description" in JetBrains Academy)
-- ⬜ "Check" button running tests; progress tracking per user
-- ⬜ Authoring workflow for tutors (tasks as files in a git repo)
+Goal: beginners solve exercises that build on each other inside the familiar IntelliJ UI, see their progress
+and get stepping-stone help instead of answers. Design: DECISIONS D14–D17, authoring guide: docs/TASKS.md.
+
+- ✅ Task model: statement (Markdown), starter files, visible + hidden tests (io / expr / code / source),
+  difficulty, concepts, week/lesson, prerequisites, steps, graded hints, reference solution
+- ✅ Tasks as folders in git (`web/tasks/<id>/`), `npm run verify-tasks` checks solutions pass / starters fail
+- ✅ Starter set: 19 tasks, weeks 1–11 (println, static methods, loops, parameters/return, Math/String, Scanner,
+  if/else, cumulative sums, while/fencepost, arrays, classes, recursion)
+- ✅ Task tool window (like JetBrains Academy): description, steps checklist, graded hints, Check, result with
+  Expected/Actual, Reset Content, Peek Solution diff, previous/next; Course tab with lesson progress
+- ✅ Tasks open as their own project; recent projects in the project widget; File › Learn and Teach
+- ✅ "Check" runs the tests through the run protocol (dev runner for now); progress per task (status, attempts,
+  hints, peeks) in localStorage; success + lesson-completed balloons
+- ⬜ Progress tracking per user on the server (needs M4), sync of task workspaces
+- ⬜ More tasks (weeks 6, 8, 10, 12–14), German texts, EBNF exercises
+- ⬜ IntelliJ-style test runner tool window for check details (green/red tree); JUnit-based tests (M3)
+- ⬜ Tutor tooling: task preview, "check all tasks" in CI (`npm run verify-tasks` needs a JDK in CI)
 - ⬜ Exam-mode: timed sessions mimicking the exam setup
 
 ## M6 — Deployment & operations ⬜

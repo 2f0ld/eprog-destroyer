@@ -122,5 +122,36 @@ await sleep(300)
 await shot('08-search-everywhere')
 await page.keyboard.press('Escape')
 
+// live diagnostics: an unresolved symbol turns red without running
+await page.evaluate(() => {
+  const s = window.__ide_store.getState()
+  s.resetProject()
+  s.openFile('src/Main.java')
+})
+await sleep(300)
+await page.evaluate(() => {
+  const m = window.__ide_editor.getModel()
+  m.setValue(m.getValue().replace('String name = scanner.nextLine();', 'String name = scanner.nextLine();\n        int z = undefinedVar;'))
+})
+await page.waitForSelector('.monaco-editor .ij-wrong-ref', { timeout: 15000 })
+await sleep(200)
+await shot('09-live-diagnostics')
+
+// practice task: open the first task, solve it, check it
+await page.evaluate(() => window.__ide_store.setState({ rightTool: 'task' }))
+await page.waitForSelector('.ij-course-continue')
+await page.click('.ij-course-continue')
+await page.waitForFunction(() => window.__ide_store.getState().projectId === 'task:w01-hello')
+await sleep(500)
+await page.evaluate(() => {
+  const m = window.__ide_editor.getModel()
+  m.setValue(m.getValue().replace('// TODO: print the two lines from the task description', 'System.out.println("Hello, ETH!");\n        System.out.println("Welcome to EProg.");'))
+})
+await sleep(400)
+await page.click('.ij-check-buttons .ij-button.default')
+await page.waitForSelector('.ij-check-result.correct', { timeout: 30000 })
+await sleep(500)
+await shot('10-task-solved')
+
 console.log(errors.length ? `ERRORS:\n${errors.join('\n')}` : 'no page errors')
 await browser.close()

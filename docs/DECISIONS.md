@@ -80,3 +80,32 @@ argument count only, and members reached through inheritance or untyped expressi
 macOS machines often have no Firefox. `scripts/browser.mjs` uses Firefox when present, else Chrome. Chrome
 is launched with a minimal flag set (`ignoreDefaultArgs`) because one of Puppeteer's default flags makes
 Chrome 156 exit about two seconds after launch.
+
+### D14 — Practice tasks follow JetBrains Academy (EduTools) (2026-10-31)
+IntelliJ's own course plugin defines what "tasks inside IntelliJ" look like: a **Task** tool window on the
+right with the description, a Check button, "Congratulations!" / "Incorrect" results, Peek Solution as a diff,
+Reset Content, and a course view with lesson/task status icons. We copy that look and wording (EduCoreBundle)
+and vendor its New UI icons (Apache-2.0). Each task opens as its **own project** (project widget = recent
+projects), so the Project view stays a normal `src/` project like in the exam; the sample project is kept as
+"eprog". Per-project workspaces (`workspaces` in the IDE store) remember each task's files and tabs.
+
+### D15 — Tasks are folders; checking reuses the run protocol (2026-10-31)
+Tasks are plain folders under `web/tasks/` (task.md, tests.json, src/, solution/) so tutors can write real Java
+and review changes in git (M5's authoring goal). Checking needs no new backend endpoint: the frontend
+generates a Java harness (`EprogCheck`) and runs it through `POST /api/run`, so M3's sandbox covers checking
+too. All comparison logic stays in TypeScript (unit-tested) and produces beginner-oriented messages
+("Line 2 differs: …", "Is there an infinite loop?"). Marker lines carry a per-check nonce so stray program
+output cannot fake a pass by accident. Limitations: tests run in one JVM (static state survives between tests;
+`System.exit` in student code ends the check), and a timed-out test thread keeps running until the check ends.
+
+### D16 — Graded help instead of answers (2026-10-31)
+Beginners struggle most with finding an approach. Each task therefore has a "Before you code" planning
+section, Steps (sub-goals tied to tests, ticked off after each Check) and three graded hints (idea → skeleton →
+last detail). Peek Solution unlocks only after all hints or 3 checks and shows a diff with a reminder to write
+it yourself. Progress records attempts, hints used and peeks, and the success message acknowledges solving
+without hints. Prerequisites (`requires`) are shown as "Builds on" links but do not lock tasks.
+
+### D17 — Task texts in English for now (2026-10-31)
+The IDE is English like IntelliJ's default UI. EProg is taught in German, so a German version of the task texts
+may be preferable — open question for the course staff. The format allows adding e.g. `task.de.md` later.
+Progress lives in localStorage (`eprog-tasks`) until M4 moves it to the server.
