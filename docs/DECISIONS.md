@@ -52,3 +52,31 @@ explicit `.ts` paths if they import each other. The browser smoke test uses `pup
 system Firefox (no browser download) and keeps its profile inside `web/.e2e-profile`. It launches
 `/usr/lib64/firefox/firefox` directly with `HOME` pointed at that profile, because Fedora's `/usr/bin/firefox`
 wrapper writes to `~/.config/mozilla`. `web/.npmrc` keeps the npm cache in `web/.npm-cache` for the same reason.
+
+### D10 — Live error highlighting = background javac + IntelliJ message table (2026-10-31)
+IntelliJ highlights errors while typing. Instead of writing a Java type checker in JS, the IDE compiles the
+whole project in the background ~350 ms after the last keystroke (`POST /api/compile`, compile only, ~0.2 s
+for student projects). javac runs with `-XDrawDiagnostics` (in parallel with a normal run for the console
+text), so we get stable keys like `compiler.err.cant.resolve.location` + arguments that
+`src/java/diagnostics.ts` maps to IntelliJ's wording ("Cannot resolve symbol 'x'", "Incompatible types.
+Found: 'int', required: 'java.lang.String'") and to the range IntelliJ underlines. Unknown keys fall back to
+javac's text, capitalized. Limitation: javac reports flow errors (missing return, uninitialized variable)
+only once attribution errors are fixed; IntelliJ shows them all at once. M3 must implement `/api/compile`
+with the same `code`/`args` fields.
+
+### D11 — Problems are decorations, not Monaco markers (2026-10-31)
+IntelliJ uses three looks: red wave (ERRORS_ATTRIBUTES), red text without underline for unresolved
+references (WRONG_REFERENCES_ATTRIBUTES) and grey text for unused code (NOT_USED_ELEMENT_ATTRIBUTES).
+Monaco markers always draw squiggles, so `editor/problemDecorations.ts` draws problems as decorations with
+hover text and overview-ruler marks, and F2/Shift+F2 and the Alt+Enter provider read problems from the store.
+
+### D12 — Scope-aware symbol table for refactorings (2026-10-31)
+`src/java/symbols.ts` resolves identifiers to declarations (block scopes, lambda/catch/for/pattern variables,
+fields through `this.` and typed receivers, classes across files). Rename, unused inspections, Optimize
+Imports, Generate and completion of locals share it. Like D4 it is heuristic; overloads are told apart by
+argument count only, and members reached through inheritance or untyped expressions are not renamed.
+
+### D13 — Smoke test falls back to Chrome (2026-10-31)
+macOS machines often have no Firefox. `scripts/browser.mjs` uses Firefox when present, else Chrome. Chrome
+is launched with a minimal flag set (`ignoreDefaultArgs`) because one of Puppeteer's default flags makes
+Chrome 156 exit about two seconds after launch.
