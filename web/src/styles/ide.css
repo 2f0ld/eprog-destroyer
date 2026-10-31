@@ -1237,3 +1237,11 @@ body.ij-resizing-h * {
   padding: 4px 10px 6px;
   font-weight: 600;
 }
+
+.ij-input.small {
+  width: 72px;
+}
+.ij-form-row.check {
+  gap: 8px;
+  justify-content: flex-start;
+}

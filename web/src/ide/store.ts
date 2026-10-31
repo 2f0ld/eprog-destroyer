@@ -35,6 +35,8 @@ interface IdeState {
   selectedNode: string | null
 
   theme: ThemeId
+  /** Settings > Editor (IntelliJ defaults: JetBrains Mono 13, line height 1.2 scaled to 20px here) */
+  editorSettings: { fontSize: number; softWraps: boolean; showWhitespaces: boolean }
   leftTool: LeftTool | null
   bottomTool: BottomTool | null
   rightTool: RightTool | null
@@ -67,6 +69,7 @@ interface IdeState {
   select(path: string | null): void
   // layout
   setTheme(t: ThemeId): void
+  setEditorSettings(p: Partial<IdeState['editorSettings']>): void
   toggleLeft(t: LeftTool): void
   toggleBottom(t: BottomTool): void
   toggleRight(t: RightTool): void
@@ -110,6 +113,7 @@ export const useIde = create<IdeState>()(
       selectedNode: 'src/Main.java',
 
       theme: 'islands-dark',
+      editorSettings: { fontSize: 13, softWraps: false, showWhitespaces: false },
       leftTool: 'project',
       bottomTool: null,
       rightTool: null,
@@ -190,6 +194,7 @@ export const useIde = create<IdeState>()(
       select: (path) => set({ selectedNode: path }),
 
       setTheme: (theme) => set({ theme }),
+      setEditorSettings: (p) => set((s) => ({ editorSettings: { ...s.editorSettings, ...p } })),
       toggleLeft: (t) => set((s) => ({ leftTool: s.leftTool === t ? null : t })),
       toggleBottom: (t) => set((s) => ({ bottomTool: s.bottomTool === t ? null : t })),
       toggleRight: (t) => set((s) => ({ rightTool: s.rightTool === t ? null : t })),
@@ -230,6 +235,7 @@ export const useIde = create<IdeState>()(
         recent: s.recent,
         expanded: s.expanded,
         theme: s.theme,
+        editorSettings: s.editorSettings,
         leftTool: s.leftTool,
         bottomTool: s.bottomTool === 'run' ? null : s.bottomTool,
         rightTool: s.rightTool,

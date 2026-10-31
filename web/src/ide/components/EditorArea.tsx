@@ -389,6 +389,14 @@ export function EditorArea() {
     [],
   )
 
+  // Settings > Editor
+  const editorSettings = useIde((s) => s.editorSettings)
+  useEffect(() => {
+    if (!editor || !editorSettings) return
+    const { fontSize, softWraps, showWhitespaces } = editorSettings
+    editor.updateOptions({ fontSize, lineHeight: Math.round(fontSize * 1.54), wordWrap: softWraps ? 'on' : 'off', renderWhitespace: showWhitespaces ? 'all' : 'none' })
+  }, [editor, editorSettings])
+
   // theme
   useEffect(() => {
     monaco.editor.setTheme(uiThemes[theme].dark ? DARK_EDITOR_THEME : LIGHT_EDITOR_THEME)

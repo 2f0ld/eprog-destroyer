@@ -14,7 +14,7 @@ import EditorWorker from 'monaco-editor/editor/editor.worker?worker'
 import { defineEditorThemes } from '../theme/editorThemes'
 import { registerJava } from '../java/language'
 import { registerJavaSemanticTokens, analysisFor } from '../java/semantic'
-import { registerJavaCompletion } from '../java/completion'
+import { registerJavaCompletion, registerJavaSignatureHelp } from '../java/completion'
 import { formatJava } from '../java/format'
 import { analyze, type OutlineClass } from '../java/analyzer'
 import { useIde } from '../ide/store'
@@ -29,7 +29,7 @@ registerJavaSemanticTokens(monaco)
 
 // project-wide class index for completion (cheap enough for student-sized projects)
 let classCache: { files: Record<string, string>; classes: OutlineClass[] } | null = null
-registerJavaCompletion(monaco, {
+const projectInfo = {
   classes() {
     const files = useIde.getState().files
     if (classCache?.files !== files) {
@@ -37,7 +37,9 @@ registerJavaCompletion(monaco, {
     }
     return classCache.classes
   },
-})
+}
+registerJavaCompletion(monaco, projectInfo)
+registerJavaSignatureHelp(monaco, projectInfo)
 
 monaco.languages.registerDocumentFormattingEditProvider('java', {
   provideDocumentFormattingEdits(model) {

@@ -164,7 +164,9 @@ function NewClassDialog({ dir }: { dir: string }) {
 
 function SettingsDialog() {
   const theme = useIde((s) => s.theme)
-  const [page, setPage] = useState<'appearance' | 'keymap' | 'about'>('appearance')
+  const [page, setPage] = useState<'appearance' | 'keymap' | 'about' | 'font' | 'editor'>('appearance')
+  const es = useIde((s) => s.editorSettings)
+  const setEs = useIde((s) => s.setEditorSettings)
   useEscape(close)
   return (
     <div className="ij-overlay dim" onMouseDown={close}>
@@ -178,6 +180,13 @@ function SettingsDialog() {
             </div>
             <div className={`ij-list-row${page === 'keymap' ? ' selected' : ''}`} onClick={() => setPage('keymap')}>
               Keymap
+            </div>
+            <div className="ij-settings-group">Editor</div>
+            <div className={`ij-list-row indent${page === 'editor' ? ' selected' : ''}`} onClick={() => setPage('editor')}>
+              General
+            </div>
+            <div className={`ij-list-row indent${page === 'font' ? ' selected' : ''}`} onClick={() => setPage('font')}>
+              Font
             </div>
             <div className={`ij-list-row${page === 'about' ? ' selected' : ''}`} onClick={() => setPage('about')}>
               Advanced Settings
@@ -193,6 +202,34 @@ function SettingsDialog() {
                     <option value="islands-dark">Islands Dark</option>
                     <option value="islands-light">Islands Light</option>
                   </select>
+                </label>
+              </>
+            )}
+            {page === 'font' && (
+              <>
+                <div className="ij-settings-crumb">Editor › Font</div>
+                <label className="ij-form-row">
+                  <span>Font:</span>
+                  <select className="ij-select" disabled>
+                    <option>JetBrains Mono</option>
+                  </select>
+                </label>
+                <label className="ij-form-row">
+                  <span>Size:</span>
+                  <input className="ij-input small" type="number" min={8} max={32} value={es.fontSize} onChange={(e) => setEs({ fontSize: Math.max(8, Math.min(32, Number(e.target.value) || 13)) })} />
+                </label>
+              </>
+            )}
+            {page === 'editor' && (
+              <>
+                <div className="ij-settings-crumb">Editor › General</div>
+                <label className="ij-form-row check">
+                  <input type="checkbox" checked={es.softWraps} onChange={(e) => setEs({ softWraps: e.target.checked })} />
+                  <span>Soft-wrap files</span>
+                </label>
+                <label className="ij-form-row check">
+                  <input type="checkbox" checked={es.showWhitespaces} onChange={(e) => setEs({ showWhitespaces: e.target.checked })} />
+                  <span>Show whitespaces</span>
                 </label>
               </>
             )}

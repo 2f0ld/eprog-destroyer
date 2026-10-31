@@ -202,6 +202,87 @@ export function registerJavaCompletion(monaco: typeof Monaco, project: ProjectIn
   })
 }
 
+/** Ctrl+P / typing "(": parameter info for JDK and project methods and constructors. */
+export function registerJavaSignatureHelp(monaco: typeof Monaco, project: ProjectInfo) {
+  monaco.languages.registerSignatureHelpProvider('java', {
+    signatureHelpTriggerCharacters: ['(', ','],
+    signatureHelpRetriggerCharacters: [','],
+    provideSignatureHelp(model, position) {
+      const text = model.getValue()
+      const offset = model.getOffsetAt(position)
+      // find the unmatched "(" before the caret and count top-level commas
+      let depth = 0
+      let commas = 0
+      let open = -1
+      for (let i = offset - 1; i >= 0 && i > offset - 2000; i--) {
+        const c = text[i]
+        if (c === ')' || c === ']' || c === '}') depth++
+        else if (c === '(' || c === '[' || c === '{') {
+          if (depth === 0) {
+            if (c === '(') open = i
+            break
+          }
+          depth--
+        } else if (c === ',' && depth === 0) commas++
+        else if (c === ';') break
+      }
+      if (open < 0) return null
+      const before = text.slice(Math.max(0, open - 300), open)
+      const m = /(?:(new)\s+([A-Z][\w$]*)(?:<[^()]*>)?|((?:[A-Za-z_$][\w$]*|"(?:[^"\\]|\\.)*"|\))(?:\s*\.\s*[A-Za-z_$][\w$]*(?:\([^()]*\))?)*)\s*\.\s*([A-Za-z_$][\w$]*)|([A-Za-z_$][\w$]*))\s*$/.exec(before)
+      if (!m) return null
+      const analysis = analysisFor(model)
+      const allClasses = [...analysis.classes, ...project.classes()]
+      let sigs: { label: string; params: string[] }[] = []
+      const fmt = (name: string, params: string, ret?: string) => {
+        const ps = params ? splitParams(params) : []
+        return { label: `${name}(${ps.join(', ')})${ret ? `: ${ret}` : ''}`, params: ps }
+      }
+      if (m[1]) {
+        const cls = m[2]
+        const jdk = JDK[cls]
+        if (jdk?.ctors) sigs = jdk.ctors.map((c) => fmt(cls, c.slice(1, -1)))
+        const user = allClasses.find((c) => c.name === cls)
+        if (user) {
+          const ctors = user.members.filter((x) => x.kind === 'constructor')
+          sigs = ctors.length ? ctors.map((x) => fmt(cls, x.detail.replace(/^\((.*)\).*$/, '$1'))) : [fmt(cls, '')]
+        }
+      } else if (m[4]) {
+        const recv = resolveExprType(m[3], text.slice(0, open), allClasses)
+        if (recv) sigs = membersOf(recv, allClasses).filter((x) => x.isMethod && x.name === m[4]).map((x) => fmt(x.name, x.params, x.type))
+      } else if (m[5]) {
+        const name = m[5]
+        for (const c of analysis.classes) for (const x of c.members) if (x.kind === 'method' && x.name === name) sigs.push(fmt(name, x.detail.replace(/^\((.*)\).*$/, '$1'), x.detail.replace(/^.*\):\s*/, '')))
+      }
+      if (!sigs.length) return null
+      const active = Math.max(0, sigs.findIndex((s) => s.params.length > commas || (s.params.length === commas + 1)))
+      return {
+        value: {
+          signatures: sigs.map((s) => ({ label: s.label, parameters: s.params.map((p) => ({ label: p })) })),
+          activeSignature: active,
+          activeParameter: commas,
+        },
+        dispose() {},
+      }
+    },
+  })
+}
+
+function splitParams(s: string) {
+  const out: string[] = []
+  let d = 0
+  let cur = ''
+  for (const ch of s) {
+    if (ch === '<') d++
+    else if (ch === '>') d--
+    if (ch === ',' && d === 0) {
+      out.push(cur.trim())
+      cur = ''
+    } else cur += ch
+  }
+  if (cur.trim()) out.push(cur.trim())
+  return out
+}
+
 function kindForClass(K: typeof Monaco.languages.CompletionItemKind, kind: string) {
   return kind === 'interface' ? K.Interface : kind === 'enum' ? K.Enum : K.Class
 }

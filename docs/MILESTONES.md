@@ -59,20 +59,26 @@ Goal: a browser IDE that a student cannot easily tell apart from IntelliJ IDEA (
 - ✅ DEV-ONLY local Java runner (Vite middleware) implementing the run protocol M3 will reuse
 - ✅ Tests: unit tests for analyzer/formatter (`npm test`), browser smoke test (`npm run smoke`)
 
-## M2 — Editor fidelity & polish ⬜
+## M2 — Editor fidelity & polish 🟡 (started 2026-10-31)
 
-- ⬜ On-the-fly diagnostics while typing (debounced background compile via the runner, or a JS Java parser);
-  IntelliJ shows red squiggles + error stripe marks without running
-- ⬜ IntelliJ completion popup look: node icons (c/m/f/v) instead of codicons, bold matched prefix, type on the right,
-  "Ctrl+." hints; second Ctrl+Space; smart type completion
-- ⬜ Real Rename refactoring (Shift+F6) for locals/fields/methods/classes (+ file rename)
-- ⬜ Optimize Imports (Ctrl+Alt+O), Generate (Alt+Insert: constructor, getters/setters, toString, equals/hashCode)
-- ⬜ Quick-fixes on Alt+Enter (import class, create local variable, add cast, ...)
+- ✅ On-the-fly diagnostics while typing: debounced background compile (`POST /api/compile`), javac keys
+  translated to IntelliJ's wording/ranges (`src/java/diagnostics.ts`); red wave for errors, red text for
+  unresolved symbols, grey for unused imports/variables/private members, error-stripe marks, F2/Shift+F2
+- ✅ IntelliJ completion popup look: node icons, bold matched prefix in `CompletionPopup.matchForeground`, bold
+  keywords, type on the right, advertiser footer with working Ctrl+., Enter inserts / Tab replaces,
+  scope-aware locals with their types
+- ⬜ Completion: second Ctrl+Space, smart type completion (Ctrl+Shift+Space)
+- ✅ Real Rename refactoring (Shift+F6), in-place with boxed occurrences, for locals/params/fields/methods/classes
+  across files (+ file rename); Project view file rename renames the class and its references
+- ✅ Optimize Imports (Ctrl+Alt+O) with IntelliJ's import layout and wildcard thresholds
+- ✅ Generate (Alt+Insert): constructor, getters/setters, toString(), equals()/hashCode() with field chooser
+- ✅ Quick-fixes on Alt+Enter: Import class, Add exception to method signature, Optimize imports,
+  Remove local variable, Insert ';' — ⬜ more (create local variable, add cast, surround with try/catch)
 - ⬜ Quick documentation (Ctrl+Q) with Javadoc for JDK members
-- ⬜ Parameter info popup (Ctrl+P) backed by the JDK table / project methods
+- ✅ Parameter info popup (Ctrl+P) backed by the JDK table / project methods and constructors
 - ⬜ Breadcrumb/caret-aware Structure view selection; Navigate › Back/Forward (Ctrl+Alt+←/→)
-- ⬜ Editor: error stripe on the right like IntelliJ, "unused" greying, Ctrl+click underline, Ctrl+mouse wheel font size
-- ⬜ Settings: editor font size, soft wraps, show whitespaces
+- 🟡 Editor: ✅ error stripe, ✅ "unused" greying; ⬜ Ctrl+click underline, Ctrl+mouse wheel font size
+- 🟡 Settings: ✅ editor font size, soft wraps, show whitespaces; ⬜ font family, line spacing
 - ⬜ Drag & drop in project tree; multiple selection
 - ⬜ Debugger UI (breakpoints on line numbers, Debug tool window) — needs M3 support (JDWP)
 - ⬜ Bundle size: pick only needed Monaco features (currently 4.5 MB JS), lazy-load Monaco
