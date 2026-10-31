@@ -141,7 +141,7 @@ await shot('09-live-diagnostics')
 await page.evaluate(() => window.__ide_store.setState({ rightTool: 'task' }))
 await page.waitForSelector('.ij-course-continue')
 await page.click('.ij-course-continue')
-await page.waitForFunction(() => window.__ide_store.getState().projectId === 'task:w01-hello')
+await page.waitForFunction(() => window.__ide_store.getState().projectId === 'task:w03-hello')
 await sleep(500)
 await page.evaluate(() => {
   const m = window.__ide_editor.getModel()

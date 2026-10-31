@@ -1,0 +1,26 @@
+[
+  {
+    "type": "code",
+    "name": "build",
+    "code": "Metro m = new Metro(); m.connect(\"ETH\", \"Central\"); m.connect(\"Bahnhof\", \"Central\"); m.connect(\"Central\", \"Bellevue\"); m.connect(\"Central\", \"ETH\"); return m.neighbours(\"Central\") + \" \" + m.neighbours(\"ETH\");",
+    "expected": "[Bahnhof, Bellevue, ETH] [Central]"
+  },
+  {
+    "type": "code",
+    "name": "errors",
+    "code": "Metro m = new Metro(); m.connect(\"A\", \"B\"); String r = \"\"; try { m.connect(\"A\", \"A\"); r += \"ok \"; } catch (IllegalArgumentException e) { r += \"E \"; } try { m.neighbours(\"X\"); r += \"ok \"; } catch (IllegalArgumentException e) { r += \"E \"; } try { m.stops(\"A\", \"X\"); r += \"ok\"; } catch (IllegalArgumentException e) { r += \"E\"; } return r;",
+    "expected": "E E E"
+  },
+  {
+    "type": "code",
+    "name": "stops",
+    "code": "Metro m = new Metro(); m.connect(\"Bahnhof\", \"Central\"); m.connect(\"Central\", \"ETH\"); m.connect(\"ETH\", \"Irchel\"); m.connect(\"Central\", \"Bellevue\"); m.connect(\"Bellevue\", \"Oerlikon\"); m.connect(\"Oerlikon\", \"Irchel\"); m.connect(\"Zoo\", \"Kirche\"); return m.stops(\"Bahnhof\", \"Irchel\") + \" \" + m.stops(\"ETH\", \"ETH\") + \" \" + m.stops(\"Bellevue\", \"ETH\") + \" \" + m.stops(\"Zoo\", \"ETH\") + \" \" + m.stops(\"Oerlikon\", \"Bahnhof\");",
+    "expected": "3 0 2 -1 3"
+  },
+  {
+    "type": "code",
+    "name": "route",
+    "code": "Metro m = new Metro(); m.connect(\"Bahnhof\", \"Central\"); m.connect(\"Central\", \"ETH\"); m.connect(\"ETH\", \"Irchel\"); m.connect(\"Central\", \"Bellevue\"); m.connect(\"Bellevue\", \"Oerlikon\"); m.connect(\"Oerlikon\", \"Irchel\"); m.connect(\"Zoo\", \"Kirche\"); return m.route(\"Bahnhof\", \"Irchel\") + \" \" + m.route(\"Irchel\", \"Irchel\") + \" \" + m.route(\"Zoo\", \"ETH\") + \" \" + m.route(\"Bellevue\", \"Bahnhof\");",
+    "expected": "[Bahnhof, Central, ETH, Irchel] [Irchel] [] [Bellevue, Central, Bahnhof]"
+  }
+]

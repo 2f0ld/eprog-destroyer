@@ -1,10 +1,10 @@
 ---
 title: Sum and Average
 week: 4
-lesson: Conditionals and input
+lesson: Loops
 difficulty: 2
 concepts: cumulative sum, Scanner, printf
-requires: w04-even-odd
+requires: w03-even-odd
 ---
 Read a count `n`, then `n` whole numbers. Print their sum and their average with two decimals:
 

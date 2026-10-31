@@ -109,3 +109,12 @@ without hints. Prerequisites (`requires`) are shown as "Builds on" links but do 
 The IDE is English like IntelliJ's default UI. EProg is taught in German, so a German version of the task texts
 may be preferable — open question for the course staff. The format allows adding e.g. `task.de.md` later.
 Progress lives in localStorage (`eprog-tasks`) until M4 moves it to the server.
+
+### D18 — Task catalog follows the real EProg schedule; course material stays out of the repo (2026-10-31)
+The starter set first followed the textbook order. After reviewing the actual exercise sheets and three past
+exams (as reference only), tasks are now placed at the sheet week where the course covers the topic, and the
+catalog was extended to the exam level: prose algorithms, 2D/jagged arrays with validation, backtracking,
+parsing, linked lists, object graphs (DFS/BFS), inheritance, a recursive-descent parser, Maps, written-exam
+style tracing, and an "Exam practice" lesson with three staged tasks. All task texts and code are original;
+the user decided that no ETH material is published in this public repository. The EBNF task sits in week 4
+(not 2) because turning a grammar into code needs loops and String methods.

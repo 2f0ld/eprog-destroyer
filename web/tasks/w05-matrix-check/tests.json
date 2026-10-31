@@ -1,0 +1,27 @@
+[
+  {
+    "type": "expr",
+    "name": "square-ok",
+    "expr": "Matrix.isSquare(new int[][] {{5}}) + \" \" + Matrix.isSquare(new int[][] {{1, 2}, {3, 4}})",
+    "expected": "true true"
+  },
+  {
+    "type": "expr",
+    "name": "square-bad",
+    "expr": "Matrix.isSquare(null) + \" \" + Matrix.isSquare(new int[0][]) + \" \" + Matrix.isSquare(new int[][] {{1, 2}}) + \" \" + Matrix.isSquare(new int[][] {{1, 2}, {3}}) + \" \" + Matrix.isSquare(new int[][] {{1, 2}, null})",
+    "expected": "false false false false false"
+  },
+  {
+    "type": "expr",
+    "name": "values",
+    "expr": "Matrix.isSymmetric(new int[][] {{1, 7}, {7, 2}}) + \" \" + Matrix.isSymmetric(new int[][] {{1, 7}, {8, 2}}) + \" \" + Matrix.trace(new int[][] {{1, 7, 0}, {7, 2, 0}, {0, 0, 9}})",
+    "expected": "true false 12"
+  },
+  {
+    "type": "code",
+    "name": "throws",
+    "code": "String r = \"\"; try { Matrix.trace(new int[][] {{1, 2}}); r += \"no-exception \"; } catch (IllegalArgumentException e) { r += \"IAE \"; } try { Matrix.isSymmetric(null); r += \"no-exception\"; } catch (IllegalArgumentException e) { r += \"IAE\"; } return r;",
+    "expected": "IAE IAE",
+    "message": "Throw new IllegalArgumentException(...) when the input is not square."
+  }
+]

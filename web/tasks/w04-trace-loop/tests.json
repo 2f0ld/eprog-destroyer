@@ -1,0 +1,24 @@
+[
+  {
+    "type": "expr",
+    "name": "total",
+    "expr": "Main.predictTotal()",
+    "expected": "6",
+    "hidden": true,
+    "message": "Trace again: write down i and total for every iteration."
+  },
+  {
+    "type": "expr",
+    "name": "iterations",
+    "expr": "Main.predictIterations()",
+    "expected": "4",
+    "hidden": true,
+    "message": "Count the rows of your trace table."
+  },
+  {
+    "type": "source",
+    "name": "no-loop",
+    "forbid": "\\b(for|while)\\b",
+    "message": "Predict the values by reasoning — return the numbers directly."
+  }
+]

@@ -10,8 +10,8 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 1. **M3** (production-grade sandboxed Java execution) — now the most important gap: Run, live error
    highlighting (`/api/compile`) and task checking all go through the DEV-ONLY runner. M3 must implement
    `/api/run` and `/api/compile` (incl. `code`/`args` in diagnostics, DECISIONS D10/D15).
-2. **M5 follow-ups**: more tasks (weeks 6, 8, 10, 12–14: file input, inheritance/interfaces, ArrayList/Map,
-   exceptions, EBNF), a German version of the texts (D17), an IntelliJ-style test runner view for check details.
+2. **M5 follow-ups**: theory practice (EBNF quizzes, loop invariants, weakest preconditions), interfaces/generics,
+   more exam-practice sets, German texts (D17), an IntelliJ-style test runner view for check details.
 3. **M2 leftovers**: Ctrl+Q docs, Navigate Back/Forward, Ctrl+click underline, more quick fixes, smart completion,
    bundle size (lazy-load Monaco).
 
@@ -117,8 +117,8 @@ and get stepping-stone help instead of answers. Design: DECISIONS D14–D17, aut
 - ✅ Task model: statement (Markdown), starter files, visible + hidden tests (io / expr / code / source),
   difficulty, concepts, week/lesson, prerequisites, steps, graded hints, reference solution
 - ✅ Tasks as folders in git (`web/tasks/<id>/`), `npm run verify-tasks` checks solutions pass / starters fail
-- ✅ Starter set: 19 tasks, weeks 1–11 (println, static methods, loops, parameters/return, Math/String, Scanner,
-  if/else, cumulative sums, while/fencepost, arrays, classes, recursion)
+- ✅ Catalog: 41 original tasks placed at the real EProg sheet weeks 3–13 plus an "Exam practice" lesson
+  (3 staged exam-style tasks), incl. Trace It tasks for the written exam (DECISIONS D18)
 - ✅ Task tool window (like JetBrains Academy): description, steps checklist, graded hints, Check, result with
   Expected/Actual, Reset Content, Peek Solution diff, previous/next; Course tab with lesson progress
 - ✅ Tasks open as their own project; recent projects in the project widget; File › Learn and Teach
@@ -127,7 +127,8 @@ and get stepping-stone help instead of answers. Design: DECISIONS D14–D17, aut
 - ⬜ Progress tracking per user on the server (needs M4), sync of task workspaces
 - ⬜ Serve reference solutions and hidden test expectations from the server (they ship in the JS bundle now,
   so Peek Solution gating and hidden tests are only a nudge, not a protection)
-- ⬜ More tasks (weeks 6, 8, 10, 12–14), German texts, EBNF exercises
+- ⬜ More tasks: EBNF without code (grammar quizzes), loop invariants / weakest preconditions, interfaces and
+  generics, file input; more exam-practice sets; German texts
 - ⬜ IntelliJ-style test runner tool window for check details (green/red tree); JUnit-based tests (M3)
 - ⬜ Tutor tooling: task preview, "check all tasks" in CI (`npm run verify-tasks` needs a JDK in CI)
 - ⬜ Exam-mode: timed sessions mimicking the exam setup

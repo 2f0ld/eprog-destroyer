@@ -1,10 +1,10 @@
 ---
 title: Seconds to Hours
 week: 3
-lesson: Parameters and return values
+lesson: Calculations
 difficulty: 2
 concepts: int division, modulo, return values, String concatenation
-requires: w02-countdown
+requires: w03-hello
 ---
 Complete the method `formatDuration(int seconds)`. It **returns** a String like `"2 h 3 min 4 s"` for a duration given in seconds.
 

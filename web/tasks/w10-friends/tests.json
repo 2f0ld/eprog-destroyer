@@ -1,0 +1,22 @@
+[
+  {
+    "type": "code",
+    "name": "befriend",
+    "code": "Person a = new Person(\"anna\"), b = new Person(\"ben\"); Network.befriend(a, b); Network.befriend(b, a); Network.befriend(a, a); return a.friends.size() + \" \" + b.friends.size() + \" \" + b.friends.get(0).name;",
+    "expected": "1 1 anna"
+  },
+  {
+    "type": "code",
+    "name": "reach",
+    "code": "Person a = new Person(\"a\"), b = new Person(\"b\"), c = new Person(\"c\"), d = new Person(\"d\"), e = new Person(\"e\"); Network.befriend(a, b); Network.befriend(b, c); Network.befriend(c, d); Network.befriend(d, b); return Network.canReach(a, d) + \" \" + Network.canReach(d, a) + \" \" + Network.canReach(a, e) + \" \" + Network.canReach(e, e);",
+    "expected": "true true false true",
+    "message": "Remember who you have visited, or the search runs in circles (StackOverflowError)."
+  },
+  {
+    "type": "code",
+    "name": "distance",
+    "code": "Person a = new Person(\"a\"), b = new Person(\"b\"), c = new Person(\"c\"), d = new Person(\"d\"), e = new Person(\"e\"); Network.befriend(a, b); Network.befriend(b, c); Network.befriend(c, d); Network.befriend(a, e); Network.befriend(e, d); return Network.distance(a, a) + \" \" + Network.distance(a, b) + \" \" + Network.distance(a, d) + \" \" + Network.distance(b, d) + \" \" + Network.distance(a, new Person(\"x\"));",
+    "expected": "0 1 2 2 -1",
+    "message": "Shortest chain: anna → eve → dan has length 2 even though anna → ben → carla → dan also exists."
+  }
+]

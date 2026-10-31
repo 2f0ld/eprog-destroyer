@@ -1,0 +1,34 @@
+[
+  {
+    "type": "code",
+    "name": "areas",
+    "code": "return new Rectangle(2, 3).area() + \" \" + Math.round(new Circle(1).area() * 1000) / 1000.0 + \" \" + new Rectangle(2, 3).name() + \" \" + new Circle(2).name();",
+    "expected": "6.0 3.142 Rectangle Circle"
+  },
+  {
+    "type": "code",
+    "name": "square",
+    "code": "Shape s = new Square(4); return s.area() + \" \" + s.name() + \" \" + (s instanceof Rectangle) + \" \" + s;",
+    "expected": "16.0 Square true Square(16.00)",
+    "message": "Square must extend Rectangle and call super(side, side)."
+  },
+  {
+    "type": "code",
+    "name": "invalid",
+    "code": "String r = \"\"; try { new Circle(0); r += \"ok \"; } catch (IllegalArgumentException e) { r += \"IAE \"; } try { new Rectangle(2, -1); r += \"ok \"; } catch (IllegalArgumentException e) { r += \"IAE \"; } try { new Square(-3); r += \"ok\"; } catch (IllegalArgumentException e) { r += \"IAE\"; } return r;",
+    "expected": "IAE IAE IAE"
+  },
+  {
+    "type": "code",
+    "name": "largest",
+    "code": "java.util.List<Shape> l = java.util.List.of(new Square(2), new Circle(1.2), new Rectangle(1, 4.5), new Rectangle(9, 0.5)); String r = Shapes.largest(l).toString(); try { Shapes.largest(new java.util.ArrayList<>()); r += \" ok\"; } catch (IllegalArgumentException e) { r += \" IAE\"; } return r;",
+    "expected": "Circle(4.52) IAE"
+  },
+  {
+    "type": "source",
+    "name": "square-extends",
+    "file": "src/Square.java",
+    "require": "extends\\s+Rectangle",
+    "message": "Square should extend Rectangle."
+  }
+]

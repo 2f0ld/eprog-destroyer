@@ -1,0 +1,20 @@
+[
+  {
+    "type": "expr",
+    "name": "by-four",
+    "expr": "Main.isLeapYear(2024) + \" \" + Main.isLeapYear(2023) + \" \" + Main.isLeapYear(1996)",
+    "expected": "true false true"
+  },
+  {
+    "type": "expr",
+    "name": "centuries",
+    "expr": "Main.isLeapYear(1900) + \" \" + Main.isLeapYear(2000) + \" \" + Main.isLeapYear(2100) + \" \" + Main.isLeapYear(2400)",
+    "expected": "false true false true"
+  },
+  {
+    "type": "expr",
+    "name": "count",
+    "expr": "Main.countLeapYears(1990, 2010) + \" \" + Main.countLeapYears(2024, 2024) + \" \" + Main.countLeapYears(1899, 1901)",
+    "expected": "5 1 0"
+  }
+]

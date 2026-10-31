@@ -1,7 +1,7 @@
 ---
 title: Initials
 week: 3
-lesson: Parameters and return values
+lesson: Input and decisions
 difficulty: 2
 concepts: String methods, charAt, char
 requires: w03-duration

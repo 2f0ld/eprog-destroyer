@@ -33,9 +33,9 @@ test('every task folder parses and prerequisites exist', () => {
 })
 
 test('task.md sections become description, steps and hints', () => {
-  const t = all.find((x) => x.id === 'w02-countdown')!
+  const t = all.find((x) => x.id === 'w04-countdown')!
   assert.equal(t.title, 'Countdown')
-  assert.equal(t.week, 2)
+  assert.equal(t.week, 4)
   assert.deepEqual(t.concepts, ['for loop', 'loop variable'])
   assert.deepEqual(t.steps.map((s) => s.tests), [['uses-for'], ['numbers'], ['full']])
   assert.deepEqual(t.hints.map((h) => h.title), ['Approach', 'Structure', 'Almost there'])
@@ -43,7 +43,7 @@ test('task.md sections become description, steps and hints', () => {
 })
 
 test('harness output is evaluated against the expectations', () => {
-  const t = all.find((x) => x.id === 'w04-even-odd')!
+  const t = all.find((x) => x.id === 'w03-even-odd')!
   const harness = buildHarness(t, 'n1')
   assert.match(harness, /test\("even", 2000, true, \(\) -> runMain\("12\\n"\)\);/)
   const out = [`##EPROG-n1|even|${b64('12 is even\n')}|`, `##EPROG-n1|odd|${b64('7 is odd\n')}|`, `##EPROG-n1|negative|${b64('-3 is even\n')}|`, `##EPROG-n1|zero|${b64('')}|${b64('timeout')}`, '##EPROG-n1-DONE'].join('\n')
@@ -60,13 +60,13 @@ test('harness output is evaluated against the expectations', () => {
 })
 
 test('source tests and numeric comparison', () => {
-  const t = all.find((x) => x.id === 'w11-power')!
+  const t = all.find((x) => x.id === 'w06-power')!
   const loops = { 'src/Main.java': 'class Main { static long power(int b, int e) { long r = 1; for (int i = 0; i < e; i++) r *= b; return r; } }' }
   const out = `##EPROG-x|base-case|${b64('1')}|\n##EPROG-x|recursive|${b64('1024 3486784401 -8')}|\n##EPROG-x-DONE`
   const r = evaluate(t, loops, out, 'x')
   assert.equal(r.kind, 'failed')
   if (r.kind === 'failed') assert.deepEqual(r.results.map((x) => `${x.name}:${x.passed}`), ['base-case:true', 'recursive:true', 'no-loops:false', 'is-recursive:false'])
-  const g = all.find((x) => x.id === 'w04-swiss-grade')!
+  const g = all.find((x) => x.id === 'w03-swiss-grade')!
   const ok = evaluate(g, g.files, `##EPROG-y|exact|${b64('6.0 3.5')}|\n##EPROG-y|rounding|${b64('4.5 4.75')}|\n##EPROG-y|clamp|${b64('6.0 1.0')}|`, 'y')
   assert.equal(ok.kind, 'passed')
 })

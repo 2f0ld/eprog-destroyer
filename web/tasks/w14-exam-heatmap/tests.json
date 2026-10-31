@@ -1,0 +1,27 @@
+[
+  {
+    "type": "code",
+    "name": "validate",
+    "code": "String r = \"\"; int[][][] bad = {null, new int[0][], new int[][] {{1, 2}, {3}}, new int[][] {{}}, new int[][] {{1}, null}}; for (int[][] g : bad) { try { Heatmap.validate(g); r += \"ok \"; } catch (IllegalArgumentException e) { r += \"E \"; } } Heatmap.validate(new int[][] {{1, 2, 3}, {4, 5, 6}}); return r + \"valid\";",
+    "expected": "E E E E E valid"
+  },
+  {
+    "type": "expr",
+    "name": "neighbours-inner",
+    "expr": "Heatmap.neighbours(new int[][] {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}, 1, 1)",
+    "expected": "[1, 2, 3, 4, 6, 7, 8, 9]"
+  },
+  {
+    "type": "expr",
+    "name": "neighbours-edge",
+    "expr": "java.util.Arrays.toString(Heatmap.neighbours(new int[][] {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}, 0, 0)) + java.util.Arrays.toString(Heatmap.neighbours(new int[][] {{1, 2, 3}, {4, 5, 6}}, 1, 1)) + java.util.Arrays.toString(Heatmap.neighbours(new int[][] {{5}}, 0, 0))",
+    "expected": "[2, 4, 5][1, 2, 3, 4, 6][]"
+  },
+  {
+    "type": "code",
+    "name": "hotspots",
+    "code": "int[][] g = {{1, 2, 1, 0}, {2, 9, 2, 0}, {1, 2, 1, 7}}; String r = Heatmap.hotspots(g, 5) + \" \" + Heatmap.hotspots(g, 8) + \" \" + Heatmap.hotspots(new int[][] {{4, 4}}, 0) + \" \" + Heatmap.hotspots(new int[][] {{3}}, 3); try { Heatmap.hotspots(new int[][] {{1}, {}}, 0); r += \" ok\"; } catch (IllegalArgumentException e) { r += \" E\"; } return r;",
+    "expected": "2 1 0 1 E",
+    "message": "Equal neighbours do not count: a hotspot must be strictly greater than all of them."
+  }
+]

@@ -67,6 +67,28 @@ The hard part for beginners is often *how to approach* a problem, not the Java s
 
 Keep descriptions short, use `inline code` for anything typed, and give at least one example.
 
+### Course alignment
+
+`week` is the EProg exercise-sheet week, so tasks appear when the course reaches the topic: first programs
+and decisions (3), loops and prose algorithms (4), arrays and 2D arrays (5), recursion and text (6), classes
+(7), sorted data and parsing (8), linked lists (9), linked structures (10), inheritance and exceptions (11),
+parsing from a grammar (12), collections (13), exam practice (14). The target level is the programming exam:
+staged parts (validate input with `IllegalArgumentException` first, then compute), 2D arrays, graphs over
+`Map`/`List`, and class hierarchies with rules. **Trace It** tasks practise the written exam (predicting
+output, dispatch) and forbid running the code via a `source` test.
+
+All tasks are original. Official course material is used only as a reference for topics and level and must
+never be copied into this repository (it is public).
+
+Where beginners get stuck, and how tasks respond:
+
+- *Prose or formula → loop* (base conversion, Euclid, neighbourhoods): "Before you code" asks for a trace
+  table of one example; the first hint names the loop variables.
+- *Index arithmetic* (2D arrays, jagged arrays, offsets): steps test a helper for one cell or one row first.
+- *Edge cases* (empty input, 0, negative numbers, one element): a dedicated step with its own test.
+- *Recursion*: the planning section asks for the choice at the first element and the base cases.
+- *Exam tasks*: one step per exam part, so partial progress counts like partial points.
+
 ## tests.json
 
 ```json

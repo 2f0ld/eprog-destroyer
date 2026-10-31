@@ -1,0 +1,20 @@
+[
+  {
+    "type": "expr",
+    "name": "items",
+    "expr": "Main.total(\"coffee 2 350\\ncroissant 3 180\\n\") + \" \" + Main.total(\"\") + \" \" + Main.total(\"\\nwater 1 200\\n\\n\")",
+    "expected": "1240 0 200"
+  },
+  {
+    "type": "expr",
+    "name": "discount",
+    "expr": "Main.total(\"coffee 2 350\\ncroissant 3 180\\ndiscount 10\") + \" \" + Main.total(\"discount 50\\nbook 1 999\\ndiscount 20\")",
+    "expected": "1116 800"
+  },
+  {
+    "type": "expr",
+    "name": "format",
+    "expr": "Main.format(1116) + \"|\" + Main.format(5) + \"|\" + Main.format(200) + \"|\" + Main.format(0)",
+    "expected": "CHF 11.16|CHF 0.05|CHF 2.00|CHF 0.00"
+  }
+]

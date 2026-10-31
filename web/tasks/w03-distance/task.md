@@ -1,7 +1,7 @@
 ---
 title: Distance Between Points
 week: 3
-lesson: Parameters and return values
+lesson: Calculations
 difficulty: 1
 concepts: Math.sqrt, Math.pow, double
 requires: w03-duration
