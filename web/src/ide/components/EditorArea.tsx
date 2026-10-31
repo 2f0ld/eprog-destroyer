@@ -12,6 +12,7 @@ import { runAction } from '../actions'
 import { applyProblems, gotoProblem } from '../../editor/problemDecorations'
 import { scheduleCheck } from '../liveCheck'
 import { installInplaceRename } from '../../editor/rename'
+import { installEditorActions } from '../../editor/editorActions'
 
 function EditorTabs() {
   const openTabs = useIde((s) => s.openTabs)
@@ -252,6 +253,7 @@ export function EditorArea() {
     })
 
     const disposeRename = installInplaceRename(ed)
+    installEditorActions(ed)
 
     const cursorSub = ed.onDidChangeCursorSelection((ev) => {
       const sel = ev.selection
