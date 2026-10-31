@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { ThemeId } from '../theme/uiThemes'
+import type { Problem } from '../java/diagnostics'
 import { DEFAULT_DIRS, DEFAULT_FILES, DEFAULT_IML, DEFAULT_PROJECT_NAME } from './defaultProject'
 
 export type LeftTool = 'project' | 'structure' | 'commit'
@@ -47,7 +48,8 @@ interface IdeState {
   console: ConsoleLine[]
   exitCode: number | null
   notifications: Notification[]
-  problems: { path: string; line: number; column: number; message: string; severity: 'error' | 'warning' }[]
+  /** compiler errors + inspections for all files (see ide/liveCheck.ts) */
+  problems: Problem[]
 
   // file system
   writeFile(path: string, content: string): void

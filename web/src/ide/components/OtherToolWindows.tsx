@@ -76,7 +76,7 @@ export function ProblemsView() {
     >
       <div className="ij-tree" tabIndex={0}>
         {problems.length === 0 ? (
-          <div className="ij-empty-text">No errors found by the compiler. Run the program to compile it.</div>
+          <div className="ij-empty-text">No problems found</div>
         ) : (
           byFile.map(([path, list]) => (
             <div key={path}>

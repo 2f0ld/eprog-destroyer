@@ -9,6 +9,8 @@ import { uiThemes } from '../../theme/uiThemes'
 import { analysisFor } from '../../java/semantic'
 import { runMain } from '../runner'
 import { runAction } from '../actions'
+import { applyProblems, gotoProblem } from '../../editor/problemDecorations'
+import { scheduleCheck } from '../liveCheck'
 
 function EditorTabs() {
   const openTabs = useIde((s) => s.openTabs)
@@ -117,10 +119,10 @@ function InspectionWidget({ editor }: { editor: monaco.editor.IStandaloneCodeEdi
               {warnings}
             </span>
           )}
-          <button className="ij-icon-btn small" title="Previous Highlighted Error  Shift+F2" onClick={() => editor.trigger('w', 'editor.action.marker.prev', null)}>
+          <button className="ij-icon-btn small" title="Previous Highlighted Error  Shift+F2" onClick={() => gotoProblem(editor, allProblems, -1)}>
             <Icon name="general/chevronUp" />
           </button>
-          <button className="ij-icon-btn small" title="Next Highlighted Error  F2" onClick={() => editor.trigger('w', 'editor.action.marker.next', null)}>
+          <button className="ij-icon-btn small" title="Next Highlighted Error  F2" onClick={() => gotoProblem(editor, allProblems, 1)}>
             <Icon name="general/chevronDown" />
           </button>
         </>
@@ -220,6 +222,18 @@ export function EditorArea() {
       },
     })
     ed.addAction({
+      id: 'ij.nextHighlightedError',
+      label: 'Next Highlighted Error',
+      keybindings: [monaco.KeyCode.F2],
+      run: (e) => gotoProblem(e, useIde.getState().problems, 1),
+    })
+    ed.addAction({
+      id: 'ij.previousHighlightedError',
+      label: 'Previous Highlighted Error',
+      keybindings: [monaco.KeyMod.Shift | monaco.KeyCode.F2],
+      run: (e) => gotoProblem(e, useIde.getState().problems, -1),
+    })
+    ed.addAction({
       id: 'ij.startNewLineBefore',
       label: 'Start New Line Before Current',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Enter],
@@ -238,8 +252,8 @@ export function EditorArea() {
       const model = ed.getModel()
       if (!model) return
       const path = pathForUri(model.uri)
-      monaco.editor.setModelMarkers(model, 'javac', []) // stale after edits
       window.clearTimeout(writeTimer)
+      if (model.getLanguageId() === 'java') scheduleCheck()
       writeTimer = window.setTimeout(() => useIde.getState().writeFile(path, model.getValue()), 250)
       updateRunGutter()
     })
@@ -362,24 +376,8 @@ export function EditorArea() {
     monaco.editor.setTheme(uiThemes[theme].dark ? DARK_EDITOR_THEME : LIGHT_EDITOR_THEME)
   }, [theme])
 
-  // compiler diagnostics -> markers
-  useEffect(() => {
-    const byPath = new Map<string, monaco.editor.IMarkerData[]>()
-    for (const p of problems) {
-      const list = byPath.get(p.path) ?? []
-      list.push({ severity: p.severity === 'error' ? monaco.MarkerSeverity.Error : monaco.MarkerSeverity.Warning, message: p.message, startLineNumber: p.line, startColumn: p.column, endLineNumber: p.line, endColumn: p.column + 1 })
-      byPath.set(p.path, list)
-    }
-    for (const m of monaco.editor.getModels()) {
-      const p = pathForUri(m.uri)
-      const markers = (byPath.get(p) ?? []).map((mk) => {
-        // widen the marker to the word at the column, like IntelliJ's red squiggle
-        const word = m.getWordAtPosition({ lineNumber: mk.startLineNumber, column: mk.startColumn })
-        return word ? { ...mk, startColumn: word.startColumn, endColumn: word.endColumn } : { ...mk, endColumn: m.getLineMaxColumn(mk.startLineNumber) }
-      })
-      monaco.editor.setModelMarkers(m, 'javac', markers)
-    }
-  }, [problems, activeTab])
+  // compiler errors and inspections -> decorations (see editor/problemDecorations.ts)
+  useEffect(() => applyProblems(problems), [problems, activeTab])
 
   return (
     <div className="ij-editor-island">

@@ -603,6 +603,14 @@ body.ij-resizing-h * {
   border-radius: 3px;
 }
 
+/* problems: unresolved references are red text, unused code is grey (see editor/problemDecorations.ts) */
+.monaco-editor .ij-wrong-ref {
+  color: var(--wrong-ref) !important;
+}
+.monaco-editor .ij-unused {
+  color: var(--unused-fg) !important;
+}
+
 /* completion popup ("lookup") */
 .monaco-editor .suggest-widget {
   border-radius: 8px !important;

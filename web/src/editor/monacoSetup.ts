@@ -119,8 +119,8 @@ monaco.editor.addKeybindingRules([
   { keybinding: M.CtrlCmd | K.KeyP, command: 'editor.action.triggerParameterHints' }, // Parameter Info
   { keybinding: M.CtrlCmd | K.KeyQ, command: 'editor.action.showHover' }, // Quick Documentation
   { keybinding: M.Shift | K.F6, command: 'editor.action.changeAll' }, // Rename (approx: all occurrences)
-  { keybinding: K.F2, command: 'editor.action.marker.next' }, // Next Highlighted Error
-  { keybinding: M.Shift | K.F2, command: 'editor.action.marker.prev' },
+  { keybinding: K.F2, command: null }, // Next Highlighted Error: ij.nextHighlightedError (EditorArea)
+  { keybinding: M.Shift | K.F2, command: null },
   { keybinding: M.CtrlCmd | K.Minus, command: 'editor.fold' }, // Collapse
   { keybinding: M.CtrlCmd | K.Equal, command: 'editor.unfold' }, // Expand
   { keybinding: M.CtrlCmd | K.NumpadSubtract, command: 'editor.fold' },

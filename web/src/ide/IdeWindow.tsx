@@ -10,6 +10,7 @@ import { StatusBar } from './components/StatusBar'
 import { MenuHost } from '../ui/Menu'
 import { DialogHost } from '../ui/DialogHost'
 import { installGlobalShortcuts } from './shortcuts'
+import { installLiveCheck } from './liveCheck'
 
 /** Thin drag handle between islands. */
 function Splitter({ dir, onDrag }: { dir: 'v' | 'h'; onDrag: (delta: number) => void }) {
@@ -49,6 +50,7 @@ export function IdeWindow() {
   const setSize = useIde((s) => s.setSize)
 
   useEffect(() => installGlobalShortcuts(), [])
+  useEffect(() => installLiveCheck(), [])
 
   return (
     <div className="ij-window">

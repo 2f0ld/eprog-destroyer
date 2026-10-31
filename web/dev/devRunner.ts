@@ -12,6 +12,11 @@
  *                {type:'started', id} {type:'stdout'|'stderr', data} {type:'exit', code}
  *   POST /api/run/:id/stdin    raw text body, forwarded to the process' stdin
  *   POST /api/run/:id/kill
+ *   POST /api/compile          {files}  -> {diagnostics:[...]}   (background error highlighting, no execution)
+ *
+ * Diagnostics: {file, line, column, severity, message, code?, args?}. `code`/`args` are javac's raw
+ * diagnostic key and arguments (e.g. "compiler.err.cant.resolve.location", ["kindname.variable", "y", ...]);
+ * the frontend turns them into IntelliJ's wording (src/java/diagnostics.ts) and falls back to `message`.
  */
 import type { Plugin } from 'vite'
 import { spawn, type ChildProcess } from 'node:child_process'
@@ -29,6 +34,8 @@ interface Diagnostic {
   column: number
   severity: 'error' | 'warning'
   message: string
+  code?: string
+  args?: string[]
 }
 
 function readBody(req: IncomingMessage): Promise<string> {
@@ -70,6 +77,78 @@ export function parseJavacOutput(out: string, root: string): Diagnostic[] {
   return diags
 }
 
+/** Split javac's raw diagnostic arguments on top-level commas ("a, (b, c), d" -> ["a", "(b, c)", "d"]). */
+export function splitRawArgs(text: string): string[] {
+  const out: string[] = []
+  let depth = 0
+  let cur = ''
+  for (const ch of text) {
+    if (ch === '(' || ch === '[') depth++
+    else if (ch === ')' || ch === ']') depth--
+    if (ch === ',' && depth === 0) {
+      out.push(cur.trim())
+      cur = ''
+    } else cur += ch
+  }
+  if (cur.trim() || out.length) out.push(cur.trim())
+  return out
+}
+
+/** Parse `javac -XDrawDiagnostics` output ("Main.java:3:13: compiler.err.key: arg, arg"). */
+export function parseRawJavacOutput(out: string): { line: number; column: number; code: string; args: string[] }[] {
+  const res = []
+  for (const l of out.split(/\r?\n/)) {
+    const m = /^.*?\.java:(\d+):(\d+): (compiler\.(?:err|warn)\.[\w.-]+)(?::\s?(.*))?$/.exec(l)
+    if (m) res.push({ line: Number(m[1]), column: Number(m[2]), code: m[3], args: m[4] ? splitRawArgs(m[4]) : [] })
+  }
+  return res
+}
+
+const JAVAC_FLAGS = ['-encoding', 'UTF-8', '-g', '-proc:none', '-Xlint:none']
+
+/**
+ * Compile `sources` into `outDir`. javac runs twice in parallel: once normally (human-readable messages,
+ * also shown in the console) and once with -XDrawDiagnostics (stable keys for IntelliJ-style messages).
+ * Both runs report the same diagnostics in the same order, so they are zipped by index.
+ */
+async function compile(dir: string, sources: string[], outDir: string): Promise<{ ok: boolean; text: string; diagnostics: Diagnostic[] }> {
+  const run = (extra: string[], out: string) =>
+    new Promise<{ code: number; out: string }>((resolve) => {
+      const p = spawn('javac', [...JAVAC_FLAGS, ...extra, '-d', out, ...sources], { cwd: dir })
+      let text = ''
+      p.stdout.on('data', (d) => (text += d))
+      p.stderr.on('data', (d) => (text += d))
+      p.on('error', (e) => resolve({ code: 1, out: String(e) }))
+      p.on('close', (c) => resolve({ code: c ?? 1, out: text }))
+    })
+  await mkdir(outDir, { recursive: true })
+  const rawOut = outDir + '-raw'
+  await mkdir(rawOut, { recursive: true })
+  const [human, raw] = await Promise.all([run([], outDir), run(['-XDrawDiagnostics'], rawOut)])
+  const diagnostics = parseJavacOutput(human.out, dir)
+  const keys = parseRawJavacOutput(raw.out)
+  if (keys.length === diagnostics.length) {
+    diagnostics.forEach((d, i) => {
+      if (keys[i].line === d.line) Object.assign(d, { code: keys[i].code, args: keys[i].args, column: keys[i].column })
+    })
+  }
+  return { ok: human.code === 0, text: human.out, diagnostics }
+}
+
+/** Write the submitted files below `dir` (no path traversal) and return the .java paths. */
+async function writeSources(dir: string, files: Record<string, string>) {
+  const sources: string[] = []
+  for (const [rel, content] of Object.entries(files)) {
+    if (!rel.endsWith('.java')) continue
+    const target = path.resolve(dir, rel)
+    if (!target.startsWith(dir + path.sep)) continue
+    await mkdir(path.dirname(target), { recursive: true })
+    await writeFile(target, content)
+    sources.push(target)
+  }
+  return sources
+}
+
 export function devRunner(): Plugin {
   const procs = new Map<string, ChildProcess>()
   let tmpRoot = ''
@@ -83,7 +162,7 @@ export function devRunner(): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
         const url = req.url ?? ''
-        if (!url.startsWith('/api/run')) return next()
+        if (!url.startsWith('/api/run') && !url.startsWith('/api/compile')) return next()
         try {
           const stdinMatch = /^\/api\/run\/([\w-]+)\/(stdin|kill)$/.exec(url)
           if (stdinMatch && req.method === 'POST') {
@@ -101,6 +180,18 @@ export function devRunner(): Plugin {
             res.statusCode = 204
             return res.end()
           }
+          if (url === '/api/compile' && req.method === 'POST') {
+            const { files } = JSON.parse(await readBody(req)) as { files: Record<string, string> }
+            const dir = path.join(tmpRoot, 'check-' + randomUUID())
+            try {
+              const sources = await writeSources(dir, files)
+              const result = sources.length ? await compile(dir, sources, path.join(dir, 'out')) : { diagnostics: [] }
+              res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' })
+              return res.end(JSON.stringify({ diagnostics: result.diagnostics }))
+            } finally {
+              rm(dir, { recursive: true, force: true }).catch(() => {})
+            }
+          }
           if (url !== '/api/run' || req.method !== 'POST') return next()
 
           const { files, mainClass } = JSON.parse(await readBody(req)) as { files: Record<string, string>; mainClass: string }
@@ -110,27 +201,14 @@ export function devRunner(): Plugin {
           res.writeHead(200, { 'Content-Type': 'application/x-ndjson', 'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no' })
           const send = (ev: object) => res.write(JSON.stringify(ev) + '\n')
 
-          const sources: string[] = []
-          for (const [rel, content] of Object.entries(files)) {
-            if (!rel.endsWith('.java')) continue
-            const target = path.resolve(dir, rel)
-            if (!target.startsWith(dir + path.sep)) continue // no path traversal
-            await mkdir(path.dirname(target), { recursive: true })
-            await writeFile(target, content)
-            sources.push(target)
-          }
+          const sources = await writeSources(dir, files)
           const cleanup = () => rm(dir, { recursive: true, force: true }).catch(() => {})
 
           send({ type: 'compiling' })
           const outDir = path.join(dir, 'out')
-          await mkdir(outDir, { recursive: true })
-          const javac = spawn('javac', ['-encoding', 'UTF-8', '-g', '-d', outDir, ...sources], { cwd: dir })
-          let compileOut = ''
-          javac.stdout.on('data', (d) => (compileOut += d))
-          javac.stderr.on('data', (d) => (compileOut += d))
-          const javacCode: number = await new Promise((r) => javac.on('close', (c) => r(c ?? 1)))
-          if (javacCode !== 0) {
-            send({ type: 'compile-error', text: compileOut, diagnostics: parseJavacOutput(compileOut, dir) })
+          const result = await compile(dir, sources, outDir)
+          if (!result.ok) {
+            send({ type: 'compile-error', text: result.text, diagnostics: result.diagnostics })
             res.end()
             return cleanup()
           }
