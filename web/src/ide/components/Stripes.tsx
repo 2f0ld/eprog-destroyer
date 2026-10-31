@@ -24,7 +24,7 @@ export function LeftStripe() {
   const toggleLeft = useIde((s) => s.toggleLeft)
   const toggleBottom = useIde((s) => s.toggleBottom)
   const runState = useIde((s) => s.runState)
-  const problems = useIde((s) => s.problems.length)
+  const problems = useIde((s) => s.problems.filter((p) => p.severity === 'error').length)
 
   const left = (id: LeftTool, title: string, icon: string, shortcut: string): StripeButton => ({ id, title, icon, shortcut, active: leftTool === id, onClick: () => toggleLeft(id) })
   const bottom = (id: BottomTool, title: string, icon: string, shortcut: string): StripeButton => ({ id, title, icon, shortcut, active: bottomTool === id, onClick: () => toggleBottom(id) })
@@ -60,6 +60,7 @@ export function RightStripe() {
   return (
     <div className="ij-stripe ij-stripe-right">
       <div className="ij-stripe-group">
+        <Btn b={right('task', 'Task', 'edu/courseToolWindow')} />
         <div className="ij-stripe-badge-wrap">
           <Btn b={right('notifications', 'Notifications', 'toolwindows/notifications')} />
           {unread > 0 && <span className="ij-stripe-notif-dot" />}

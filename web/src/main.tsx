@@ -12,6 +12,7 @@ import App from './App'
 import { applyUiTheme, uiThemes } from './theme/uiThemes'
 import { useIde } from './ide/store'
 import { getActiveEditor } from './editor/editorRef'
+import { installCompletionIcons } from './editor/completionStyle'
 
 if (import.meta.env.DEV) {
   // handles for scripts/smoke.mjs and debugging in the console
@@ -21,6 +22,7 @@ if (import.meta.env.DEV) {
 
 // apply the theme before first paint to avoid a flash
 applyUiTheme(uiThemes[useIde.getState().theme])
+installCompletionIcons()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

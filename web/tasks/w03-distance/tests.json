@@ -1,0 +1,21 @@
+[
+  {
+    "type": "expr",
+    "name": "basic",
+    "expr": "Main.distance(0, 0, 3, 4)",
+    "expected": "5.0"
+  },
+  {
+    "type": "expr",
+    "name": "more",
+    "expr": "Main.distance(5, 5, 2, 1) + \" \" + Main.distance(1, 1, 1, 1)",
+    "expected": "5.0 0.0"
+  },
+  {
+    "type": "expr",
+    "name": "hidden-decimal",
+    "expr": "Math.round(Main.distance(-1.5, 2, 2.5, -1) * 1000) / 1000.0",
+    "expected": "5.0",
+    "hidden": true
+  }
+]

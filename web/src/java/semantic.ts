@@ -1,5 +1,6 @@
 import type * as Monaco from 'monaco-editor/editor/editor.api'
 import { analyze, type Analysis, type SemKind } from './analyzer'
+import { buildSymbols, type SymbolTable } from './symbols'
 
 const TOKEN_TYPES = ['method', 'property', 'typeParameter']
 const TOKEN_MODIFIERS = ['declaration', 'static', 'readonly']
@@ -23,6 +24,18 @@ export function analysisFor(model: Monaco.editor.ITextModel): Analysis {
   const analysis = analyze(model.getValue())
   cache.set(model, { version: v, analysis })
   return analysis
+}
+
+const symCache = new WeakMap<Monaco.editor.ITextModel, { version: number; table: SymbolTable }>()
+
+/** Symbol table of a model, memoized per model version. */
+export function symbolsFor(model: Monaco.editor.ITextModel): SymbolTable {
+  const v = model.getVersionId()
+  const hit = symCache.get(model)
+  if (hit && hit.version === v) return hit.table
+  const table = buildSymbols(model.getValue())
+  symCache.set(model, { version: v, table })
+  return table
 }
 
 export function registerJavaSemanticTokens(monaco: typeof Monaco) {

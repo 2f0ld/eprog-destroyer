@@ -5,6 +5,10 @@ import { mainMenu } from '../mainMenu'
 import { runAction } from '../actions'
 import { findMainClasses, runMain } from '../runner'
 import { BranchIcon } from '../../ui/BranchIcon'
+import { PLAYGROUND } from '../store'
+import { taskById } from '../../tasks/catalog'
+import { openPlayground, openTask } from '../../tasks/taskActions'
+import { useTasks } from '../../tasks/progress'
 
 function projectInitials(name: string) {
   const parts = name.split(/[-_\s]+/).filter(Boolean)
@@ -17,6 +21,25 @@ export function MainToolbar() {
   const runState = useIde((s) => s.runState)
   const files = useIde((s) => s.files)
   const running = runState !== 'idle'
+
+  // project widget: recent projects (the sample project and opened tasks), like IntelliJ's project switcher
+  const projectMenu = (): MenuItem[] => {
+    const s = useIde.getState()
+    const ids = [s.projectId, ...Object.keys(s.workspaces)]
+    const progress = useTasks.getState().progress
+    const items = ids.map<MenuItem>((id) => {
+      const task = id.startsWith('task:') ? taskById.get(id.slice(5)) : null
+      const name = id === s.projectId ? s.projectName : (s.workspaces[id]?.projectName ?? id)
+      return {
+        type: 'item',
+        text: task ? `${name} — ${task.title}` : name,
+        icon: task ? (progress[task.id]?.status === 'solved' ? 'edu/eduTaskDone' : 'edu/eduTaskDefault') : 'nodes/ideaProject',
+        checked: id === s.projectId,
+        run: () => (id === PLAYGROUND ? openPlayground() : task ? openTask(task.id) : undefined),
+      }
+    })
+    return [{ type: 'action', id: 'BrowsePracticeTasks' }, { type: 'separator' }, ...items]
+  }
 
   const runConfigMenu = (): MenuItem[] => {
     const mains = findMainClasses(files)
@@ -44,7 +67,7 @@ export function MainToolbar() {
         <button className="ij-tb-icon" title="Main Menu" onClick={(e) => openMenuBelow(e.currentTarget, mainMenu(), 200)}>
           <Icon name="general/menu" size={20} />
         </button>
-        <button className="ij-tb-widget ij-project-widget" title={`~/IdeaProjects/${projectName}`}>
+        <button className="ij-tb-widget ij-project-widget" title={`~/IdeaProjects/${projectName}`} onClick={(e) => openMenuBelow(e.currentTarget, projectMenu(), 260)}>
           <span className="ij-project-avatar">{projectInitials(projectName)}</span>
           <span className="ij-project-name">{projectName}</span>
           <Icon name="general/chevronDown" />

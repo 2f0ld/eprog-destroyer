@@ -1,0 +1,21 @@
+[
+  {
+    "type": "expr",
+    "name": "max-basic",
+    "expr": "Main.max(new int[] {3, 9, -2, 7})",
+    "expected": "9"
+  },
+  {
+    "type": "expr",
+    "name": "max-negative",
+    "expr": "Main.max(new int[] {-8, -3, -12})",
+    "expected": "-3",
+    "message": "If all numbers are negative, starting with 0 gives a wrong answer."
+  },
+  {
+    "type": "expr",
+    "name": "average",
+    "expr": "Main.average(new int[] {3, 9, -2, 7}) + \" \" + Main.average(new int[] {}) + \" \" + Main.average(new int[] {5})",
+    "expected": "4.25 0.0 5.0"
+  }
+]

@@ -10,7 +10,8 @@
     "lint": "oxlint",
     "test": "node --test 'tests/*.test.ts'",
     "smoke": "node scripts/smoke.mjs",
-    "inspect": "node scripts/inspect.mjs"
+    "inspect": "node scripts/inspect.mjs",
+    "verify-tasks": "node scripts/verify-tasks.mjs"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",

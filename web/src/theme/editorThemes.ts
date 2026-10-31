@@ -84,11 +84,11 @@ export function defineEditorThemes(monaco: typeof Monaco) {
       'editorWidget.border': '#33353B',
       'editorSuggestWidget.background': '#26282C', // LOOKUP (completion popup)
       'editorSuggestWidget.border': '#33353B',
-      'editorSuggestWidget.foreground': '#D1D3D9',
+      'editorSuggestWidget.foreground': '#BCBEC4', // CompletionPopup.foreground
       'editorSuggestWidget.selectedBackground': '#2E436E',
-      'editorSuggestWidget.selectedForeground': '#D1D3D9',
-      'editorSuggestWidget.highlightForeground': '#548AF7',
-      'editorSuggestWidget.focusHighlightForeground': '#548AF7',
+      'editorSuggestWidget.selectedForeground': '#BCBEC4',
+      'editorSuggestWidget.highlightForeground': '#538AF9', // CompletionPopup.matchForeground
+      'editorSuggestWidget.focusHighlightForeground': '#538AF9',
       'editorHoverWidget.background': '#26282C',
       'editorHoverWidget.border': '#33353B',
       'editorStickyScroll.background': '#191A1C',
@@ -168,11 +168,11 @@ export function defineEditorThemes(monaco: typeof Monaco) {
       'editorWidget.border': '#D1D3D9',
       'editorSuggestWidget.background': '#FFFFFF',
       'editorSuggestWidget.border': '#D1D3D9',
-      'editorSuggestWidget.foreground': '#000000',
+      'editorSuggestWidget.foreground': '#080808', // CompletionPopup.foreground
       'editorSuggestWidget.selectedBackground': '#D0DFFE',
-      'editorSuggestWidget.selectedForeground': '#000000',
-      'editorSuggestWidget.highlightForeground': '#2A5FD6',
-      'editorSuggestWidget.focusHighlightForeground': '#2A5FD6',
+      'editorSuggestWidget.selectedForeground': '#080808',
+      'editorSuggestWidget.highlightForeground': '#2F5EB9', // CompletionPopup.matchForeground
+      'editorSuggestWidget.focusHighlightForeground': '#2F5EB9',
       'editorHoverWidget.background': '#FFFFFF',
       'editorHoverWidget.border': '#D1D3D9',
       'editorStickyScroll.background': '#FFFFFF',

@@ -8,6 +8,8 @@ export type Dialog =
   | { kind: 'rename'; path: string }
   | { kind: 'settings' }
   | { kind: 'about' }
+  | { kind: 'peek-solution'; taskId: string }
+  | { kind: 'choose-members'; title: string; items: { label: string; icon: string }[]; onOk: (selected: number[]) => void }
   | { kind: 'recent-files' }
   | { kind: 'search'; tab: 'all' | 'classes' | 'files' | 'symbols' | 'actions' }
 

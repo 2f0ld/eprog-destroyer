@@ -1,0 +1,20 @@
+[
+  {
+    "type": "expr",
+    "name": "count",
+    "expr": "Main.countWords(\"  to be  or not \") + \" \" + Main.countWords(\"\") + \" \" + Main.countWords(\"one\\ntwo\\tthree\")",
+    "expected": "4 0 3"
+  },
+  {
+    "type": "expr",
+    "name": "longest",
+    "expr": "\"[\" + Main.longestWord(\"the quick brown fox\") + \"][\" + Main.longestWord(\"\") + \"][\" + Main.longestWord(\"ab cd\") + \"]\"",
+    "expected": "[quick][][ab]"
+  },
+  {
+    "type": "expr",
+    "name": "capitalize",
+    "expr": "\"[\" + Main.capitalize(\"hello  eth zurich\") + \"][\" + Main.capitalize(\"\") + \"][\" + Main.capitalize(\"a\") + \"]\"",
+    "expected": "[Hello Eth Zurich][][A]"
+  }
+]

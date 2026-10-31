@@ -1,0 +1,30 @@
+[
+  {
+    "type": "expr",
+    "name": "small",
+    "expr": "Main.isPrime(1) + \" \" + Main.isPrime(0) + \" \" + Main.isPrime(-7)",
+    "expected": "false false false"
+  },
+  {
+    "type": "expr",
+    "name": "basic",
+    "expr": "Main.isPrime(2) + \" \" + Main.isPrime(3) + \" \" + Main.isPrime(4) + \" \" + Main.isPrime(9) + \" \" + Main.isPrime(13)",
+    "expected": "true true false false true"
+  },
+  {
+    "type": "expr",
+    "name": "larger",
+    "expr": "Main.isPrime(7919) + \" \" + Main.isPrime(7921)",
+    "expected": "true false",
+    "message": "7921 = 89 · 89"
+  },
+  {
+    "type": "expr",
+    "name": "hidden-big",
+    "expr": "Main.isPrime(2147483647)",
+    "expected": "true",
+    "hidden": true,
+    "timeoutMs": 4000,
+    "message": "Your loop is too slow for very large numbers: only try divisors d with d * d <= n."
+  }
+]

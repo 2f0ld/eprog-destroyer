@@ -53,6 +53,8 @@ export const islandsDark: UiTheme = {
     '--run-running-bg': '#338555', // RunWidget.runningBackground
     '--stop-bg': '#C54E58', // RunWidget.stopBackground
     '--editor-fg': '#BCBEC4',
+    '--wrong-ref': '#F75464', // scheme WRONG_REFERENCES_ATTRIBUTES
+    '--unused-fg': '#6F737A', // scheme NOT_USED_ELEMENT_ATTRIBUTES
     '--console-fg': '#BCBEC4',
     '--console-error': '#F75464',
     '--console-system': '#BCBEC4',
@@ -102,6 +104,8 @@ export const islandsLight: UiTheme = {
     '--run-running-bg': '#338555',
     '--stop-bg': '#C54E58',
     '--editor-fg': '#080808',
+    '--wrong-ref': '#F50000', // scheme WRONG_REFERENCES_ATTRIBUTES (expUI_lightScheme.xml)
+    '--unused-fg': '#808080', // scheme NOT_USED_ELEMENT_ATTRIBUTES (Default)
     '--console-fg': '#080808',
     '--console-error': '#E55230',
     '--console-system': '#080808',

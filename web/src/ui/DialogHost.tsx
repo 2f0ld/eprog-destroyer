@@ -6,6 +6,8 @@ import { ACTIONS, actionText, runAction } from '../ide/actions'
 import { analyze } from '../java/analyzer'
 import { revealPosition } from '../ide/navigation'
 import { getActiveEditor } from '../editor/editorRef'
+import { renameJavaFile } from '../editor/rename'
+import { PeekSolutionDialog } from '../tasks/PeekSolution'
 
 function useEscape(onEsc: () => void) {
   useEffect(() => {
@@ -163,7 +165,9 @@ function NewClassDialog({ dir }: { dir: string }) {
 
 function SettingsDialog() {
   const theme = useIde((s) => s.theme)
-  const [page, setPage] = useState<'appearance' | 'keymap' | 'about'>('appearance')
+  const [page, setPage] = useState<'appearance' | 'keymap' | 'about' | 'font' | 'editor'>('appearance')
+  const es = useIde((s) => s.editorSettings)
+  const setEs = useIde((s) => s.setEditorSettings)
   useEscape(close)
   return (
     <div className="ij-overlay dim" onMouseDown={close}>
@@ -177,6 +181,13 @@ function SettingsDialog() {
             </div>
             <div className={`ij-list-row${page === 'keymap' ? ' selected' : ''}`} onClick={() => setPage('keymap')}>
               Keymap
+            </div>
+            <div className="ij-settings-group">Editor</div>
+            <div className={`ij-list-row indent${page === 'editor' ? ' selected' : ''}`} onClick={() => setPage('editor')}>
+              General
+            </div>
+            <div className={`ij-list-row indent${page === 'font' ? ' selected' : ''}`} onClick={() => setPage('font')}>
+              Font
             </div>
             <div className={`ij-list-row${page === 'about' ? ' selected' : ''}`} onClick={() => setPage('about')}>
               Advanced Settings
@@ -192,6 +203,34 @@ function SettingsDialog() {
                     <option value="islands-dark">Islands Dark</option>
                     <option value="islands-light">Islands Light</option>
                   </select>
+                </label>
+              </>
+            )}
+            {page === 'font' && (
+              <>
+                <div className="ij-settings-crumb">Editor › Font</div>
+                <label className="ij-form-row">
+                  <span>Font:</span>
+                  <select className="ij-select" disabled>
+                    <option>JetBrains Mono</option>
+                  </select>
+                </label>
+                <label className="ij-form-row">
+                  <span>Size:</span>
+                  <input className="ij-input small" type="number" min={8} max={32} value={es.fontSize} onChange={(e) => setEs({ fontSize: Math.max(8, Math.min(32, Number(e.target.value) || 13)) })} />
+                </label>
+              </>
+            )}
+            {page === 'editor' && (
+              <>
+                <div className="ij-settings-crumb">Editor › General</div>
+                <label className="ij-form-row check">
+                  <input type="checkbox" checked={es.softWraps} onChange={(e) => setEs({ softWraps: e.target.checked })} />
+                  <span>Soft-wrap files</span>
+                </label>
+                <label className="ij-form-row check">
+                  <input type="checkbox" checked={es.showWhitespaces} onChange={(e) => setEs({ showWhitespaces: e.target.checked })} />
+                  <span>Show whitespaces</span>
                 </label>
               </>
             )}
@@ -229,6 +268,62 @@ function SettingsDialog() {
             Cancel
           </button>
           <button className="ij-button default" onClick={close}>
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/** IntelliJ's member chooser ("Choose Fields to Initialize by Constructor", "Select Fields to Generate Getters"). */
+function ChooseMembersDialog({ title, items, onOk }: { title: string; items: { label: string; icon: string }[]; onOk: (selected: number[]) => void }) {
+  const [checked, setChecked] = useState(() => items.map(() => true))
+  const [focus, setFocus] = useState(0)
+  const ok = () => {
+    closeDialog()
+    onOk(checked.flatMap((c, i) => (c ? [i] : [])))
+    getActiveEditor()?.focus()
+  }
+  useEscape(close)
+  const listRef = useRef<HTMLDivElement>(null)
+  useEffect(() => listRef.current?.focus(), [])
+  return (
+    <div className="ij-overlay dim" onMouseDown={close}>
+      <div className="ij-dialog ij-members" onMouseDown={(e) => e.stopPropagation()}>
+        <div className="ij-dialog-title">{title}</div>
+        <div
+          className="ij-members-list"
+          tabIndex={0}
+          ref={listRef}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowDown') setFocus((f) => Math.min(items.length - 1, f + 1))
+            else if (e.key === 'ArrowUp') setFocus((f) => Math.max(0, f - 1))
+            else if (e.key === ' ') setChecked((c) => c.map((v, i) => (i === focus ? !v : v)))
+            else if (e.key === 'Enter') ok()
+            else if (e.key === 'a' && (e.ctrlKey || e.metaKey)) setChecked(items.map(() => true))
+            else return
+            e.preventDefault()
+          }}
+        >
+          {items.length === 0 && <div className="ij-empty-text">No members to choose from</div>}
+          {items.map((it, i) => (
+            <div key={i} className={`ij-list-row${i === focus ? ' selected' : ''}`} onMouseDown={() => setFocus(i)} onDoubleClick={() => setChecked((c) => c.map((v, k) => (k === i ? !v : v)))}>
+              <input type="checkbox" checked={checked[i]} onChange={() => setChecked((c) => c.map((v, k) => (k === i ? !v : v)))} />
+              <Icon name={it.icon} />
+              <span>{it.label}</span>
+            </div>
+          ))}
+        </div>
+        <div className="ij-dialog-footer">
+          <button className="ij-button" onClick={() => { setChecked(items.map(() => false)); }}>
+            Select None
+          </button>
+          <span style={{ flex: 1 }} />
+          <button className="ij-button" onClick={close}>
+            Cancel
+          </button>
+          <button className="ij-button default" onClick={ok}>
             OK
           </button>
         </div>
@@ -500,14 +595,9 @@ export function DialogHost() {
           onSubmit={(n) => {
             const p = `${parentOf(old) ? parentOf(old) + '/' : ''}${n}`
             if (p === old) return
-            const s = useIde.getState()
-            // renaming a Java file renames the top-level class too, like IntelliJ's refactoring
-            if (isJava && n.endsWith('.java') && files[old] !== undefined) {
-              const oldName = fileName(old).slice(0, -5)
-              const newName = n.slice(0, -5)
-              s.writeFile(old, files[old].replace(new RegExp(`\\b(class|interface|enum|record)\\s+${oldName}\\b`), `$1 ${newName}`))
-            }
-            s.renamePath(old, p)
+            // renaming a Java file renames the top-level class and its references, like IntelliJ's refactoring
+            if (isJava) renameJavaFile(old, n)
+            else useIde.getState().renamePath(old, p)
           }}
         />
       )
@@ -516,6 +606,10 @@ export function DialogHost() {
       return <SettingsDialog />
     case 'about':
       return <AboutDialog />
+    case 'peek-solution':
+      return <PeekSolutionDialog taskId={dialog.taskId} />
+    case 'choose-members':
+      return <ChooseMembersDialog title={dialog.title} items={dialog.items} onOk={dialog.onOk} />
     case 'recent-files':
       return <RecentFiles />
     case 'search':

@@ -8,3 +8,7 @@ Copyright 2000-2025 JetBrains s.r.o. and contributors.
 Licensed under the Apache License, Version 2.0 — https://www.apache.org/licenses/LICENSE-2.0
 
 `*_dark.svg` files are the dark-theme variants. `*@20x20*` are the large tool-window stripe variants.
+
+The icons in `edu/` are taken unmodified from the JetBrains Educational plugin (JetBrains Academy / EduTools,
+`intellij-plugin/educational-core/resources/icons/com/jetbrains/edu/expui`):
+https://github.com/JetBrains/educational-plugin — Copyright JetBrains s.r.o., Apache License 2.0.

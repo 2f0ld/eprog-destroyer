@@ -16,6 +16,8 @@ interface OpenMenu {
   /** element that opened the menu; clicks on it toggle instead of reopening */
   anchor?: HTMLElement | null
   minWidth?: number
+  /** popup title, e.g. "Generate" */
+  title?: string
 }
 
 export const useMenu = create<{ menu: OpenMenu | null }>(() => ({ menu: null }))
@@ -57,7 +59,7 @@ function resolve(item: MenuItem): Resolved {
   }
 }
 
-function MenuPanel({ items, x, y, minWidth, onClose, depth, parentRect }: { items: MenuItem[]; x: number; y: number; minWidth?: number; onClose: () => void; depth: number; parentRect?: DOMRect }) {
+function MenuPanel({ items, x, y, minWidth, onClose, depth, parentRect, title }: { items: MenuItem[]; x: number; y: number; minWidth?: number; onClose: () => void; depth: number; parentRect?: DOMRect; title?: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const [pos, setPos] = useState({ x, y })
   const [active, setActive] = useState(-1)
@@ -108,6 +110,7 @@ function MenuPanel({ items, x, y, minWidth, onClose, depth, parentRect }: { item
   return (
     <>
       <div ref={ref} className="ij-menu" style={{ left: pos.x, top: pos.y, minWidth }} onMouseDown={(e) => e.stopPropagation()} onContextMenu={(e) => e.preventDefault()}>
+        {title && <div className="ij-menu-title">{title}</div>}
         {resolved.map((r, i) =>
           r.kind === 'separator' ? (
             <div key={i} className="ij-menu-sep" />
@@ -164,5 +167,5 @@ export function MenuHost() {
     }
   }, [menu])
   if (!menu) return null
-  return <MenuPanel key={`${menu.x},${menu.y}`} items={menu.items} x={menu.x} y={menu.y} minWidth={menu.minWidth} onClose={closeMenu} depth={0} />
+  return <MenuPanel key={`${menu.x},${menu.y}`} items={menu.items} x={menu.x} y={menu.y} minWidth={menu.minWidth} onClose={closeMenu} depth={0} title={menu.title} />
 }

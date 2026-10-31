@@ -1,0 +1,19 @@
+[
+  {
+    "type": "source",
+    "name": "uses-for",
+    "require": "\\bfor\\s*\\(",
+    "message": "Use a for loop."
+  },
+  {
+    "type": "io",
+    "name": "numbers",
+    "expected": "10\n9\n8\n7\n6\n5\n4\n3\n2\n1",
+    "match": "contains"
+  },
+  {
+    "type": "io",
+    "name": "full",
+    "expected": "10\n9\n8\n7\n6\n5\n4\n3\n2\n1\nLiftoff!\n"
+  }
+]

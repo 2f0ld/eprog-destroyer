@@ -9,6 +9,10 @@ import { uiThemes } from '../../theme/uiThemes'
 import { analysisFor } from '../../java/semantic'
 import { runMain } from '../runner'
 import { runAction } from '../actions'
+import { applyProblems, gotoProblem } from '../../editor/problemDecorations'
+import { scheduleCheck } from '../liveCheck'
+import { installInplaceRename } from '../../editor/rename'
+import { installEditorActions } from '../../editor/editorActions'
 
 function EditorTabs() {
   const openTabs = useIde((s) => s.openTabs)
@@ -117,10 +121,10 @@ function InspectionWidget({ editor }: { editor: monaco.editor.IStandaloneCodeEdi
               {warnings}
             </span>
           )}
-          <button className="ij-icon-btn small" title="Previous Highlighted Error  Shift+F2" onClick={() => editor.trigger('w', 'editor.action.marker.prev', null)}>
+          <button className="ij-icon-btn small" title="Previous Highlighted Error  Shift+F2" onClick={() => gotoProblem(editor, allProblems, -1)}>
             <Icon name="general/chevronUp" />
           </button>
-          <button className="ij-icon-btn small" title="Next Highlighted Error  F2" onClick={() => editor.trigger('w', 'editor.action.marker.next', null)}>
+          <button className="ij-icon-btn small" title="Next Highlighted Error  F2" onClick={() => gotoProblem(editor, allProblems, 1)}>
             <Icon name="general/chevronDown" />
           </button>
         </>
@@ -133,6 +137,7 @@ export function EditorArea() {
   const hostRef = useRef<HTMLDivElement>(null)
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   const activeTab = useIde((s) => s.activeTab)
+  const projectId = useIde((s) => s.projectId)
   const theme = useIde((s) => s.theme)
   const problems = useIde((s) => s.problems)
   const viewStates = useRef(new Map<string, monaco.editor.ICodeEditorViewState | null>())
@@ -176,7 +181,8 @@ export function EditorArea() {
       suggestOnTriggerCharacters: true,
       acceptSuggestionOnEnter: 'on',
       wordBasedSuggestions: 'off',
-      suggest: { showWords: false, preview: false, insertMode: 'replace', showStatusBar: false, filterGraceful: true, localityBonus: true },
+      // IntelliJ: Enter inserts, Tab replaces the rest of the identifier; the status bar hosts the lookup's advertiser line
+      suggest: { showWords: false, preview: false, insertMode: 'insert', showStatusBar: true, filterGraceful: true, localityBonus: true, showInlineDetails: true },
       parameterHints: { enabled: true },
       autoClosingBrackets: 'always',
       autoClosingQuotes: 'always',
@@ -219,12 +225,36 @@ export function EditorArea() {
         e.trigger('ij', 'type', { text: '\n' })
       },
     })
+    // lookup: Ctrl+. chooses the selected item and inserts a dot (advertised in the popup's footer)
+    ed.addCommand(
+      monaco.KeyMod.CtrlCmd | monaco.KeyCode.Period,
+      () => {
+        ed.trigger('ij', 'acceptSelectedSuggestion', null)
+        ed.trigger('ij', 'type', { text: '.' })
+      },
+      'suggestWidgetVisible',
+    )
+    ed.addAction({
+      id: 'ij.nextHighlightedError',
+      label: 'Next Highlighted Error',
+      keybindings: [monaco.KeyCode.F2],
+      run: (e) => gotoProblem(e, useIde.getState().problems, 1),
+    })
+    ed.addAction({
+      id: 'ij.previousHighlightedError',
+      label: 'Previous Highlighted Error',
+      keybindings: [monaco.KeyMod.Shift | monaco.KeyCode.F2],
+      run: (e) => gotoProblem(e, useIde.getState().problems, -1),
+    })
     ed.addAction({
       id: 'ij.startNewLineBefore',
       label: 'Start New Line Before Current',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Enter],
       run: (e) => e.trigger('ij', 'editor.action.insertLineBefore', null),
     })
+
+    const disposeRename = installInplaceRename(ed)
+    installEditorActions(ed)
 
     const cursorSub = ed.onDidChangeCursorSelection((ev) => {
       const sel = ev.selection
@@ -238,9 +268,13 @@ export function EditorArea() {
       const model = ed.getModel()
       if (!model) return
       const path = pathForUri(model.uri)
-      monaco.editor.setModelMarkers(model, 'javac', []) // stale after edits
       window.clearTimeout(writeTimer)
-      writeTimer = window.setTimeout(() => useIde.getState().writeFile(path, model.getValue()), 250)
+      if (model.getLanguageId() === 'java') scheduleCheck()
+      const project = useIde.getState().projectId
+      writeTimer = window.setTimeout(() => {
+        // the project may have been switched (and the model disposed) in the meantime
+        if (!model.isDisposed() && useIde.getState().projectId === project) useIde.getState().writeFile(path, model.getValue())
+      }, 250)
       updateRunGutter()
     })
 
@@ -293,6 +327,8 @@ export function EditorArea() {
       const model = ed.getModel()
       const items: MenuItem[] = [
         { type: 'action', id: 'ShowIntentionActions' },
+        { type: 'action', id: 'Generate' },
+        { type: 'submenu', text: 'Refactor', items: [{ type: 'action', id: 'RenameElement' }] },
         { type: 'submenu', text: 'Go To', items: [{ type: 'action', id: 'GotoDeclaration' }, { type: 'action', id: 'GotoLine' }] },
         { type: 'separator' },
         { type: 'action', id: 'Cut' },
@@ -310,6 +346,7 @@ export function EditorArea() {
     })
 
     return () => {
+      disposeRename()
       cursorSub.dispose()
       contentSub.dispose()
       modelSub.dispose()
@@ -324,7 +361,7 @@ export function EditorArea() {
   useEffect(() => {
     if (!editor) return
     const prev = editor.getModel()
-    if (prev) viewStates.current.set(pathForUri(prev.uri), editor.saveViewState())
+    if (prev && !prev.isDisposed()) viewStates.current.set(pathForUri(prev.uri), editor.saveViewState())
     if (!activeTab) {
       editor.setModel(null)
       return
@@ -337,13 +374,19 @@ export function EditorArea() {
       if (vs) editor.restoreViewState(vs)
       editor.focus()
     }
-  }, [editor, activeTab])
+  }, [editor, activeTab, projectId])
 
   // keep models in sync with the store: dispose deleted files, apply external changes (e.g. project reset).
   // Editor typing reaches the store via the debounced writeFile above, so the values match then.
   useEffect(
     () =>
       useIde.subscribe((s, prev) => {
+        if (s.projectId !== prev.projectId) {
+          // another project: same paths may hold different files, so start with fresh models (and undo stacks)
+          for (const m of monaco.editor.getModels()) if (m.uri.scheme === 'file') m.dispose()
+          viewStates.current.clear()
+          return
+        }
         if (s.files === prev.files) return
         for (const m of monaco.editor.getModels()) {
           if (m.uri.scheme !== 'file') continue
@@ -357,28 +400,22 @@ export function EditorArea() {
     [],
   )
 
+  // Settings > Editor
+  const editorSettings = useIde((s) => s.editorSettings)
+  useEffect(() => {
+    if (!editor || !editorSettings) return
+    const { fontSize, softWraps, showWhitespaces } = editorSettings
+    editor.updateOptions({ fontSize, lineHeight: Math.round(fontSize * 1.54), wordWrap: softWraps ? 'on' : 'off', renderWhitespace: showWhitespaces ? 'all' : 'none' })
+  }, [editor, editorSettings])
+
   // theme
   useEffect(() => {
     monaco.editor.setTheme(uiThemes[theme].dark ? DARK_EDITOR_THEME : LIGHT_EDITOR_THEME)
   }, [theme])
 
-  // compiler diagnostics -> markers
+  // compiler errors and inspections -> decorations (see editor/problemDecorations.ts)
   useEffect(() => {
-    const byPath = new Map<string, monaco.editor.IMarkerData[]>()
-    for (const p of problems) {
-      const list = byPath.get(p.path) ?? []
-      list.push({ severity: p.severity === 'error' ? monaco.MarkerSeverity.Error : monaco.MarkerSeverity.Warning, message: p.message, startLineNumber: p.line, startColumn: p.column, endLineNumber: p.line, endColumn: p.column + 1 })
-      byPath.set(p.path, list)
-    }
-    for (const m of monaco.editor.getModels()) {
-      const p = pathForUri(m.uri)
-      const markers = (byPath.get(p) ?? []).map((mk) => {
-        // widen the marker to the word at the column, like IntelliJ's red squiggle
-        const word = m.getWordAtPosition({ lineNumber: mk.startLineNumber, column: mk.startColumn })
-        return word ? { ...mk, startColumn: word.startColumn, endColumn: word.endColumn } : { ...mk, endColumn: m.getLineMaxColumn(mk.startLineNumber) }
-      })
-      monaco.editor.setModelMarkers(m, 'javac', markers)
-    }
+    applyProblems(problems)
   }, [problems, activeTab])
 
   return (

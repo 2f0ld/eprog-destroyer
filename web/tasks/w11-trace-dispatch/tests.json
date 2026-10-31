@@ -1,0 +1,24 @@
+[
+  {
+    "type": "expr",
+    "name": "overriding",
+    "expr": "Main.answer(1) + \"|\" + Main.answer(2) + \"|\" + Main.answer(5)",
+    "expected": "Animal says Woof|Puppy! Animal says Woof|Animal says ...",
+    "hidden": true,
+    "message": "Overridden methods are chosen by the class of the object at run time."
+  },
+  {
+    "type": "expr",
+    "name": "overloading",
+    "expr": "Main.answer(3) + \"|\" + Main.answer(4)",
+    "expected": "hello dog|hello animal",
+    "hidden": true,
+    "message": "Overloaded methods are chosen by the declared type at compile time."
+  },
+  {
+    "type": "source",
+    "name": "no-classes",
+    "forbid": "\\bextends\\b|\\bclass\\s+(Animal|Dog|Puppy)\\b",
+    "message": "Predict the answers by reasoning — do not copy the classes into your project."
+  }
+]

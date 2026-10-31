@@ -1,0 +1,26 @@
+[
+  {
+    "type": "expr",
+    "name": "small",
+    "expr": "Main.toBinary(1) + \" \" + Main.toBinary(5) + \" \" + Main.toBinary(14)",
+    "expected": "1 101 1110"
+  },
+  {
+    "type": "expr",
+    "name": "edge",
+    "expr": "Main.toBinary(0) + \" \" + Main.toBinary(1024) + \" \" + Main.toBinary(255)",
+    "expected": "0 10000000000 11111111"
+  },
+  {
+    "type": "expr",
+    "name": "from",
+    "expr": "Main.fromBinary(\"1110\") + \" \" + Main.fromBinary(\"0\") + \" \" + Main.fromBinary(\"11111111\") + \" \" + Main.fromBinary(Main.toBinary(2025))",
+    "expected": "14 0 255 2025"
+  },
+  {
+    "type": "source",
+    "name": "no-library",
+    "forbid": "Integer\\s*\\.\\s*(toBinaryString|parseInt|toString)",
+    "message": "Implement the conversion yourself instead of using Integer.toBinaryString / Integer.parseInt."
+  }
+]

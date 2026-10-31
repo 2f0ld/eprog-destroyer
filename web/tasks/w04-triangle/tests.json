@@ -1,0 +1,19 @@
+[
+  {
+    "type": "source",
+    "name": "nested",
+    "require": "for\\s*\\([^)]*\\)\\s*\\{[^}]*for\\s*\\(",
+    "message": "Use a loop inside a loop."
+  },
+  {
+    "type": "io",
+    "name": "triangle",
+    "expected": "*\n**\n***\n****\n*****\n"
+  },
+  {
+    "type": "source",
+    "name": "uses-size",
+    "require": "<=?\\s*SIZE|SIZE\\s*>=?",
+    "message": "Use the constant SIZE in your loop condition instead of writing 5."
+  }
+]

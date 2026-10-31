@@ -1,0 +1,21 @@
+[
+  {
+    "type": "code",
+    "name": "basics",
+    "code": "Polynomial p = new Polynomial(1, -2, 3); Polynomial z = new Polynomial(0, 0); return p.degree() + \" \" + p.evaluate(2) + \" \" + p.evaluate(0) + \" \" + z.degree() + \" \" + new Polynomial(5).evaluate(100);",
+    "expected": "2 9 1 0 5"
+  },
+  {
+    "type": "code",
+    "name": "plus",
+    "code": "int[] arr = {1, -2, 3}; Polynomial p = new Polynomial(arr); arr[0] = 99; Polynomial q = new Polynomial(0, 2); Polynomial s = p.plus(q); return s.evaluate(1) + \" \" + p.evaluate(1) + \" \" + q.evaluate(1) + \" \" + s.degree();",
+    "expected": "4 2 2 2",
+    "message": "Store a copy of the array, and let plus create a new Polynomial."
+  },
+  {
+    "type": "code",
+    "name": "to-string",
+    "code": "return new Polynomial(1, -2, 3) + \" | \" + new Polynomial(0, 2).plus(new Polynomial(1, -2, 3)) + \" | \" + new Polynomial(0, 0) + \" | \" + new Polynomial(-4) + \" | \" + new Polynomial(0, 1);",
+    "expected": "3x^2 + -2x + 1 | 3x^2 + 1 | 0 | -4 | 1x"
+  }
+]

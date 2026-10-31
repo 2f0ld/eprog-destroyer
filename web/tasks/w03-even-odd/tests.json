@@ -1,0 +1,28 @@
+[
+  {
+    "type": "io",
+    "name": "even",
+    "stdin": "12\n",
+    "expected": "12 is even\n"
+  },
+  {
+    "type": "io",
+    "name": "odd",
+    "stdin": "7\n",
+    "expected": "7 is odd\n"
+  },
+  {
+    "type": "io",
+    "name": "negative",
+    "stdin": "-3\n",
+    "expected": "-3 is odd\n",
+    "message": "Remember: -3 % 2 is -1 in Java."
+  },
+  {
+    "type": "io",
+    "name": "zero",
+    "stdin": "0\n",
+    "expected": "0 is even\n",
+    "hidden": true
+  }
+]

@@ -1,0 +1,33 @@
+[
+  {
+    "type": "code",
+    "name": "vehicles",
+    "code": "Vehicle c = new Car(\"ZH 1\"), m = new Motorbike(\"ZH 2\"), t = new Truck(\"BE 3\"); return c.units() + \" \" + m.units() + \" \" + t.units() + \" | \" + c.fee(2) + \" \" + c.fee(10) + \" \" + m.fee(1) + \" \" + m.fee(3) + \" \" + t.fee(2) + \" | \" + c.getPlate();",
+    "expected": "2 1 5 | 600 2500 0 300 1600 | ZH 1"
+  },
+  {
+    "type": "code",
+    "name": "park",
+    "code": "Garage g = new Garage(6); boolean a = g.park(new Car(\"ZH 1\")); boolean b = g.park(new Truck(\"BE 2\")); boolean c = g.park(new Car(\"ZH 1\")); boolean d = g.park(new Motorbike(\"AG 3\")); return a + \" \" + b + \" \" + c + \" \" + d + \" \" + g.freeUnits();",
+    "expected": "true false false true 3"
+  },
+  {
+    "type": "code",
+    "name": "leave",
+    "code": "Garage g = new Garage(6); g.park(new Car(\"ZH 1\")); g.park(new Motorbike(\"AG 3\")); int f1 = g.leave(\"ZH 1\", 10); int free = g.freeUnits(); boolean t = g.park(new Truck(\"BE 2\")); int f2 = g.leave(\"AG 3\", 2); return f1 + \" \" + free + \" \" + t + \" \" + f2 + \" \" + g.revenue() + \" \" + g.freeUnits();",
+    "expected": "2500 5 true 150 2650 1"
+  },
+  {
+    "type": "code",
+    "name": "unknown",
+    "code": "Garage g = new Garage(4); g.park(new Car(\"ZH 1\")); g.leave(\"ZH 1\", 1); try { g.leave(\"ZH 1\", 1); return \"no exception\"; } catch (IllegalArgumentException e) { return \"E \" + g.revenue(); }",
+    "expected": "E 300"
+  },
+  {
+    "type": "source",
+    "name": "no-instanceof",
+    "file": "src/Garage.java",
+    "forbid": "\\binstanceof\\b",
+    "message": "Let each vehicle class decide its units and fee (polymorphism) instead of checking instanceof in Garage."
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "type": "expr",
+    "name": "single",
+    "expr": "Main.digitSum(5)",
+    "expected": "5"
+  },
+  {
+    "type": "expr",
+    "name": "multi",
+    "expr": "Main.digitSum(1729) + \" \" + Main.digitSum(1000) + \" \" + Main.digitSum(99999)",
+    "expected": "19 1 45"
+  },
+  {
+    "type": "expr",
+    "name": "zero",
+    "expr": "Main.digitSum(0)",
+    "expected": "0"
+  },
+  {
+    "type": "source",
+    "name": "uses-loop",
+    "require": "\\bwhile\\s*\\(",
+    "message": "Use a while loop."
+  }
+]

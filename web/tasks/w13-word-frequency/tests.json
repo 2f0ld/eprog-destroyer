@@ -1,0 +1,20 @@
+[
+  {
+    "type": "expr",
+    "name": "counts",
+    "expr": "new java.util.TreeMap<>(Main.counts(\"To be, or not to be!\")) + \" \" + Main.counts(\"\").size() + \" \" + new java.util.TreeMap<>(Main.counts(\"...Hi hi HI\"))",
+    "expected": "{be=2, not=1, or=1, to=2} 0 {hi=3}"
+  },
+  {
+    "type": "expr",
+    "name": "most",
+    "expr": "Main.mostFrequent(\"To be, or not to be!\") + \" \" + Main.mostFrequent(\"b a b\") + \" \" + Main.mostFrequent(\"1 2 3\")",
+    "expected": "be b null"
+  },
+  {
+    "type": "expr",
+    "name": "top",
+    "expr": "Main.top(\"To be, or not to be!\", 3) + \" \" + Main.top(\"x\", 5) + \" \" + Main.top(\"c b a c b c\", 2)",
+    "expected": "[be, to, not] [x] [c, b]"
+  }
+]

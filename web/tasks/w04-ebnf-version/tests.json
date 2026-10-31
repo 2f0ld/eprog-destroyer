@@ -1,0 +1,20 @@
+[
+  {
+    "type": "expr",
+    "name": "single",
+    "expr": "Main.isVersion(\"v2\") + \" \" + Main.isVersion(\"v10\") + \" \" + Main.isVersion(\"v007\")",
+    "expected": "true true true"
+  },
+  {
+    "type": "expr",
+    "name": "bad-numbers",
+    "expr": "Main.isVersion(\"v\") + \" \" + Main.isVersion(\"V1\") + \" \" + Main.isVersion(\"v1a\") + \" \" + Main.isVersion(\"\") + \" \" + Main.isVersion(\"1\")",
+    "expected": "false false false false false"
+  },
+  {
+    "type": "expr",
+    "name": "dots",
+    "expr": "Main.isVersion(\"v1.0\") + \" \" + Main.isVersion(\"v1.0.12\") + \" \" + Main.isVersion(\"v1.\") + \" \" + Main.isVersion(\"v1..2\") + \" \" + Main.isVersion(\"v1.2.3.4\") + \" \" + Main.isVersion(\"v.1\")",
+    "expected": "true true false false false false"
+  }
+]

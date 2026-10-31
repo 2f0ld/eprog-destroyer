@@ -1,0 +1,14 @@
+[
+  {
+    "type": "expr",
+    "name": "capitalized",
+    "expr": "Main.initials(\"Ada\", \"Lovelace\")",
+    "expected": "A. L."
+  },
+  {
+    "type": "expr",
+    "name": "lowercase",
+    "expr": "Main.initials(\"alan\", \"turing\") + \"|\" + Main.initials(\"x\", \"Y\")",
+    "expected": "A. T.|X. Y."
+  }
+]

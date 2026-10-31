@@ -1,5 +1,7 @@
 import { useIde } from './store'
 import { analyze } from '../java/analyzer'
+import { problemsFromRun } from './liveCheck'
+import type { JavacDiagnostic } from '../java/diagnostics'
 
 /**
  * Client side of the run protocol (see web/dev/devRunner.ts for the server).
@@ -39,7 +41,6 @@ export async function runMain(mainClass: string) {
   if (current) await stopRun()
   ide.clearConsole()
   ide.setRunConfig(mainClass)
-  ide.setProblems([])
   if (useIde.getState().bottomTool !== 'run') useIde.setState({ bottomTool: 'run' })
   ide.setRunState('compiling')
 
@@ -87,7 +88,7 @@ interface RunEvent {
   code?: number
   text?: string
   message?: string
-  diagnostics?: { file: string; line: number; column: number; severity: 'error' | 'warning'; message: string }[]
+  diagnostics?: JavacDiagnostic[]
 }
 
 function handleEvent(ev: RunEvent, project: string, mainClass: string) {
@@ -111,7 +112,7 @@ function handleEvent(ev: RunEvent, project: string, mainClass: string) {
       break
     case 'compile-error': {
       const diags = ev.diagnostics ?? []
-      ide.setProblems(diags.map((d) => ({ path: d.file, line: d.line, column: d.column, message: d.message, severity: d.severity })))
+      problemsFromRun(diags)
       // IntelliJ shows these in the Build tool window; we print them javac-style in the console
       ide.appendConsole({ type: 'stderr', text: diags.length ? '' : (ev.text ?? '') })
       for (const d of diags) {

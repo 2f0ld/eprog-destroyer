@@ -1,0 +1,25 @@
+[
+  {
+    "type": "source",
+    "name": "has-method",
+    "require": "static\\s+void\\s+drawBox\\s*\\(\\s*\\)",
+    "message": "Declare a method: public static void drawBox()"
+  },
+  {
+    "type": "io",
+    "name": "one-box",
+    "expected": "+------+\n|      |\n+------+",
+    "match": "contains"
+  },
+  {
+    "type": "io",
+    "name": "two-boxes",
+    "expected": "+------+\n|      |\n+------+\n\n+------+\n|      |\n+------+\n"
+  },
+  {
+    "type": "source",
+    "name": "calls-twice",
+    "require": "drawBox\\s*\\(\\s*\\)\\s*;[\\s\\S]*drawBox\\s*\\(\\s*\\)\\s*;",
+    "message": "Call drawBox() twice instead of copying the println lines."
+  }
+]
