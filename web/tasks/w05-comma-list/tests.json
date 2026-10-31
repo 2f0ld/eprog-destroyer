@@ -1,0 +1,21 @@
+[
+  {
+    "type": "expr",
+    "name": "one",
+    "expr": "Main.countTo(1)",
+    "expected": "1"
+  },
+  {
+    "type": "expr",
+    "name": "many",
+    "expr": "\"[\" + Main.countTo(4) + \"]\"",
+    "expected": "[1, 2, 3, 4]",
+    "message": "No comma after the last number, and a space after each comma."
+  },
+  {
+    "type": "expr",
+    "name": "zero",
+    "expr": "\"[\" + Main.countTo(0) + \"]\"",
+    "expected": "[]"
+  }
+]

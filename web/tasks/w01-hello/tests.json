@@ -1,0 +1,14 @@
+[
+  {
+    "type": "io",
+    "name": "first-line",
+    "expected": "Hello, ETH!",
+    "match": "contains",
+    "message": "The first line should be exactly: Hello, ETH!"
+  },
+  {
+    "type": "io",
+    "name": "both-lines",
+    "expected": "Hello, ETH!\nWelcome to EProg.\n"
+  }
+]

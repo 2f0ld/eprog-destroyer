@@ -1,0 +1,34 @@
+[
+  {
+    "type": "code",
+    "name": "balance",
+    "code": "BankAccount a = new BankAccount(100); return a.getBalance();",
+    "expected": "100"
+  },
+  {
+    "type": "code",
+    "name": "deposit",
+    "code": "BankAccount a = new BankAccount(10); a.deposit(25); a.deposit(-5); return a.getBalance();",
+    "expected": "35",
+    "message": "deposit should ignore amounts <= 0."
+  },
+  {
+    "type": "code",
+    "name": "withdraw",
+    "code": "BankAccount a = new BankAccount(100); boolean ok = a.withdraw(30); boolean tooMuch = a.withdraw(500); return ok + \" \" + tooMuch + \" \" + a.getBalance();",
+    "expected": "true false 70"
+  },
+  {
+    "type": "code",
+    "name": "to-string",
+    "code": "BankAccount a = new BankAccount(70); return a.toString();",
+    "expected": "BankAccount[balance=70]"
+  },
+  {
+    "type": "source",
+    "name": "private-field",
+    "require": "private\\s+\\w+\\s+\\w+\\s*[;=]",
+    "message": "Keep the balance in a private field (encapsulation).",
+    "file": "src/BankAccount.java"
+  }
+]

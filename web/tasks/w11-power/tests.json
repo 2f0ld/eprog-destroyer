@@ -1,0 +1,26 @@
+[
+  {
+    "type": "expr",
+    "name": "base-case",
+    "expr": "Main.power(7, 0)",
+    "expected": "1"
+  },
+  {
+    "type": "expr",
+    "name": "recursive",
+    "expr": "Main.power(2, 10) + \" \" + Main.power(3, 20) + \" \" + Main.power(-2, 3)",
+    "expected": "1024 3486784401 -8"
+  },
+  {
+    "type": "source",
+    "name": "no-loops",
+    "forbid": "\\b(for|while)\\b",
+    "message": "Solve it without for/while loops — call power from inside power."
+  },
+  {
+    "type": "source",
+    "name": "is-recursive",
+    "require": "power\\s*\\([^;]*\\)[\\s\\S]*power\\s*\\(",
+    "message": "power should call itself."
+  }
+]

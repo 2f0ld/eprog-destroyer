@@ -1,0 +1,20 @@
+[
+  {
+    "type": "expr",
+    "name": "base",
+    "expr": "Main.isPalindrome(\"\") + \" \" + Main.isPalindrome(\"x\")",
+    "expected": "true true"
+  },
+  {
+    "type": "expr",
+    "name": "words",
+    "expr": "Main.isPalindrome(\"racecar\") + \" \" + Main.isPalindrome(\"abba\") + \" \" + Main.isPalindrome(\"abca\") + \" \" + Main.isPalindrome(\"ab\")",
+    "expected": "true true false false"
+  },
+  {
+    "type": "source",
+    "name": "no-loops",
+    "forbid": "\\b(for|while)\\b",
+    "message": "Solve it without loops."
+  }
+]

@@ -1,0 +1,28 @@
+[
+  {
+    "type": "expr",
+    "name": "hours",
+    "expr": "Main.formatDuration(7200)",
+    "expected": "2 h 0 min 0 s"
+  },
+  {
+    "type": "expr",
+    "name": "example",
+    "expr": "Main.formatDuration(7384)",
+    "expected": "2 h 3 min 4 s"
+  },
+  {
+    "type": "expr",
+    "name": "all",
+    "expr": "Main.formatDuration(59) + \"|\" + Main.formatDuration(3600) + \"|\" + Main.formatDuration(0)",
+    "expected": "0 h 0 min 59 s|1 h 0 min 0 s|0 h 0 min 0 s"
+  },
+  {
+    "type": "expr",
+    "name": "hidden-large",
+    "expr": "Main.formatDuration(90061)",
+    "expected": "25 h 1 min 1 s",
+    "hidden": true,
+    "message": "Check a duration longer than a day."
+  }
+]
