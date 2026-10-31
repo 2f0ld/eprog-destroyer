@@ -1,27 +1,15 @@
-// Smoke test / screenshot tool. Drives the system Firefox via WebDriver BiDi.
+// Smoke test / screenshot tool. Drives the system Firefox (or Chrome if there is no Firefox).
 //   node scripts/smoke.mjs [url]        (dev server must be running)
 // Screenshots land in web/.e2e-shots/. The browser profile lives in web/.e2e-profile/.
-import puppeteer from 'puppeteer-core'
 import { mkdirSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { launch, root } from './browser.mjs'
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const url = process.argv[2] ?? 'http://localhost:5173/'
 const shots = path.join(root, '.e2e-shots')
-const profile = path.join(root, '.e2e-profile')
 mkdirSync(shots, { recursive: true })
-mkdirSync(profile, { recursive: true })
 
-const browser = await puppeteer.launch({
-  browser: 'firefox',
-  // the real binary, not Fedora's /usr/bin/firefox wrapper (which writes to ~/.config/mozilla)
-  executablePath: process.env.FIREFOX ?? '/usr/lib64/firefox/firefox',
-  env: { ...process.env, MOZ_CRASHREPORTER_DISABLE: '1', HOME: profile },
-  headless: true,
-  userDataDir: profile,
-  defaultViewport: { width: 1600, height: 960 },
-})
+const browser = await launch()
 const page = await browser.newPage()
 const errors = []
 let step = 'load'
