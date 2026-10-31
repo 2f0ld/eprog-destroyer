@@ -7,6 +7,7 @@ import { analyze } from '../java/analyzer'
 import { revealPosition } from '../ide/navigation'
 import { getActiveEditor } from '../editor/editorRef'
 import { renameJavaFile } from '../editor/rename'
+import { PeekSolutionDialog } from '../tasks/PeekSolution'
 
 function useEscape(onEsc: () => void) {
   useEffect(() => {
@@ -605,6 +606,8 @@ export function DialogHost() {
       return <SettingsDialog />
     case 'about':
       return <AboutDialog />
+    case 'peek-solution':
+      return <PeekSolutionDialog taskId={dialog.taskId} />
     case 'choose-members':
       return <ChooseMembersDialog title={dialog.title} items={dialog.items} onOk={dialog.onOk} />
     case 'recent-files':

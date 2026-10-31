@@ -14,6 +14,8 @@ export function mainMenu(): MenuItem[] {
       text: 'File',
       items: [
         { type: 'submenu', text: 'New', items: [a('NewClass'), a('NewFile'), a('NewDir')] },
+        { type: 'submenu', text: 'Learn and Teach', items: [a('BrowsePracticeTasks'), a('Educational.Check'), a('Educational.RefreshTask')] },
+        a('OpenPlayground'),
         disabled('Open...'),
         disabled('Recent Projects'),
         disabled('Close Project'),

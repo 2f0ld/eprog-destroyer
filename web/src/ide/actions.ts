@@ -2,6 +2,8 @@ import { useIde, fileName } from './store'
 import { findMainClasses, mainClassForFile, runMain, stopRun } from './runner'
 import { getActiveEditor } from '../editor/editorRef'
 import { openDialog } from '../ui/dialogs'
+import { checkCurrentTask, currentTask, openPlayground, resetTask } from '../tasks/taskActions'
+import { PLAYGROUND } from './store'
 
 /**
  * Central action registry, like IntelliJ's ActionManager. Menus, keyboard
@@ -127,9 +129,20 @@ export const ACTIONS: Record<string, Action> = {
     },
   },
   CloseAllEditors: { id: 'CloseAllEditors', text: 'Close All Tabs', run: () => useIde.getState().closeAllTabs() },
+  // ---- Practice tasks (JetBrains Academy-style) ----
+  'Educational.Check': { id: 'Educational.Check', text: 'Check', icon: 'edu/resultCorrect', enabled: () => currentTask() !== null, run: () => void checkCurrentTask() },
+  'Educational.RefreshTask': { id: 'Educational.RefreshTask', text: 'Reset Content', icon: 'edu/resetTask', enabled: () => currentTask() !== null, run: resetTask },
+  BrowsePracticeTasks: {
+    id: 'BrowsePracticeTasks',
+    text: 'Browse Practice Tasks...',
+    icon: 'edu/eduCourse',
+    run: () => useIde.setState({ rightTool: 'task' }),
+  },
+  OpenPlayground: { id: 'OpenPlayground', text: 'Open Sample Project', enabled: () => useIde.getState().projectId !== PLAYGROUND, run: openPlayground },
   ResetProject: {
     id: 'ResetProject',
     text: 'Reset Sample Project...',
+    enabled: () => useIde.getState().projectId === PLAYGROUND,
     run: () => {
       if (confirm('Reset the project to the sample files? Your changes will be lost.')) useIde.getState().resetProject()
     },

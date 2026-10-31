@@ -11,6 +11,8 @@ import { MenuHost } from '../ui/Menu'
 import { DialogHost } from '../ui/DialogHost'
 import { installGlobalShortcuts } from './shortcuts'
 import { installLiveCheck } from './liveCheck'
+import { Balloon } from './components/Balloon'
+import { TaskToolWindow } from '../tasks/TaskToolWindow'
 
 /** Thin drag handle between islands. */
 function Splitter({ dir, onDrag }: { dir: 'v' | 'h'; onDrag: (delta: number) => void }) {
@@ -74,7 +76,7 @@ export function IdeWindow() {
               <>
                 <Splitter dir="v" onDrag={(d) => setSize('rightWidth', clamp(useIde.getState().rightWidth - d, 200, window.innerWidth * 0.5))} />
                 <div className="ij-island" style={{ width: rightWidth }}>
-                  <NotificationsView />
+                  {rightTool === 'notifications' ? <NotificationsView /> : <TaskToolWindow />}
                 </div>
               </>
             )}
@@ -93,6 +95,7 @@ export function IdeWindow() {
         <RightStripe />
       </div>
       <StatusBar />
+      <Balloon />
       <MenuHost />
       <DialogHost />
     </div>

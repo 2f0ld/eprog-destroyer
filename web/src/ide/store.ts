@@ -6,7 +6,7 @@ import { DEFAULT_DIRS, DEFAULT_FILES, DEFAULT_IML, DEFAULT_PROJECT_NAME } from '
 
 export type LeftTool = 'project' | 'structure' | 'commit'
 export type BottomTool = 'run' | 'terminal' | 'problems'
-export type RightTool = 'notifications'
+export type RightTool = 'notifications' | 'task'
 
 export interface ConsoleLine {
   text: string
@@ -19,11 +19,32 @@ export interface Notification {
   id: number
   title: string
   body: string
-  kind: 'info' | 'warning' | 'error'
+  kind: 'info' | 'warning' | 'error' | 'success'
   time: number
+  /** links shown under the text, like IntelliJ's notification actions */
+  actions?: { text: string; run: () => void }[]
 }
 
+/** Everything that belongs to one open project; swapped by openProject(). */
+export interface Workspace {
+  projectName: string
+  files: Record<string, string>
+  dirs: string[]
+  openTabs: string[]
+  activeTab: string | null
+  recent: string[]
+  expanded: string[]
+  selectedNode: string | null
+  runConfig: string | null
+}
+
+export const PLAYGROUND = 'playground'
+
 interface IdeState {
+  /** 'playground' (the sample project) or 'task:<id>' */
+  projectId: string
+  /** saved state of the projects that are not open */
+  workspaces: Record<string, Workspace>
   projectName: string
   files: Record<string, string>
   dirs: string[]
@@ -50,6 +71,8 @@ interface IdeState {
   console: ConsoleLine[]
   exitCode: number | null
   notifications: Notification[]
+  /** notification currently shown as a balloon */
+  balloon: Notification | null
   /** compiler errors + inspections for all files (see ide/liveCheck.ts) */
   problems: Problem[]
 
@@ -85,6 +108,8 @@ interface IdeState {
   notify(n: Omit<Notification, 'id' | 'time'>): void
   dismissNotification(id: number): void
   resetProject(): void
+  /** switch projects: the current one is saved to `workspaces`, the target restored or created by `init` */
+  openProject(id: string, init: () => Workspace): void
 }
 
 const initialFiles = (name: string): Record<string, string> => ({
@@ -96,6 +121,19 @@ const initialFiles = (name: string): Record<string, string> => ({
   '.idea/modules.xml': `<?xml version="1.0" encoding="UTF-8"?>\n<project version="4">\n  <component name="ProjectModuleManager">\n    <modules>\n      <module fileurl="file://$PROJECT_DIR$/${name}.iml" filepath="$PROJECT_DIR$/${name}.iml" />\n    </modules>\n  </component>\n</project>\n`,
 })
 
+/** A fresh copy of the sample project. */
+export const playgroundWorkspace = (): Workspace => ({
+  projectName: DEFAULT_PROJECT_NAME,
+  files: initialFiles(DEFAULT_PROJECT_NAME),
+  dirs: DEFAULT_DIRS,
+  openTabs: ['src/Main.java'],
+  activeTab: 'src/Main.java',
+  recent: ['src/Main.java'],
+  expanded: ['', 'src'],
+  selectedNode: 'src/Main.java',
+  runConfig: 'Main',
+})
+
 const parentOf = (p: string) => (p.includes('/') ? p.slice(0, p.lastIndexOf('/')) : '')
 
 let notificationId = 1
@@ -103,6 +141,8 @@ let notificationId = 1
 export const useIde = create<IdeState>()(
   persist(
     (set, get) => ({
+      projectId: PLAYGROUND,
+      workspaces: {},
       projectName: DEFAULT_PROJECT_NAME,
       files: initialFiles(DEFAULT_PROJECT_NAME),
       dirs: DEFAULT_DIRS,
@@ -127,6 +167,7 @@ export const useIde = create<IdeState>()(
       console: [],
       exitCode: null,
       notifications: [],
+      balloon: null,
       problems: [],
 
       writeFile: (path, content) => set((s) => (s.files[path] === content ? s : { files: { ...s.files, [path]: content } })),
@@ -216,8 +257,21 @@ export const useIde = create<IdeState>()(
         }),
       setExitCode: (exitCode) => set({ exitCode }),
       setProblems: (problems) => set({ problems }),
-      notify: (n) => set((s) => ({ notifications: [{ ...n, id: notificationId++, time: Date.now() }, ...s.notifications].slice(0, 50) })),
+      notify: (n) =>
+        set((s) => {
+          const full = { ...n, id: notificationId++, time: Date.now() }
+          return { notifications: [full, ...s.notifications].slice(0, 50), balloon: full }
+        }),
       dismissNotification: (id) => set((s) => ({ notifications: s.notifications.filter((n) => n.id !== id) })),
+      openProject: (id, init) => {
+        const s = get()
+        if (id === s.projectId) return
+        const save: Workspace = { projectName: s.projectName, files: s.files, dirs: s.dirs, openTabs: s.openTabs, activeTab: s.activeTab, recent: s.recent, expanded: s.expanded, selectedNode: s.selectedNode, runConfig: s.runConfig }
+        const target = s.workspaces[id] ?? init()
+        const workspaces = { ...s.workspaces, [s.projectId]: save }
+        delete workspaces[id]
+        set({ ...target, projectId: id, workspaces, console: [], exitCode: null, problems: [], runState: 'idle' })
+      },
       resetProject: () => {
         const name = get().projectName
         set({ files: initialFiles(name), dirs: DEFAULT_DIRS, openTabs: ['src/Main.java'], activeTab: 'src/Main.java', recent: ['src/Main.java'], expanded: ['', 'src'] })
@@ -227,6 +281,8 @@ export const useIde = create<IdeState>()(
       name: 'eprog-ide',
       version: 1,
       partialize: (s) => ({
+        projectId: s.projectId,
+        workspaces: s.workspaces,
         projectName: s.projectName,
         files: s.files,
         dirs: s.dirs,

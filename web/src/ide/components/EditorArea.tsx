@@ -137,6 +137,7 @@ export function EditorArea() {
   const hostRef = useRef<HTMLDivElement>(null)
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   const activeTab = useIde((s) => s.activeTab)
+  const projectId = useIde((s) => s.projectId)
   const theme = useIde((s) => s.theme)
   const problems = useIde((s) => s.problems)
   const viewStates = useRef(new Map<string, monaco.editor.ICodeEditorViewState | null>())
@@ -269,7 +270,11 @@ export function EditorArea() {
       const path = pathForUri(model.uri)
       window.clearTimeout(writeTimer)
       if (model.getLanguageId() === 'java') scheduleCheck()
-      writeTimer = window.setTimeout(() => useIde.getState().writeFile(path, model.getValue()), 250)
+      const project = useIde.getState().projectId
+      writeTimer = window.setTimeout(() => {
+        // the project may have been switched (and the model disposed) in the meantime
+        if (!model.isDisposed() && useIde.getState().projectId === project) useIde.getState().writeFile(path, model.getValue())
+      }, 250)
       updateRunGutter()
     })
 
@@ -356,7 +361,7 @@ export function EditorArea() {
   useEffect(() => {
     if (!editor) return
     const prev = editor.getModel()
-    if (prev) viewStates.current.set(pathForUri(prev.uri), editor.saveViewState())
+    if (prev && !prev.isDisposed()) viewStates.current.set(pathForUri(prev.uri), editor.saveViewState())
     if (!activeTab) {
       editor.setModel(null)
       return
@@ -369,13 +374,19 @@ export function EditorArea() {
       if (vs) editor.restoreViewState(vs)
       editor.focus()
     }
-  }, [editor, activeTab])
+  }, [editor, activeTab, projectId])
 
   // keep models in sync with the store: dispose deleted files, apply external changes (e.g. project reset).
   // Editor typing reaches the store via the debounced writeFile above, so the values match then.
   useEffect(
     () =>
       useIde.subscribe((s, prev) => {
+        if (s.projectId !== prev.projectId) {
+          // another project: same paths may hold different files, so start with fresh models (and undo stacks)
+          for (const m of monaco.editor.getModels()) if (m.uri.scheme === 'file') m.dispose()
+          viewStates.current.clear()
+          return
+        }
         if (s.files === prev.files) return
         for (const m of monaco.editor.getModels()) {
           if (m.uri.scheme !== 'file') continue
@@ -403,7 +414,9 @@ export function EditorArea() {
   }, [theme])
 
   // compiler errors and inspections -> decorations (see editor/problemDecorations.ts)
-  useEffect(() => applyProblems(problems), [problems, activeTab])
+  useEffect(() => {
+    applyProblems(problems)
+  }, [problems, activeTab])
 
   return (
     <div className="ij-editor-island">

@@ -60,6 +60,7 @@ export function RightStripe() {
   return (
     <div className="ij-stripe ij-stripe-right">
       <div className="ij-stripe-group">
+        <Btn b={right('task', 'Task', 'edu/courseToolWindow')} />
         <div className="ij-stripe-badge-wrap">
           <Btn b={right('notifications', 'Notifications', 'toolwindows/notifications')} />
           {unread > 0 && <span className="ij-stripe-notif-dot" />}
