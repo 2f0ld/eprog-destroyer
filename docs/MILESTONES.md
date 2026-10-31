@@ -125,6 +125,8 @@ and get stepping-stone help instead of answers. Design: DECISIONS D14–D17, aut
 - ✅ "Check" runs the tests through the run protocol (dev runner for now); progress per task (status, attempts,
   hints, peeks) in localStorage; success + lesson-completed balloons
 - ⬜ Progress tracking per user on the server (needs M4), sync of task workspaces
+- ⬜ Serve reference solutions and hidden test expectations from the server (they ship in the JS bundle now,
+  so Peek Solution gating and hidden tests are only a nudge, not a protection)
 - ⬜ More tasks (weeks 6, 8, 10, 12–14), German texts, EBNF exercises
 - ⬜ IntelliJ-style test runner tool window for check details (green/red tree); JUnit-based tests (M3)
 - ⬜ Tutor tooling: task preview, "check all tasks" in CI (`npm run verify-tasks` needs a JDK in CI)
