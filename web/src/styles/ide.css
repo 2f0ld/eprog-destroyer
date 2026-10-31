@@ -620,9 +620,39 @@ body.ij-resizing-h * {
 .monaco-editor .suggest-widget .monaco-list .monaco-list-row {
   font-family: 'JetBrains Mono', monospace;
 }
-.monaco-editor .suggest-widget .monaco-list .monaco-list-row .label-description {
-  font-family: 'Inter', sans-serif;
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row .label-description,
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row .details-label {
+  font-family: 'JetBrains Mono', monospace;
   opacity: 0.6;
+}
+/* matched prefix: bold in CompletionPopup.matchForeground */
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row .monaco-highlighted-label .highlight {
+  font-weight: bold;
+}
+/* keywords are bold and have no icon */
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row:has(.codicon-symbol-keyword) .label-name {
+  font-weight: bold;
+}
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row .suggest-icon {
+  margin-right: 6px;
+}
+/* the lookup's advertiser line (CompletionPopup.Advertiser), shown in Monaco's status bar slot */
+.monaco-editor .suggest-widget .suggest-status-bar {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: var(--fg-secondary);
+  background: var(--popup-bg);
+  border-top: none;
+  padding: 0 12px;
+}
+.monaco-editor .suggest-widget .suggest-status-bar .monaco-action-bar {
+  display: none;
+}
+.monaco-editor .suggest-widget .suggest-status-bar::before {
+  content: 'Press Ctrl+. to choose the selected (or first) suggestion and insert a dot afterwards';
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .monaco-editor .monaco-hover,
 .monaco-editor .parameter-hints-widget,

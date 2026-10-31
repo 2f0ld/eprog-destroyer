@@ -178,7 +178,8 @@ export function EditorArea() {
       suggestOnTriggerCharacters: true,
       acceptSuggestionOnEnter: 'on',
       wordBasedSuggestions: 'off',
-      suggest: { showWords: false, preview: false, insertMode: 'replace', showStatusBar: false, filterGraceful: true, localityBonus: true },
+      // IntelliJ: Enter inserts, Tab replaces the rest of the identifier; the status bar hosts the lookup's advertiser line
+      suggest: { showWords: false, preview: false, insertMode: 'insert', showStatusBar: true, filterGraceful: true, localityBonus: true, showInlineDetails: true },
       parameterHints: { enabled: true },
       autoClosingBrackets: 'always',
       autoClosingQuotes: 'always',
@@ -221,6 +222,15 @@ export function EditorArea() {
         e.trigger('ij', 'type', { text: '\n' })
       },
     })
+    // lookup: Ctrl+. chooses the selected item and inserts a dot (advertised in the popup's footer)
+    ed.addCommand(
+      monaco.KeyMod.CtrlCmd | monaco.KeyCode.Period,
+      () => {
+        ed.trigger('ij', 'acceptSelectedSuggestion', null)
+        ed.trigger('ij', 'type', { text: '.' })
+      },
+      'suggestWidgetVisible',
+    )
     ed.addAction({
       id: 'ij.nextHighlightedError',
       label: 'Next Highlighted Error',

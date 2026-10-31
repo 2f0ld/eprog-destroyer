@@ -1,7 +1,8 @@
 import type * as Monaco from 'monaco-editor/editor/editor.api'
 import { JAVA_KEYWORDS } from './language'
 import { JDK, importFor, parseMember } from './jdk'
-import { analysisFor } from './semantic'
+import { analysisFor, symbolsFor } from './semantic'
+import { tokenAt } from './symbols'
 import type { OutlineClass } from './analyzer'
 
 /**
@@ -144,14 +145,24 @@ export function registerJavaCompletion(monaco: typeof Monaco, project: ProjectIn
         suggestions.push({ label: kw, kind: K.Keyword, insertText: kw, range, sortText: `2${kw}` })
       }
 
-      // identifiers that appear in this file (locals, fields, methods)
+      // variables visible at the caret, then members of the enclosing classes (IntelliJ ranks locals first)
+      const table = symbolsFor(model)
+      let at = tokenAt(table.tokens, offset)
+      if (at < 0) at = table.tokens.findIndex((t) => t.offset >= offset)
+      if (at < 0) at = table.tokens.length
       const seen = new Set<string>()
+      for (const s of table.symbols) {
+        if ((s.kind === 'local' || s.kind === 'param') && s.decl < at && (s.scopeEnd ?? -1) >= at && !seen.has(s.name)) {
+          seen.add(s.name)
+          suggestions.push({ label: { label: s.name, description: s.type }, kind: s.kind === 'param' ? K.Property : K.Variable, insertText: s.name, range, sortText: `05${s.name}` })
+        }
+      }
       for (const c of analysis.classes) {
         for (const mem of c.members) {
           if (seen.has(mem.name + mem.kind)) continue
           seen.add(mem.name + mem.kind)
           if (mem.kind === 'field') {
-            suggestions.push({ label: { label: mem.name, description: mem.detail }, kind: K.Field, insertText: mem.name, range, sortText: `1${mem.name}` })
+            suggestions.push({ label: { label: mem.name, description: mem.detail }, kind: mem.isStatic && mem.isFinal ? K.Constant : K.Field, insertText: mem.name, range, sortText: `1${mem.name}` })
           } else if (mem.kind === 'method') {
             suggestions.push({
               label: { label: mem.name, detail: mem.detail.replace(/:.*$/, ''), description: mem.detail.replace(/^.*:\s*/, '') },
@@ -163,12 +174,6 @@ export function registerJavaCompletion(monaco: typeof Monaco, project: ProjectIn
               command: { id: 'editor.action.triggerParameterHints', title: '' },
             })
           }
-        }
-      }
-      for (const tok of analysis.tokens) {
-        if (tok.kind === 'ident' && !seen.has(tok.text) && tok.offset + tok.text.length !== offset && /^[a-z_$]/.test(tok.text)) {
-          seen.add(tok.text)
-          suggestions.push({ label: tok.text, kind: K.Variable, insertText: tok.text, range, sortText: `1${tok.text}` })
         }
       }
 
@@ -343,7 +348,7 @@ function addMembers(monaco: typeof Monaco, out: Monaco.languages.CompletionItem[
             sortText: `0${m.name}${m.params.length.toString().padStart(3, '0')}`,
             command: m.params ? { id: 'editor.action.triggerParameterHints', title: '' } : undefined,
           }
-        : { label: { label: m.name, description: m.type }, kind: K.Field, insertText: m.name, range, sortText: `0${m.name}` },
+        : { label: { label: m.name, description: m.type }, kind: /^[A-Z][A-Z0-9_]*$/.test(m.name) ? K.Constant : K.Field, insertText: m.name, range, sortText: `0${m.name}` },
     )
   }
 }

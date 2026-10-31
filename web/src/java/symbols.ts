@@ -28,6 +28,8 @@ export interface Sym {
   arity?: number
   /** methods: parameter types, for messages like "foo(int)" */
   paramTypes?: string[]
+  /** locals / params: last token index where the variable is visible */
+  scopeEnd?: number
   /** token indices of usages (not including the declaration) */
   refs: number[]
   /** subset of refs that are plain writes (`x = ...`), for "assigned but never accessed" */
@@ -503,7 +505,7 @@ export function buildSymbols(src: string): SymbolTable {
   const walk = (start: number, end: number, base: Scope, owner: string, params?: { tok: number; type: string }[]) => {
     const stack: { scope: Scope; end: number }[] = [{ scope: base, end }]
     for (const p of params ?? []) {
-      const s = newSym(text(p.tok), 'param', p.tok, { type: p.type, owner })
+      const s = newSym(text(p.tok), 'param', p.tok, { type: p.type, owner, scopeEnd: end })
       base.names.set(s.name, s)
     }
     let declType: { type: string; depth: number } | null = null
@@ -520,7 +522,7 @@ export function buildSymbols(src: string): SymbolTable {
       if (lam) {
         push(lam.end)
         for (const p of lam.params) {
-          const s = newSym(text(p), 'param', p, { type: isIdent(p - 1) || toks[p - 1]?.kind === 'keyword' ? typeBefore(p) : '', owner })
+          const s = newSym(text(p), 'param', p, { type: isIdent(p - 1) || toks[p - 1]?.kind === 'keyword' ? typeBefore(p) : '', owner, scopeEnd: lam.end })
           cur().names.set(s.name, s)
         }
       }
@@ -579,7 +581,7 @@ export function buildSymbols(src: string): SymbolTable {
         (nx !== '&&' && nx !== '||' || prevIs(i, 'instanceof'))
       if (isDecl || (declType && prev === ',' && depth === declType.depth && (nx === '=' || nx === ',' || nx === ';'))) {
         const type: string = isDecl ? typeBefore(i) : declType!.type
-        const s = newSym(x, 'local', i, { type, owner })
+        const s = newSym(x, 'local', i, { type, owner, scopeEnd: stack[stack.length - 1].end })
         cur().names.set(x, s)
         if (isDecl && !prevIs(i, 'instanceof')) declType = { type, depth }
         continue

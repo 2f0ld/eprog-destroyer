@@ -130,6 +130,9 @@ monaco.editor.addKeybindingRules([
   { keybinding: M.CtrlCmd | M.Shift | K.NumpadSubtract, command: 'editor.foldAll' },
   { keybinding: M.CtrlCmd | M.Shift | K.NumpadAdd, command: 'editor.unfoldAll' },
   { keybinding: M.Alt | K.Enter, command: 'editor.action.quickFix' }, // Show Context Actions
+  // completion popup: Tab replaces the identifier tail, Enter inserts (IntelliJ semantics)
+  { keybinding: K.Tab, command: 'acceptAlternativeSuggestion', when: 'suggestWidgetHasFocusedSuggestion && suggestWidgetVisible && textInputFocus' },
+  { keybinding: M.Shift | K.Enter, command: null, when: 'suggestWidgetVisible' },
   // remove VS Code defaults that conflict with IntelliJ muscle memory
   { keybinding: M.CtrlCmd | K.KeyL, command: null }, // VS Code: expand line selection
   { keybinding: M.CtrlCmd | M.Shift | K.KeyK, command: null }, // VS Code: delete line
