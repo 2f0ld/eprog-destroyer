@@ -11,6 +11,7 @@ import { runMain } from '../runner'
 import { runAction } from '../actions'
 import { applyProblems, gotoProblem } from '../../editor/problemDecorations'
 import { scheduleCheck } from '../liveCheck'
+import { installInplaceRename } from '../../editor/rename'
 
 function EditorTabs() {
   const openTabs = useIde((s) => s.openTabs)
@@ -250,6 +251,8 @@ export function EditorArea() {
       run: (e) => e.trigger('ij', 'editor.action.insertLineBefore', null),
     })
 
+    const disposeRename = installInplaceRename(ed)
+
     const cursorSub = ed.onDidChangeCursorSelection((ev) => {
       const sel = ev.selection
       const model = ed.getModel()
@@ -334,6 +337,7 @@ export function EditorArea() {
     })
 
     return () => {
+      disposeRename()
       cursorSub.dispose()
       contentSub.dispose()
       modelSub.dispose()

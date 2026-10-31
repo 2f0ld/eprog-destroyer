@@ -1173,3 +1173,27 @@ body.ij-resizing-h * {
   font-weight: 600;
   margin-bottom: 8px;
 }
+
+/* in-place rename (LIVE_TEMPLATE_ATTRIBUTES / LIVE_TEMPLATE_INACTIVE_SEGMENT, boxed) */
+.monaco-editor .ij-rename-primary {
+  box-shadow: inset 0 0 0 1px #467ff2;
+}
+.monaco-editor .ij-rename-other {
+  box-shadow: inset 0 0 0 1px #9da0a8;
+}
+
+/* editor hints ("Cannot perform refactoring", "Removed 2 imports") */
+.ij-editor-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--tooltip-bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+  font: 13px 'Inter', sans-serif;
+  white-space: pre;
+  z-index: 50;
+}

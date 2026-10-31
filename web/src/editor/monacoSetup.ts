@@ -118,7 +118,6 @@ monaco.editor.addKeybindingRules([
   { keybinding: M.CtrlCmd | K.KeyB, command: 'editor.action.revealDefinition' }, // Go to Declaration
   { keybinding: M.CtrlCmd | K.KeyP, command: 'editor.action.triggerParameterHints' }, // Parameter Info
   { keybinding: M.CtrlCmd | K.KeyQ, command: 'editor.action.showHover' }, // Quick Documentation
-  { keybinding: M.Shift | K.F6, command: 'editor.action.changeAll' }, // Rename (approx: all occurrences)
   { keybinding: K.F2, command: null }, // Next Highlighted Error: ij.nextHighlightedError (EditorArea)
   { keybinding: M.Shift | K.F2, command: null },
   { keybinding: M.CtrlCmd | K.Minus, command: 'editor.fold' }, // Collapse

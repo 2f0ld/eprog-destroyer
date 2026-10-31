@@ -6,6 +6,7 @@ import { ACTIONS, actionText, runAction } from '../ide/actions'
 import { analyze } from '../java/analyzer'
 import { revealPosition } from '../ide/navigation'
 import { getActiveEditor } from '../editor/editorRef'
+import { renameJavaFile } from '../editor/rename'
 
 function useEscape(onEsc: () => void) {
   useEffect(() => {
@@ -500,14 +501,9 @@ export function DialogHost() {
           onSubmit={(n) => {
             const p = `${parentOf(old) ? parentOf(old) + '/' : ''}${n}`
             if (p === old) return
-            const s = useIde.getState()
-            // renaming a Java file renames the top-level class too, like IntelliJ's refactoring
-            if (isJava && n.endsWith('.java') && files[old] !== undefined) {
-              const oldName = fileName(old).slice(0, -5)
-              const newName = n.slice(0, -5)
-              s.writeFile(old, files[old].replace(new RegExp(`\\b(class|interface|enum|record)\\s+${oldName}\\b`), `$1 ${newName}`))
-            }
-            s.renamePath(old, p)
+            // renaming a Java file renames the top-level class and its references, like IntelliJ's refactoring
+            if (isJava) renameJavaFile(old, n)
+            else useIde.getState().renamePath(old, p)
           }}
         />
       )

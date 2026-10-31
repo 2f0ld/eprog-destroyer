@@ -88,3 +88,21 @@ test('imports and unknown identifiers never crash', () => {
   const t = buildSymbols('import java.util.*;\nimport static java.lang.Math.max;\nclass X { void f( { int = ; } ')
   assert.deepEqual(t.imports.map((i) => `${i.path}|${i.simple}|${i.isStatic}`), ['java.util.*|*|false', 'java.lang.Math.max|max|true'])
 })
+
+test('applyRename rewrites all files and moves the class file', async () => {
+  const { applyRename } = await import('../src/java/symbols.ts')
+  const files = {
+    'src/Point.java': 'public class Point {\n    int x;\n    Point(int x) { this.x = x; }\n}\n',
+    'src/Main.java': 'public class Main {\n    public static void main(String[] a) {\n        Point p = new Point(1);\n        System.out.println(p.x);\n    }\n}\n',
+  }
+  const t = findRenameTarget(files, 'src/Main.java', files['src/Main.java'].indexOf('Point p') + 2)!
+  const r = applyRename(files, t, 'Vec')
+  assert.equal(r.files['src/Point.java'], 'public class Vec {\n    int x;\n    Vec(int x) { this.x = x; }\n}\n')
+  assert.match(r.files['src/Main.java'], /Vec p = new Vec\(1\);/)
+  assert.deepEqual(r.moved, { from: 'src/Point.java', to: 'src/Vec.java' })
+  // field x through a typed receiver in another file
+  const f = findRenameTarget(files, 'src/Main.java', files['src/Main.java'].indexOf('p.x') + 2)!
+  const r2 = applyRename(files, f, 'xs')
+  assert.equal(r2.files['src/Point.java'], 'public class Point {\n    int xs;\n    Point(int x) { this.xs = x; }\n}\n')
+  assert.match(r2.files['src/Main.java'], /p\.xs/)
+})

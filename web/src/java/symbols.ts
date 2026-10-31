@@ -863,3 +863,21 @@ export function isValidIdentifier(name: string) {
   return /^[A-Za-z_$][\w$]*$/.test(name) && !RESERVED.has(name)
 }
 const RESERVED = new Set(['abstract', 'assert', 'boolean', 'break', 'byte', 'case', 'catch', 'char', 'class', 'const', 'continue', 'default', 'do', 'double', 'else', 'enum', 'extends', 'final', 'finally', 'float', 'for', 'goto', 'if', 'implements', 'import', 'instanceof', 'int', 'interface', 'long', 'native', 'new', 'package', 'private', 'protected', 'public', 'return', 'short', 'static', 'strictfp', 'super', 'switch', 'synchronized', 'this', 'throw', 'throws', 'transient', 'try', 'void', 'volatile', 'while', 'true', 'false', 'null', '_'])
+
+/** New file contents after renaming `target` to `newName` (occurrences replaced back to front). */
+export function applyRename(files: Record<string, string>, target: RenameTarget, newName: string): { files: Record<string, string>; moved?: { from: string; to: string } } {
+  const out = { ...files }
+  const byPath = new Map<string, Occurrence[]>()
+  for (const o of target.occurrences) byPath.set(o.path, [...(byPath.get(o.path) ?? []), o])
+  for (const [p, list] of byPath) {
+    let src = out[p]
+    if (src === undefined) continue
+    for (const o of [...list].sort((a, b) => b.offset - a.offset)) {
+      if (src.slice(o.offset, o.offset + o.length) !== target.name) continue // stale occurrence: leave it alone
+      src = src.slice(0, o.offset) + newName + src.slice(o.offset + o.length)
+    }
+    out[p] = src
+  }
+  const moved = target.renameFile ? { from: target.renameFile.from, to: `${target.renameFile.toDir}${newName}.java` } : undefined
+  return { files: out, moved }
+}
