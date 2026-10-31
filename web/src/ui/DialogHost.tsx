@@ -238,6 +238,62 @@ function SettingsDialog() {
   )
 }
 
+/** IntelliJ's member chooser ("Choose Fields to Initialize by Constructor", "Select Fields to Generate Getters"). */
+function ChooseMembersDialog({ title, items, onOk }: { title: string; items: { label: string; icon: string }[]; onOk: (selected: number[]) => void }) {
+  const [checked, setChecked] = useState(() => items.map(() => true))
+  const [focus, setFocus] = useState(0)
+  const ok = () => {
+    closeDialog()
+    onOk(checked.flatMap((c, i) => (c ? [i] : [])))
+    getActiveEditor()?.focus()
+  }
+  useEscape(close)
+  const listRef = useRef<HTMLDivElement>(null)
+  useEffect(() => listRef.current?.focus(), [])
+  return (
+    <div className="ij-overlay dim" onMouseDown={close}>
+      <div className="ij-dialog ij-members" onMouseDown={(e) => e.stopPropagation()}>
+        <div className="ij-dialog-title">{title}</div>
+        <div
+          className="ij-members-list"
+          tabIndex={0}
+          ref={listRef}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowDown') setFocus((f) => Math.min(items.length - 1, f + 1))
+            else if (e.key === 'ArrowUp') setFocus((f) => Math.max(0, f - 1))
+            else if (e.key === ' ') setChecked((c) => c.map((v, i) => (i === focus ? !v : v)))
+            else if (e.key === 'Enter') ok()
+            else if (e.key === 'a' && (e.ctrlKey || e.metaKey)) setChecked(items.map(() => true))
+            else return
+            e.preventDefault()
+          }}
+        >
+          {items.length === 0 && <div className="ij-empty-text">No members to choose from</div>}
+          {items.map((it, i) => (
+            <div key={i} className={`ij-list-row${i === focus ? ' selected' : ''}`} onMouseDown={() => setFocus(i)} onDoubleClick={() => setChecked((c) => c.map((v, k) => (k === i ? !v : v)))}>
+              <input type="checkbox" checked={checked[i]} onChange={() => setChecked((c) => c.map((v, k) => (k === i ? !v : v)))} />
+              <Icon name={it.icon} />
+              <span>{it.label}</span>
+            </div>
+          ))}
+        </div>
+        <div className="ij-dialog-footer">
+          <button className="ij-button" onClick={() => { setChecked(items.map(() => false)); }}>
+            Select None
+          </button>
+          <span style={{ flex: 1 }} />
+          <button className="ij-button" onClick={close}>
+            Cancel
+          </button>
+          <button className="ij-button default" onClick={ok}>
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function AboutDialog() {
   useEscape(close)
   return (
@@ -512,6 +568,8 @@ export function DialogHost() {
       return <SettingsDialog />
     case 'about':
       return <AboutDialog />
+    case 'choose-members':
+      return <ChooseMembersDialog title={dialog.title} items={dialog.items} onOk={dialog.onOk} />
     case 'recent-files':
       return <RecentFiles />
     case 'search':

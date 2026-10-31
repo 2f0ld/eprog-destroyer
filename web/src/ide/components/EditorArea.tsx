@@ -322,6 +322,8 @@ export function EditorArea() {
       const model = ed.getModel()
       const items: MenuItem[] = [
         { type: 'action', id: 'ShowIntentionActions' },
+        { type: 'action', id: 'Generate' },
+        { type: 'submenu', text: 'Refactor', items: [{ type: 'action', id: 'RenameElement' }] },
         { type: 'submenu', text: 'Go To', items: [{ type: 'action', id: 'GotoDeclaration' }, { type: 'action', id: 'GotoLine' }] },
         { type: 'separator' },
         { type: 'action', id: 'Cut' },

@@ -82,6 +82,7 @@ export const ACTIONS: Record<string, Action> = {
   CommentByBlockComment: { id: 'CommentByBlockComment', text: 'Comment with Block Comment', shortcut: 'Ctrl+Shift+/', run: editorAction('editor.action.blockComment') },
   CodeCompletion: { id: 'CodeCompletion', text: 'Basic', shortcut: 'Ctrl+Space', run: editorAction('editor.action.triggerSuggest') },
   OptimizeImports: { id: 'OptimizeImports', text: 'Optimize Imports', shortcut: 'Ctrl+Alt+O', run: editorAction('ij.optimizeImports') },
+  Generate: { id: 'Generate', text: 'Generate...', shortcut: 'Alt+Insert', run: editorAction('ij.generate') },
   RenameElement: { id: 'RenameElement', text: 'Rename...', shortcut: 'Shift+F6', run: editorAction('ij.renameElement') },
   ShowIntentionActions: { id: 'ShowIntentionActions', text: 'Show Context Actions', shortcut: 'Alt+Enter', run: editorAction('editor.action.quickFix') },
   MoveLineUp: { id: 'MoveLineUp', text: 'Move Line Up', shortcut: 'Alt+Shift+Up', run: editorAction('editor.action.moveLinesUpAction') },

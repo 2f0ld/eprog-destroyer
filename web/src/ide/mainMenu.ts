@@ -79,6 +79,7 @@ export function mainMenu(): MenuItem[] {
       items: [
         a('CodeCompletion', 'Code Completion'),
         a('ShowIntentionActions'),
+        a('Generate'),
         sep,
         a('CommentByLineComment'),
         a('CommentByBlockComment'),

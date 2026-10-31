@@ -1211,3 +1211,29 @@ body.ij-resizing-h * {
 .action-widget .monaco-list .monaco-list-row.action .title {
   overflow: visible;
 }
+
+.ij-members {
+  margin-top: 14vh;
+  width: 420px;
+}
+.ij-members-list {
+  max-height: 320px;
+  min-height: 120px;
+  overflow: auto;
+  margin: 0 12px;
+  padding: 4px 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--island-bg);
+  outline: none;
+}
+.ij-members-list .ij-list-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ij-menu-title {
+  padding: 4px 10px 6px;
+  font-weight: 600;
+}
