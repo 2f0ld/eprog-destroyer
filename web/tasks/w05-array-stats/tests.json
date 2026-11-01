@@ -10,7 +10,8 @@
     "name": "max-negative",
     "expr": "Main.max(new int[] {-8, -3, -12})",
     "expected": "-3",
-    "message": "If all numbers are negative, starting with 0 gives a wrong answer."
+    "message": "If all numbers are negative, starting with 0 gives a wrong answer.",
+    "messageDe": "Sind alle Zahlen negativ, liefert ein Start bei 0 ein falsches Ergebnis."
   },
   {
     "type": "expr",

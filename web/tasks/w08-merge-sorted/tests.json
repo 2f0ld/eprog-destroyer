@@ -24,6 +24,7 @@
     "expected": "400000 66667",
     "hidden": true,
     "timeoutMs": 3000,
-    "message": "Your solution is too slow for large arrays: use one pass with two indices instead of nested loops."
+    "message": "Your solution is too slow for large arrays: use one pass with two indices instead of nested loops.",
+    "messageDe": "Deine Lösung ist für grosse Arrays zu langsam: Verwende einen Durchgang mit zwei Indizes statt verschachtelter Schleifen."
   }
 ]

@@ -22,6 +22,7 @@
     "name": "throws",
     "code": "String r = \"\"; try { Matrix.trace(new int[][] {{1, 2}}); r += \"no-exception \"; } catch (IllegalArgumentException e) { r += \"IAE \"; } try { Matrix.isSymmetric(null); r += \"no-exception\"; } catch (IllegalArgumentException e) { r += \"IAE\"; } return r;",
     "expected": "IAE IAE",
-    "message": "Throw new IllegalArgumentException(...) when the input is not square."
+    "message": "Throw new IllegalArgumentException(...) when the input is not square.",
+    "messageDe": "Wirf new IllegalArgumentException(...), wenn die Eingabe nicht quadratisch ist."
   }
 ]
