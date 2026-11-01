@@ -70,7 +70,7 @@ test('inline values: name: value after lines of the current method up to the pau
     { name: 's', inline: '"n"' },
   ]
   const res = inlineValues(src, 2, 5, vars)
-  assert.deepEqual([...res.entries()], [
+  assert.deepEqual([...res.entries()].map(([l, v]) => [l, v.map((x) => x.text).join('   ')]), [
     [2, 'n: 3'],
     [3, 'sum: 0'],
     [4, 's: "n"'],

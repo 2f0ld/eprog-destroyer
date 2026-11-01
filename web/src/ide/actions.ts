@@ -4,6 +4,9 @@ import { getActiveEditor } from '../editor/editorRef'
 import { openDialog } from '../ui/dialogs'
 import { checkCurrentTask, currentTask, openPlayground, resetTask } from '../tasks/taskActions'
 import { PLAYGROUND } from './store'
+import { command, isPaused, startDebug, stopDebug } from '../debugger/debugClient'
+import { isDebugging, useDebugger } from '../debugger/store'
+import { toggleBreakpointAtCaret } from '../debugger/editorDebug'
 
 /**
  * Central action registry, like IntelliJ's ActionManager. Menus, keyboard
@@ -62,14 +65,57 @@ export const ACTIONS: Record<string, Action> = {
       if (m) runMain(m)
     },
   },
-  Stop: { id: 'Stop', text: 'Stop', shortcut: 'Ctrl+F2', icon: 'run/stop', enabled: () => useIde.getState().runState !== 'idle', run: () => void stopRun() },
+  Stop: {
+    id: 'Stop',
+    text: 'Stop',
+    shortcut: 'Ctrl+F2',
+    icon: 'run/stop',
+    enabled: () => useIde.getState().runState !== 'idle' || isDebugging(),
+    run: () => {
+      // like IntelliJ, Stop acts on the session whose tool window is showing (else the running one)
+      const debugFirst = isDebugging() && (useIde.getState().bottomTool === 'debug' || useIde.getState().runState === 'idle')
+      void (debugFirst ? stopDebug() : stopRun())
+    },
+  },
   Debug: {
     id: 'Debug',
     text: () => `Debug '${useIde.getState().runConfig ?? 'Main'}'`,
     shortcut: 'Shift+F9',
     icon: 'run/debug',
-    run: () => useIde.getState().notify({ kind: 'info', title: 'Debugger', body: 'The debugger is planned for a later milestone. Running without debugging instead.' }),
+    run: () => {
+      const s = useIde.getState()
+      const mains = findMainClasses(s.files)
+      const cfg = s.runConfig && mains.some((m) => m.fqn === s.runConfig) ? s.runConfig : (activeJavaMain() ?? mains[0]?.fqn)
+      if (cfg) void startDebug(cfg)
+      else s.notify({ kind: 'warning', title: 'Nothing to debug', body: 'No class with a main method was found in the project.' })
+    },
   },
+  Resume: { id: 'Resume', text: 'Resume Program', shortcut: 'F9', icon: 'run/resume', enabled: isPaused, run: () => void command({ cmd: 'resume' }) },
+  Pause: { id: 'Pause', text: 'Pause Program', icon: 'run/pause', enabled: () => isDebugging() && !isPaused(), run: () => void command({ cmd: 'pause' }) },
+  StepOver: { id: 'StepOver', text: 'Step Over', shortcut: 'F8', icon: 'run/stepOver', enabled: isPaused, run: () => void command({ cmd: 'stepOver' }) },
+  StepInto: { id: 'StepInto', text: 'Step Into', shortcut: 'F7', icon: 'run/stepInto', enabled: isPaused, run: () => void command({ cmd: 'stepInto' }) },
+  StepOut: { id: 'StepOut', text: 'Step Out', shortcut: 'Shift+F8', icon: 'run/stepOut', enabled: isPaused, run: () => void command({ cmd: 'stepOut' }) },
+  ToggleLineBreakpoint: {
+    id: 'ToggleLineBreakpoint',
+    text: 'Toggle Line Breakpoint',
+    shortcut: 'Ctrl+F8',
+    enabled: () => getActiveEditor()?.getModel() != null,
+    run: () => {
+      const ed = getActiveEditor()
+      if (ed) toggleBreakpointAtCaret(ed)
+    },
+  },
+  MuteBreakpoints: { id: 'MuteBreakpoints', text: 'Mute Breakpoints', icon: 'run/muteBreakpoints', run: () => useDebugger.setState((s) => ({ muted: !s.muted })) },
+  CloseDebugSession: {
+    id: 'CloseDebugSession',
+    text: 'Close',
+    run: () => {
+      void stopDebug()
+      useDebugger.setState({ session: null, console: [] })
+      useIde.setState({ bottomTool: null })
+    },
+  },
+  ActivateDebugToolWindow: { id: 'ActivateDebugToolWindow', text: 'Debug', shortcut: 'Alt+5', icon: 'toolwindows/debug', run: () => useIde.getState().toggleBottom('debug') },
   BuildProject: {
     id: 'BuildProject',
     text: 'Build Project',

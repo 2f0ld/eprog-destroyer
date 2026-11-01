@@ -9,6 +9,8 @@ import { PLAYGROUND } from '../store'
 import { taskById } from '../../tasks/catalog'
 import { openPlayground, openTask } from '../../tasks/taskActions'
 import { useTasks } from '../../tasks/progress'
+import { useDebugger } from '../../debugger/store'
+import { startDebug } from '../../debugger/debugClient'
 
 function projectInitials(name: string) {
   const parts = name.split(/[-_\s]+/).filter(Boolean)
@@ -20,7 +22,8 @@ export function MainToolbar() {
   const runConfig = useIde((s) => s.runConfig)
   const runState = useIde((s) => s.runState)
   const files = useIde((s) => s.files)
-  const running = runState !== 'idle'
+  const debugging = useDebugger((s) => s.session !== null && s.session.state !== 'finished')
+  const running = runState !== 'idle' || debugging
 
   // project widget: recent projects (the sample project and opened tasks), like IntelliJ's project switcher
   const projectMenu = (): MenuItem[] => {
@@ -50,7 +53,7 @@ export function MainToolbar() {
         icon: 'nodes/class',
         items: [
           { type: 'item', text: 'Run', icon: 'run/run', run: () => runMain(m.fqn) },
-          { type: 'item', text: 'Debug', icon: 'run/debug', run: () => runAction('Debug') },
+          { type: 'item', text: 'Debug', icon: 'run/debug', run: () => void startDebug(m.fqn) },
           { type: 'separator' },
           { type: 'item', text: 'Select', run: () => useIde.getState().setRunConfig(m.fqn) },
         ],

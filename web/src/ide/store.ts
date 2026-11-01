@@ -5,7 +5,7 @@ import type { Problem } from '../java/diagnostics'
 import { DEFAULT_DIRS, DEFAULT_FILES, DEFAULT_IML, DEFAULT_PROJECT_NAME } from './defaultProject'
 
 export type LeftTool = 'project' | 'structure' | 'commit'
-export type BottomTool = 'run' | 'terminal' | 'problems'
+export type BottomTool = 'run' | 'debug' | 'terminal' | 'problems'
 export type RightTool = 'notifications' | 'task'
 
 export interface ConsoleLine {
@@ -293,7 +293,7 @@ export const useIde = create<IdeState>()(
         theme: s.theme,
         editorSettings: s.editorSettings,
         leftTool: s.leftTool,
-        bottomTool: s.bottomTool === 'run' ? null : s.bottomTool,
+        bottomTool: s.bottomTool === 'run' || s.bottomTool === 'debug' ? null : s.bottomTool,
         rightTool: s.rightTool,
         leftWidth: s.leftWidth,
         bottomHeight: s.bottomHeight,

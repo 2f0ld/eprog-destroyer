@@ -174,12 +174,13 @@ export class DebugSession {
     }
   }
 
-  private async pause(thread: bigint, reason: 'breakpoint' | 'step') {
+  private async pause(thread: bigint, reason: 'breakpoint' | 'step' | 'pause') {
     const frames = await this.frames(thread)
     this.paused = { thread, frames }
     const nameReply = await this.c.send(CMD.TR_Name, (w) => w.objectId(thread))
-    const variables = frames.length ? await this.frameVariables(frames[0]) : []
-    this.send({ type: 'paused', reason, thread: nameReply.str(), frames: await Promise.all(frames.map((f) => this.publicFrame(f))), variables })
+    const frame = Math.max(0, frames.findIndex((f) => f.cls.file !== null))
+    const variables = frames.length ? await this.frameVariables(frames[frame]) : []
+    this.send({ type: 'paused', reason, thread: nameReply.str(), frames: await Promise.all(frames.map((f) => this.publicFrame(f))), frame, variables })
   }
 
   // ---------- commands (serialized with events) ----------
@@ -190,6 +191,21 @@ export class DebugSession {
       this.paused = null
       await this.c.send(CMD.VM_Resume)
       this.send({ type: 'resumed' })
+    })
+  }
+
+  /** Pause Program: suspend the VM and show where the main thread is (e.g. inside an endless loop). */
+  suspend() {
+    return this.enqueue(async () => {
+      if (this.paused) return
+      await this.c.send(CMD.VM_Suspend)
+      const r = await this.c.send(CMD.VM_AllThreads)
+      const n = r.i32()
+      const threads: bigint[] = []
+      for (let i = 0; i < n; i++) threads.push(r.objectId())
+      let main = threads[0]
+      for (const t of threads) if ((await this.c.send(CMD.TR_Name, (w) => w.objectId(t))).str() === 'main') main = t
+      await this.pause(main, 'pause')
     })
   }
 

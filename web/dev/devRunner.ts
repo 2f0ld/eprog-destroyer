@@ -17,11 +17,11 @@
  * Debugging (see src/debugger/protocol.ts for the types, DECISIONS D19):
  *   POST /api/debug            {files, mainClass, breakpoints:[{file, line}]} -> NDJSON stream with all run events plus
  *        {type:'attached', address}    debugger connected (before the program starts)
- *        {type:'paused', reason:'breakpoint'|'step', thread, frames:[{method, className, file, line, startLine}],
- *                        variables:[{name, type?, value, style, icon, ref?, inline}]}   variables of the top frame
+ *        {type:'paused', reason:'breakpoint'|'step'|'pause', thread, frames:[{method, className, file, line, startLine}],
+ *                        frame, variables:[{name, type?, value, style, icon, ref?, inline}]}   variables of frames[frame]
  *        {type:'resumed'}
  *        {type:'breakpoint', file, line, status:'verified'|'invalid'}
- *   POST /api/run/:id/debug    {cmd:'resume'|'stepOver'|'stepInto'|'stepOut'|'stop'}     -> 204
+ *   POST /api/run/:id/debug    {cmd:'resume'|'pause'|'stepOver'|'stepInto'|'stepOut'|'stop'} -> 204
  *                              {cmd:'frame', frame:n}                                    -> {variables}
  *                              {cmd:'children', ref}                                     -> {variables}
  *                              {cmd:'breakpoints', breakpoints:[{file, line}]}           -> 204 (live update)
@@ -213,6 +213,9 @@ export function devRunner(): Plugin {
             switch (command.cmd) {
               case 'resume':
                 await session.resume()
+                break
+              case 'pause':
+                await session.suspend()
                 break
               case 'stepOver':
               case 'stepInto':

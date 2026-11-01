@@ -39,11 +39,11 @@ function codeOnly(lines: string[]): string[] {
 /**
  * IntelliJ's inline debugger values: after each line of the current method, from its first line up to the
  * paused line, show `name: value` for the visible variables mentioned on that line (in order of appearance).
- * Lines are 1-based. Returns line -> text.
+ * Lines are 1-based. Returns line -> the variables to show there.
  */
-export function inlineValues(source: string, startLine: number, currentLine: number, vars: { name: string; inline: string }[]): Map<number, string> {
+export function inlineValues(source: string, startLine: number, currentLine: number, vars: { name: string; inline: string }[]): Map<number, { name: string; text: string }[]> {
   const byName = new Map(vars.filter((v) => v.inline && v.name !== 'this' && v.name !== 'static').map((v) => [v.name, v.inline]))
-  const res = new Map<number, string>()
+  const res = new Map<number, { name: string; text: string }[]>()
   if (startLine < 1 || currentLine < startLine) return res
   const lines = codeOnly(source.split('\n').slice(0, currentLine))
   for (let l = startLine; l <= currentLine; l++) {
@@ -51,7 +51,7 @@ export function inlineValues(source: string, startLine: number, currentLine: num
     for (const m of (lines[l - 1] ?? '').matchAll(/(?<![\w$.])[A-Za-z_$][\w$]*/g)) {
       if (byName.has(m[0]) && !seen.includes(m[0])) seen.push(m[0])
     }
-    if (seen.length) res.set(l, seen.map((n) => `${n}: ${byName.get(n)}`).join('   '))
+    if (seen.length) res.set(l, seen.map((n) => ({ name: n, text: `${n}: ${byName.get(n)}` })))
   }
   return res
 }

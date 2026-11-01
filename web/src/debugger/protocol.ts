@@ -40,13 +40,14 @@ export interface DebugVariable {
 }
 
 export type DebugCommand =
-  | { cmd: 'resume' | 'stepOver' | 'stepInto' | 'stepOut' | 'stop' }
+  | { cmd: 'resume' | 'pause' | 'stepOver' | 'stepInto' | 'stepOut' | 'stop' }
   | { cmd: 'frame'; frame: number }
   | { cmd: 'children'; ref: string }
   | { cmd: 'breakpoints'; breakpoints: DebugBreakpoint[] }
 
 export type DebugEvent =
   | { type: 'attached'; address: string }
-  | { type: 'paused'; reason: 'breakpoint' | 'step'; thread: string; frames: DebugFrame[]; variables: DebugVariable[] }
+  /** `variables` belong to frames[frame]: the top frame, or the first user frame after a Pause */
+  | { type: 'paused'; reason: 'breakpoint' | 'step' | 'pause'; thread: string; frames: DebugFrame[]; frame: number; variables: DebugVariable[] }
   | { type: 'resumed' }
   | { type: 'breakpoint'; file: string; line: number; status: 'verified' | 'invalid' }

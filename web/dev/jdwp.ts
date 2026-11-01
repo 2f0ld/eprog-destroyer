@@ -21,7 +21,9 @@ export const DEFAULT_ID_SIZES: IdSizes = { field: 8, method: 8, object: 8, refTy
 /** Command sets / commands used by the debugger (JDWP spec names). */
 export const CMD = {
   VM_ClassesBySignature: [1, 2],
+  VM_AllThreads: [1, 4],
   VM_IDSizes: [1, 7],
+  VM_Suspend: [1, 8],
   VM_Resume: [1, 9],
   VM_Exit: [1, 10],
   RT_Signature: [2, 1],
@@ -294,7 +296,7 @@ export class JdwpConnection {
   private socket: net.Socket
   private nextId = 1
   private pending = new Map<number, { resolve: (r: Reader) => void; reject: (e: Error) => void; what: string }>()
-  private buf = Buffer.alloc(0)
+  private buf: Buffer = Buffer.alloc(0)
   closed = false
 
   private constructor(socket: net.Socket) {
