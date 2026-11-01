@@ -1,0 +1,234 @@
+/* Auth pages: intentionally plain and neutral (no IDE look, no ETH branding). */
+:root {
+  --a-bg: #f4f5f7;
+  --a-card: #ffffff;
+  --a-fg: #1c1d21;
+  --a-muted: #5f6269;
+  --a-border: #d7d9de;
+  --a-accent: #2f5eb9;
+  --a-accent-fg: #ffffff;
+  --a-error: #b42332;
+  --a-error-bg: #fdecee;
+  --a-ok: #23703b;
+  --a-ok-bg: #e8f5ec;
+  --a-info-bg: #eef2fb;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --a-bg: #1b1c1f;
+    --a-card: #26282c;
+    --a-fg: #e4e5e9;
+    --a-muted: #a0a3aa;
+    --a-border: #3c3f45;
+    --a-accent: #5a8ef0;
+    --a-accent-fg: #0f1115;
+    --a-error: #f2838c;
+    --a-error-bg: #3a2226;
+    --a-ok: #7cc492;
+    --a-ok-bg: #1f3326;
+    --a-info-bg: #222a3a;
+  }
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--a-bg);
+  color: var(--a-fg);
+  font: 15px/1.5 Inter, system-ui, sans-serif;
+}
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 16px 24px;
+}
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--a-card);
+  border: 1px solid var(--a-border);
+  border-radius: 12px;
+  padding: 28px 28px 24px;
+}
+.auth-card.wide {
+  max-width: 560px;
+}
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--a-muted);
+  margin-bottom: 20px;
+}
+.auth-logo {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: var(--a-accent);
+  color: var(--a-accent-fg);
+  font: 600 12px/1 ui-monospace, monospace;
+}
+h1 {
+  font-size: 22px;
+  margin: 0 0 16px;
+}
+h2 {
+  font-size: 16px;
+  margin: 28px 0 8px;
+}
+p {
+  margin: 0 0 14px;
+}
+.auth-lead {
+  color: var(--a-muted);
+}
+.auth-small {
+  font-size: 13px;
+  color: var(--a-muted);
+}
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 8px 0 16px;
+}
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 500;
+  font-size: 14px;
+}
+.auth-field input {
+  font: inherit;
+  font-weight: 400;
+  padding: 9px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--a-border);
+  background: var(--a-card);
+  color: var(--a-fg);
+}
+.auth-field input:focus {
+  outline: 2px solid var(--a-accent);
+  outline-offset: -1px;
+}
+.auth-field small {
+  font-weight: 400;
+  color: var(--a-muted);
+  font-size: 13px;
+}
+.auth-check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+}
+.auth-primary,
+.auth-secondary,
+.auth-danger {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.auth-primary {
+  background: var(--a-accent);
+  color: var(--a-accent-fg);
+}
+.auth-secondary {
+  background: transparent;
+  color: var(--a-fg);
+  border-color: var(--a-border);
+}
+.auth-danger {
+  background: var(--a-error);
+  color: var(--a-card);
+}
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.auth-link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--a-accent);
+  cursor: pointer;
+  text-align: left;
+}
+a {
+  color: var(--a-accent);
+}
+.auth-links {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 14px;
+}
+.auth-notice {
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+.auth-form .auth-notice {
+  margin: 0;
+}
+.auth-notice.error {
+  background: var(--a-error-bg);
+  color: var(--a-error);
+}
+.auth-notice.success {
+  background: var(--a-ok-bg);
+  color: var(--a-ok);
+}
+.auth-notice.info {
+  background: var(--a-info-bg);
+}
+.auth-footer {
+  margin-top: 24px;
+  font-size: 12px;
+  color: var(--a-muted);
+}
+.dev-mail {
+  border: 1px solid var(--a-border);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.dev-mail header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+.dev-mail header span {
+  color: var(--a-muted);
+}
+.dev-mail-link {
+  display: block;
+  margin: 8px 0;
+  word-break: break-all;
+  font-size: 13px;
+}
+.dev-mail pre {
+  white-space: pre-wrap;
+  font-size: 12px;
+  color: var(--a-muted);
+  margin: 0;
+}

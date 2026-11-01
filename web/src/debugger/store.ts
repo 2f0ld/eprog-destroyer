@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import type { ConsoleLine } from '../ide/store'
 import type { DebugFrame, DebugVariable } from './protocol'
 import { toggleLine } from './inline'
+import { syncedStorage } from '../account/serverStorage'
 
 export interface DebugSessionState {
   /** runner process id, known after the `started` event */
@@ -70,7 +71,7 @@ export const useDebugger = create<DebuggerState>()(
         }),
       update: (p) => set((s) => (s.session ? { session: { ...s.session, ...p } } : s)),
     }),
-    { name: 'eprog-debugger', version: 1, partialize: (s) => ({ breakpoints: s.breakpoints }) },
+    { name: 'eprog-debugger', version: 1, storage: syncedStorage, partialize: (s) => ({ breakpoints: s.breakpoints }) },
   ),
 )
 

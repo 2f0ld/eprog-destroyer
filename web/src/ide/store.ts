@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import type { ThemeId } from '../theme/uiThemes'
 import type { Problem } from '../java/diagnostics'
 import { DEFAULT_DIRS, DEFAULT_FILES, DEFAULT_IML, DEFAULT_PROJECT_NAME } from './defaultProject'
+import { syncedStorage } from '../account/serverStorage'
 
 export type LeftTool = 'project' | 'structure' | 'commit'
 export type BottomTool = 'run' | 'debug' | 'terminal' | 'problems'
@@ -280,6 +281,7 @@ export const useIde = create<IdeState>()(
     {
       name: 'eprog-ide',
       version: 1,
+      storage: syncedStorage, // per user on the server (M4), see account/serverStorage.ts
       partialize: (s) => ({
         projectId: s.projectId,
         workspaces: s.workspaces,

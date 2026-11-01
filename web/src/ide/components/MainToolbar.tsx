@@ -11,6 +11,7 @@ import { openPlayground, openTask } from '../../tasks/taskActions'
 import { useTasks } from '../../tasks/progress'
 import { useDebugger } from '../../debugger/store'
 import { startDebug } from '../../debugger/debugClient'
+import { AccountWidget } from '../../account/AccountWidget'
 
 function projectInitials(name: string) {
   const parts = name.split(/[-_\s]+/).filter(Boolean)
@@ -130,6 +131,7 @@ export function MainToolbar() {
         <button className="ij-tb-icon" title="IDE and Project Settings" onClick={() => runAction('ShowSettings')}>
           <Icon name="general/settings" size={20} />
         </button>
+        <AccountWidget />
       </div>
     </div>
   )
