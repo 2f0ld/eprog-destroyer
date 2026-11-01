@@ -370,6 +370,20 @@ function TaskView({ task }: { task: Task }) {
   )
 }
 
+/** EN | DE switch for task texts (also in Settings › Appearance). */
+function LangSwitch() {
+  const lang = useTasks((s) => s.lang)
+  return (
+    <div className="ij-lang-switch" data-tour="lang" title="Task language / Sprache der Aufgaben">
+      {(['en', 'de'] as const).map((l) => (
+        <button key={l} className={lang === l ? 'selected' : ''} onClick={() => useTasks.getState().setLang(l)}>
+          {l.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export function TaskToolWindow() {
   const projectId = useIde((s) => s.projectId)
   const task = currentTask(projectId)
@@ -382,8 +396,13 @@ export function TaskToolWindow() {
       useIde.setState({ rightTool: 'task' })
       setTab('mountain')
     }
+    const course = () => setTab('course')
     window.addEventListener('eprog:show-mountain', show)
-    return () => window.removeEventListener('eprog:show-mountain', show)
+    window.addEventListener('eprog:show-course', course)
+    return () => {
+      window.removeEventListener('eprog:show-mountain', show)
+      window.removeEventListener('eprog:show-course', course)
+    }
   }, [])
   return (
     <ToolWindow
@@ -400,6 +419,7 @@ export function TaskToolWindow() {
           <div className={`ij-tw-tab${tab === 'mountain' ? ' selected' : ''}`} onClick={() => setTab('mountain')} data-tour="mountain-tab">
             <span>Mountain</span>
           </div>
+          <LangSwitch />
         </>
       }
     >

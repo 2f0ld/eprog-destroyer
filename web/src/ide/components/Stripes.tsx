@@ -12,7 +12,7 @@ interface StripeButton {
 
 function Btn({ b }: { b: StripeButton }) {
   return (
-    <button className={`ij-stripe-btn${b.active ? ' selected' : ''}`} title={b.shortcut ? `${b.title}  ${b.shortcut}` : b.title} onClick={b.onClick}>
+    <button data-tour={`stripe-${b.id}`} className={`ij-stripe-btn${b.active ? ' selected' : ''}`} title={b.shortcut ? `${b.title}  ${b.shortcut}` : b.title} onClick={b.onClick}>
       <Icon name={`${b.icon}@20x20`} size={20} />
     </button>
   )

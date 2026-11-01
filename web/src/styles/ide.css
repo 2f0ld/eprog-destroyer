@@ -1805,3 +1805,94 @@ body.ij-resizing-h * {
   25% { transform: rotate(-12deg); }
   75% { transform: rotate(12deg); }
 }
+
+/* ---------------------------------------------------------------- intro tour (GotItTooltip style) */
+.ij-tour {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+}
+.ij-tour-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+.ij-tour-spot {
+  position: absolute;
+  border-radius: 10px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45), 0 0 0 2px var(--gotit-bg);
+  pointer-events: none;
+  transition: all 0.25s ease;
+}
+.ij-gotit {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 14px 16px 12px;
+  border-radius: 10px;
+  background: var(--gotit-bg);
+  border: 1px solid var(--gotit-border);
+  color: var(--gotit-fg);
+  box-shadow: var(--shadow);
+  transition: left 0.25s ease, top 0.25s ease;
+}
+.ij-gotit-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.ij-gotit-step {
+  color: var(--gotit-step);
+  font-weight: 400;
+}
+.ij-gotit-body {
+  line-height: 1.5;
+}
+.ij-gotit-body b {
+  background: var(--gotit-shortcut-bg);
+  border-radius: 4px;
+  padding: 0 4px;
+  font-weight: 500;
+}
+.ij-gotit-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+.ij-gotit-button {
+  height: 26px;
+  padding: 0 14px;
+  border-radius: 6px;
+  border: 1px solid var(--gotit-button-border);
+  background: var(--gotit-button-contrast);
+  color: var(--gotit-fg);
+}
+.ij-gotit-link {
+  color: var(--gotit-link);
+  cursor: pointer;
+}
+.ij-gotit-link.skip {
+  margin-left: auto;
+}
+
+.ij-lang-switch {
+  display: inline-flex;
+  margin-left: 6px;
+  border: 1px solid var(--component-border);
+  border-radius: 6px;
+  overflow: hidden;
+  height: 22px;
+  align-self: center;
+}
+.ij-lang-switch button {
+  border: none;
+  background: transparent;
+  color: var(--fg-muted);
+  font-size: 11px;
+  padding: 0 7px;
+}
+.ij-lang-switch button.selected {
+  background: var(--selection-bg);
+  color: var(--fg);
+}

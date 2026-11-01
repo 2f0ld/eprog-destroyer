@@ -422,7 +422,7 @@ export function EditorArea() {
   }, [problems, activeTab])
 
   return (
-    <div className="ij-editor-island">
+    <div className="ij-editor-island" data-tour="editor">
       <EditorTabs />
       <div className="ij-editor-body">
         <div ref={hostRef} className="ij-monaco-host" style={{ visibility: activeTab ? 'visible' : 'hidden' }} />
