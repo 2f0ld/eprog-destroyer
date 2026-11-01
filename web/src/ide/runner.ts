@@ -8,7 +8,7 @@ import type { JavacDiagnostic } from '../java/diagnostics'
  * Produces console output that mirrors IntelliJ's Run tool window.
  */
 
-const FAKE_JAVA = '/usr/lib/jvm/java-25-openjdk/bin/java'
+export const FAKE_JAVA = '/usr/lib/jvm/java-25-openjdk/bin/java'
 
 let current: { id: string | null; abort: AbortController } | null = null
 

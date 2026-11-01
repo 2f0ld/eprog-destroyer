@@ -1,0 +1,16 @@
+/* account avatar in the main toolbar: round, initials on the avatar gradient (like the project widget) */
+.ij-account-widget {
+  margin-left: 2px;
+}
+.ij-account-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--avatar-start), var(--avatar-end));
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

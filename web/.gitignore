@@ -28,3 +28,6 @@ dist-ssr
 .e2e-profile
 .e2e-shots
 .npm-cache
+
+# account database (npm run dev)
+.data

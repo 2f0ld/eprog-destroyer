@@ -14,6 +14,7 @@ import { installLiveCheck } from './liveCheck'
 import { Balloon } from './components/Balloon'
 import { IntroTour } from '../ui/IntroTour'
 import { TaskToolWindow } from '../tasks/TaskToolWindow'
+import { DebugToolWindow } from '../debugger/DebugToolWindow'
 
 /** Thin drag handle between islands. */
 function Splitter({ dir, onDrag }: { dir: 'v' | 'h'; onDrag: (delta: number) => void }) {
@@ -87,6 +88,7 @@ export function IdeWindow() {
               <Splitter dir="h" onDrag={(d) => setSize('bottomHeight', clamp(useIde.getState().bottomHeight - d, 100, window.innerHeight * 0.75))} />
               <div className="ij-island ij-island-bottom" style={{ height: bottomHeight }}>
                 {bottomTool === 'run' && <RunToolWindow />}
+                {bottomTool === 'debug' && <DebugToolWindow />}
                 {bottomTool === 'problems' && <ProblemsView />}
                 {bottomTool === 'terminal' && <TerminalView />}
               </div>

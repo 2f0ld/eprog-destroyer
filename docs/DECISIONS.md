@@ -33,7 +33,7 @@ stdin and kill are separate POSTs. The dev middleware (`web/dev/devRunner.ts`) r
 
 ### D6 — State in zustand, persisted to localStorage for now (2026-10-31)
 One store (`src/ide/store.ts`) holds files, tabs, layout, run state. Persisted parts are selected in
-`partialize`. M4 moves file storage to the server.
+`partialize`. M4 moves file storage to the server. *Update: done, see D24.*
 
 ### D7 — Browser-reserved shortcuts (2026-10-31)
 Pages cannot intercept Ctrl+N, Ctrl+T, Ctrl+W, Ctrl+Shift+N, Ctrl+Tab, Ctrl+F4 in Chrome (Firefox is similar).
@@ -135,3 +135,49 @@ visit (not in automated browsers, so the smoke test is unaffected) and can be re
 Pasting a code-like snippet (3+ lines or 80+ characters with `;{}()=`) that was not copied inside the IDE opens
 a tongue-in-cheek dialog: yes → "fair enough"; no → "are you sure sure?"; sure → "we know you have". It is a
 nudge, not a detector: it cannot see where text came from, it asks once per snippet, and nothing is recorded.
+### D22 — Debugger: JDWP spoken from Node, protocol next to the run protocol (2026-11-01)
+Debug runs start `java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=127.0.0.1:0` and the dev
+runner talks JDWP over the socket itself (`web/dev/jdwp.ts`, ~25 commands; session logic in `dev/debugSession.ts`).
+Scripting `jdb` was the alternative, but its output is free text interleaved with prompts and program output, and
+it has no object ids for lazy expansion. JDWP gives structured values, so the Variables tree expands on demand
+like IntelliJ's. Breakpoints are placed on `CLASS_PREPARE` of the user's compiled classes (no polling); stepping
+uses `SINGLE_STEP` with class excludes `java.*, javax.*, jdk.*, sun.*, com.sun.*` (IntelliJ's default stepping
+filters). Pause suspends the VM and shows the `main` thread (useful for endless loops). Values are rendered like
+IntelliJ's renderers: `{int[3]@812} [1, 2, 3]`, `"text"`, `'a' 97`, boxed `{Integer@5} 7`, `ArrayList` as
+`size = N` with elements as children, enums by constant name; `toString()` is not invoked (no method invocation
+in the debuggee). The wire format (`POST /api/debug` NDJSON stream with `attached/paused/resumed/breakpoint`
+events, `POST /api/run/:id/debug` commands `resume|pause|stepOver|stepInto|stepOut|stop|frame|children|breakpoints`)
+is documented in `web/dev/devRunner.ts` and typed in `web/src/debugger/protocol.ts`; **M3 must implement it** —
+the JDWP client can be reused inside the sandbox since it only needs a socket to the debuggee.
+Editor look follows the New UI: breakpoints are drawn over line numbers (click / Ctrl+F8, hover preview),
+inline values after executed lines of the current method (only variables mentioned on the line).
+Breakpoints live in their own store (`eprog-debugger`, per project and file) to keep `ide/store.ts` changes small.
+
+### D23 — Accounts: own small backend in `web/server/`, node:sqlite + argon2id from node:crypto (2026-11-01)
+No framework and no native dependency: Node 24+ ships `crypto.argon2` and `node:sqlite`, so the accounts backend
+needs no `npm install` of native modules (bcrypt/argon2 packages need build tools). Passwords: argon2id with the
+OWASP minimum (m=19 MiB, t=2, p=1) as PHC strings; length rule (≥10) instead of composition rules (NIST 800-63B),
+and no user name in the password. Only SHA-256 hashes of session/verification/reset tokens are stored.
+Verification links are single-use and valid 24 h, reset links 1 h; verifying does *not* log in (mail scanners
+open links), reset ends all sessions. Sign-up, resend and forgot always answer 200 so addresses cannot be
+enumerated; signing up again for a verified address sends a notice mail instead. Address check on the server:
+`/^[^@\s]+@([a-z0-9-]+\.)*ethz\.ch$/i` (shared with the auth pages in `src/auth/email.ts`; look-alikes are
+unit-tested). Sessions: random 32-byte token in the HTTP-only `eprog_session` cookie, `SameSite=Lax`, `Secure`
+when `PUBLIC_URL` is https, 30 days. CSRF: state-changing requests with a foreign `Origin` are refused. Rate
+limits (in memory, one process): sign-ups per IP, mails per address, failed logins per address+IP.
+Unverified accounts are purged after a week; deleting an account cascades to sessions, tokens and saved state.
+In `npm run dev` the same handler is a Vite plugin (`server/devPlugin.ts`, registered *before* the dev runner so
+`/api/run`, `/api/compile` and `/api/debug` are behind the login wall); mails go to the terminal and the outbox
+page `/dev/mail`. `npm start` (`server/main.ts`) serves `dist/` + the API for production; it has no SMTP yet
+(links are logged — M6) and no runner (503 until M3).
+
+### D24 — Auth pages are a second Vite page; IDE state lives on the server (2026-11-01)
+`auth.html` (`src/auth/`) is a separate small bundle with a plain, neutral look (no IDE styling, no ETH logos), so
+the login pages load fast and the IDE bundle is only served to logged-in users (`/` redirects to `/login`
+otherwise). The persisted zustand stores (`eprog-ide` workspaces + layout, `eprog-tasks` progress,
+`eprog-debugger` breakpoints) use `syncedStorage` (`src/account/serverStorage.ts`): `main.tsx` loads
+`GET /api/state` before rendering, writes are debounced `PUT /api/state/:key` (JSON, 20 MB per user). On the first
+login, data the browser still has in localStorage is uploaded if the account has none for that key, then removed
+locally (shared lab computers). The server copy wins if both exist. Several tabs: last write wins. Without the
+accounts API (static `vite preview`) the stores fall back to localStorage. New persisted stores should pass
+`storage: syncedStorage` and be added to `SYNCED` in `src/account/bootstrap.ts`.

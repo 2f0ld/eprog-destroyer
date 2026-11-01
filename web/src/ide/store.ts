@@ -3,9 +3,10 @@ import { persist } from 'zustand/middleware'
 import type { ThemeId } from '../theme/uiThemes'
 import type { Problem } from '../java/diagnostics'
 import { DEFAULT_DIRS, DEFAULT_FILES, DEFAULT_IML, DEFAULT_PROJECT_NAME } from './defaultProject'
+import { syncedStorage } from '../account/serverStorage'
 
 export type LeftTool = 'project' | 'structure' | 'commit'
-export type BottomTool = 'run' | 'terminal' | 'problems'
+export type BottomTool = 'run' | 'debug' | 'terminal' | 'problems'
 export type RightTool = 'notifications' | 'task'
 
 export interface ConsoleLine {
@@ -283,6 +284,7 @@ export const useIde = create<IdeState>()(
     {
       name: 'eprog-ide',
       version: 1,
+      storage: syncedStorage, // per user on the server (M4), see account/serverStorage.ts
       partialize: (s) => ({
         projectId: s.projectId,
         workspaces: s.workspaces,
@@ -297,7 +299,7 @@ export const useIde = create<IdeState>()(
         editorSettings: s.editorSettings,
         tourDone: s.tourDone,
         leftTool: s.leftTool,
-        bottomTool: s.bottomTool === 'run' ? null : s.bottomTool,
+        bottomTool: s.bottomTool === 'run' || s.bottomTool === 'debug' ? null : s.bottomTool,
         rightTool: s.rightTool,
         leftWidth: s.leftWidth,
         bottomHeight: s.bottomHeight,

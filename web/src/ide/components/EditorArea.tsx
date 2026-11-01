@@ -8,11 +8,12 @@ import { DARK_EDITOR_THEME, LIGHT_EDITOR_THEME } from '../../theme/editorThemes'
 import { uiThemes } from '../../theme/uiThemes'
 import { analysisFor } from '../../java/semantic'
 import { runMain } from '../runner'
-import { runAction } from '../actions'
 import { applyProblems, gotoProblem } from '../../editor/problemDecorations'
 import { scheduleCheck } from '../liveCheck'
 import { installInplaceRename } from '../../editor/rename'
 import { installEditorActions } from '../../editor/editorActions'
+import { installDebuggerEditor } from '../../debugger/editorDebug'
+import { startDebug } from '../../debugger/debugClient'
 import { installPasteCheck } from '../../editor/pasteCheck'
 
 function EditorTabs() {
@@ -256,6 +257,7 @@ export function EditorArea() {
 
     const disposeRename = installInplaceRename(ed)
     installEditorActions(ed)
+    const disposeDebugger = installDebuggerEditor(ed)
     const disposePasteCheck = installPasteCheck(ed)
 
     const cursorSub = ed.onDidChangeCursorSelection((ev) => {
@@ -315,7 +317,7 @@ export function EditorArea() {
         y: r.bottom + 2,
         items: [
           { type: 'item', text: `Run '${fqn}.main()'`, icon: 'run/run', shortcut: 'Ctrl+Shift+F10', run: () => runMain(fqn) },
-          { type: 'item', text: `Debug '${fqn}.main()'`, icon: 'run/debug', run: () => runAction('Debug') },
+          { type: 'item', text: `Debug '${fqn}.main()'`, icon: 'run/debug', run: () => void startDebug(fqn) },
           { type: 'item', text: `Run '${fqn}.main()' with Coverage`, icon: 'run/runWithCoverage', disabled: true, run: () => {} },
           { type: 'separator' },
           { type: 'item', text: `Modify Run Configuration...`, disabled: true, run: () => {} },
@@ -349,6 +351,7 @@ export function EditorArea() {
 
     return () => {
       disposeRename()
+      disposeDebugger()
       disposePasteCheck()
       cursorSub.dispose()
       contentSub.dispose()

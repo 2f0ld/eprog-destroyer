@@ -1,5 +1,6 @@
 import { useIde, type BottomTool, type LeftTool, type RightTool } from '../store'
 import { Icon } from '../../ui/Icon'
+import { useDebugger } from '../../debugger/store'
 
 interface StripeButton {
   id: string
@@ -25,6 +26,7 @@ export function LeftStripe() {
   const toggleBottom = useIde((s) => s.toggleBottom)
   const runState = useIde((s) => s.runState)
   const problems = useIde((s) => s.problems.filter((p) => p.severity === 'error').length)
+  const debugSession = useDebugger((s) => s.session)
 
   const left = (id: LeftTool, title: string, icon: string, shortcut: string): StripeButton => ({ id, title, icon, shortcut, active: leftTool === id, onClick: () => toggleLeft(id) })
   const bottom = (id: BottomTool, title: string, icon: string, shortcut: string): StripeButton => ({ id, title, icon, shortcut, active: bottomTool === id, onClick: () => toggleBottom(id) })
@@ -42,6 +44,12 @@ export function LeftStripe() {
           <Btn b={bottom('run', 'Run', 'toolwindows/run', 'Alt+4')} />
           {runState !== 'idle' && <span className="ij-stripe-running-dot" />}
         </div>
+        {(debugSession || bottomTool === 'debug') && (
+          <div className="ij-stripe-badge-wrap">
+            <Btn b={bottom('debug', 'Debug', 'toolwindows/debug', 'Alt+5')} />
+            {debugSession && debugSession.state !== 'finished' && <span className="ij-stripe-running-dot" />}
+          </div>
+        )}
         <Btn b={bottom('terminal', 'Terminal', 'toolwindows/terminal', 'Alt+F12')} />
         <div className="ij-stripe-badge-wrap">
           <Btn b={bottom('problems', 'Problems', 'toolwindows/problems', 'Alt+6')} />

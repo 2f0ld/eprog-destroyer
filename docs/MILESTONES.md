@@ -7,17 +7,22 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 
 ## Next up (resume here)
 
-1. **M3** (production-grade sandboxed Java execution) — now the most important gap: Run, live error
+1. **M3** (production-grade sandboxed Java execution) — now the most important gap: Run, Debug, live error
    highlighting (`/api/compile`) and task checking all go through the DEV-ONLY runner. M3 must implement
-   `/api/run` and `/api/compile` (incl. `code`/`args` in diagnostics, DECISIONS D10/D15).
-2. **M5 follow-ups**: theory practice (EBNF quizzes, loop invariants, weakest preconditions), interfaces/generics,
+   `/api/run`, `/api/compile` (incl. `code`/`args` in diagnostics, DECISIONS D10/D15) and the debug protocol
+   (`/api/debug`, `/api/run/:id/debug`, D22), behind the login wall (`createAccounts().handle`, D23).
+2. **M4/M6 follow-ups**: a real mail provider (SMTP) for `server/main.ts`, deployment (D23), serving reference
+   solutions/hidden tests from the server now that users are known.
+3. **M5 follow-ups**: theory practice (EBNF quizzes, loop invariants, weakest preconditions), interfaces/generics,
    more exam-practice sets, an IntelliJ-style test runner view for check details.
-   Debugger and accounts are being built in parallel on branch `debugger-accounts` (separate session).
-3. **M2 leftovers**: Ctrl+Q docs, Navigate Back/Forward, Ctrl+click underline, more quick fixes, smart completion,
-   bundle size (lazy-load Monaco).
+4. **M2 leftovers**: Ctrl+Q docs, Navigate Back/Forward, Ctrl+click underline, more quick fixes, smart completion,
+   bundle size (lazy-load Monaco); debugger extras (Evaluate Expression / watches, Run to Cursor, `toString()`
+   rendering, exception breakpoints, Breakpoints dialog).
 
 Before continuing, run `cd web && npm install && npm test && npm run dev`, then `npm run smoke` and
 `npm run verify-tasks` (with the dev server running for smoke) to make sure everything still works.
+The IDE is behind a login now: in `npm run dev` sign up with any `…@ethz.ch` address and open the link from
+http://localhost:5173/dev/mail (or the terminal). The smoke test does this itself.
 
 ---
 
@@ -59,7 +64,7 @@ Goal: a browser IDE that a student cannot easily tell apart from IntelliJ IDEA (
 - ✅ Popups: Search Everywhere (All/Classes/Files/Symbols/Actions, CamelHumps), Recent Files (Ctrl+E),
   New Java Class (Class/Interface/Record/Enum/Annotation/Exception), Rename, Settings, About
 - ✅ Structure tool window, Problems, Notifications; Terminal and Commit are informative stubs
-- ✅ Files persisted in localStorage (until accounts exist in M4)
+- ✅ Files persisted in localStorage (until accounts exist in M4) — now per user on the server (M4)
 - ✅ DEV-ONLY local Java runner (Vite middleware) implementing the run protocol M3 will reuse
 - ✅ Tests: unit tests for analyzer/formatter (`npm test`), browser smoke test (`npm run smoke`)
 
@@ -84,14 +89,21 @@ Goal: a browser IDE that a student cannot easily tell apart from IntelliJ IDEA (
 - 🟡 Editor: ✅ error stripe, ✅ "unused" greying; ⬜ Ctrl+click underline, Ctrl+mouse wheel font size
 - 🟡 Settings: ✅ editor font size, soft wraps, show whitespaces; ⬜ font family, line spacing
 - ⬜ Drag & drop in project tree; multiple selection
-- ⬜ Debugger UI (breakpoints on line numbers, Debug tool window) — needs M3 support (JDWP)
+- ✅ Debugger (2026-11-01, D22): breakpoints over line numbers (click, hover preview, Ctrl+F8, persisted per
+  project/file, verified/invalid icons, Mute), Debug (Shift+F9) via JDWP in the dev runner, Debug tool window with
+  Threads & Variables (frames, lazily expandable Variables tree with IntelliJ renderers and changed-value colour)
+  and Console tabs, execution point / caller frame line highlight, inline values, Resume F9, Pause, Step Over F8,
+  Step Into F7 (skips JDK classes), Step Out Shift+F8, Stop Ctrl+F2; unit + JDWP integration tests, smoke test
+  - ⬜ Evaluate Expression / watches, Run to Cursor, Force Step Into, `toString()` rendering, exception and
+    conditional breakpoints, Breakpoints dialog (now a list menu), Set Value, threads other than `main`
 - ⬜ Bundle size: pick only needed Monaco features (currently 4.5 MB JS), lazy-load Monaco
 - ⬜ Accessibility pass, Firefox/Chrome/Safari check, small-screen behavior
 
 ## M3 — Sandboxed Java execution service ⬜
 
 - ⬜ Backend service (Node or JVM) implementing the same protocol as `web/dev/devRunner.ts`
-  (`POST /api/run` NDJSON stream, `/stdin`, `/kill`) — the frontend should not need changes
+  (`POST /api/run` NDJSON stream, `/stdin`, `/kill`, `/api/compile`, debug protocol D22) — the frontend should not
+  need changes; `web/dev/jdwp.ts` + `debugSession.ts` can be reused inside the sandbox
 - ⬜ Isolation: per-run container (e.g. gVisor/nsjail/firecracker), no network, CPU/memory/time/output/pid limits,
   read-only rootfs, ephemeral workdir
 - ⬜ Warm JVM pool / class data sharing to keep run latency < 1 s
@@ -99,16 +111,23 @@ Goal: a browser IDE that a student cannot easily tell apart from IntelliJ IDEA (
 - ⬜ Rate limiting per user; abuse monitoring
 - ⬜ Replace the dev runner in production builds; keep it for local dev
 
-## M4 — Accounts: ethz.ch-only sign-up & email verification ⬜
+## M4 — Accounts: ethz.ch-only sign-up & email verification 🟡 (2026-11-01, D23/D24)
 
-- ⬜ Sign up / log in pages (separate from the IDE look)
-- ⬜ Email must be `@ethz.ch` or a subdomain (e.g. `@student.ethz.ch`): validate with
-  `/^[^@\s]+@([a-z0-9-]+\.)*ethz\.ch$/i` on the server — beware look-alikes such as `@fooethz.ch`
-- ⬜ Verification email with single-use, expiring token (SMTP provider TBD); resend with rate limit
-- ⬜ Password hashing (argon2id), sessions (HTTP-only secure cookies), password reset
-- ⬜ Everything (IDE, API, runner) behind the login wall; only auth pages public
-- ⬜ Move file persistence from localStorage to the server (per user, per task)
-- ⬜ Privacy: data minimization, deletion on request (Swiss nDSG / GDPR)
+- ✅ Sign up / log in / forgot / reset / account pages (`auth.html`, plain and neutral, no ETH branding)
+- ✅ Email must be `@ethz.ch` or a subdomain (e.g. `@student.ethz.ch`): validated on the server with
+  `/^[^@\s]+@([a-z0-9-]+\.)*ethz\.ch$/i`, look-alikes (`@fooethz.ch`, `@ethz.ch.evil.com`) unit-tested
+- ✅ Verification mail with single-use token (24 h, hash stored), resend with rate limit, no account enumeration
+- ✅ argon2id (node:crypto), HTTP-only `SameSite=Lax` session cookies (`Secure` on https), Origin check,
+  password reset (1 h, ends all sessions), change password, log out, delete account (cascades)
+- ✅ Everything (IDE page, state API, runner/compile/debug API) behind the login wall; only auth pages public
+- ✅ Files/workspaces, task progress and breakpoints stored per user on the server (`/api/state`), migration of
+  existing localStorage data on first login, local copy removed afterwards
+- ✅ Account avatar menu in the main toolbar (Manage Account…, Log Out)
+- ✅ Dev: same backend as a Vite plugin, mails in the terminal + outbox page `/dev/mail`; prod: `npm start`
+- 🟡 Privacy: data minimisation (email, password hash, timestamps, saved state), deletion on request, purge of
+  unverified accounts — ⬜ privacy notice text, data export, retention policy for inactive accounts
+- ⬜ Real mail provider (SMTP), shared rate limiting / sessions for more than one server process (M6)
+- ⬜ Conflict handling for several open tabs/devices (last write wins today)
 
 ## M5 — Task catalog & practice tasks 🟡 (started 2026-10-31)
 
@@ -124,8 +143,8 @@ and get stepping-stone help instead of answers. Design: DECISIONS D14–D17, aut
   Expected/Actual, Reset Content, Peek Solution diff, previous/next; Course tab with lesson progress
 - ✅ Tasks open as their own project; recent projects in the project widget; File › Learn and Teach
 - ✅ "Check" runs the tests through the run protocol (dev runner for now); progress per task (status, attempts,
-  hints, peeks) in localStorage; success + lesson-completed balloons
-- ⬜ Progress tracking per user on the server (needs M4), sync of task workspaces
+  hints, peeks) per user on the server (M4); success + lesson-completed balloons
+- ✅ Progress tracking per user on the server, sync of task workspaces (M4)
 - ⬜ Serve reference solutions and hidden test expectations from the server (they ship in the JS bundle now,
   so Peek Solution gating and hidden tests are only a nudge, not a protection)
 - ✅ German texts for all tasks (`task.de.md`, `messageDe`), EN | DE switch in the Task window and Settings

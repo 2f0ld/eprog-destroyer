@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { CheckOutcome } from './model'
+import { syncedStorage } from '../account/serverStorage'
 
 export interface TaskProgress {
   status: 'new' | 'attempted' | 'solved'
@@ -68,6 +69,6 @@ export const useTasks = create<TasksState>()(
       },
       resetAll: () => set({ progress: {}, check: null }),
     }),
-    { name: 'eprog-tasks', version: 1, partialize: (s) => ({ progress: s.progress, lang: s.lang, mountainSeen: s.mountainSeen }) },
+    { name: 'eprog-tasks', version: 1, storage: syncedStorage, partialize: (s) => ({ progress: s.progress, lang: s.lang, mountainSeen: s.mountainSeen }) },
   ),
 )

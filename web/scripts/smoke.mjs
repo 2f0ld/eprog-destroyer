@@ -19,9 +19,39 @@ page.on('console', (m) => m.type() === 'error' && errors.push(`[${step}] ${m.tex
 const shot = (name) => (step = name) && page.screenshot({ path: path.join(shots, `${name}.png`) })
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
-await page.goto(url, { waitUntil: 'load' })
+const origin = new URL(url).origin
+const fill = async (selector, text) => {
+  await page.click(selector, { count: 3 })
+  await page.keyboard.type(text)
+}
+
+// accounts: the IDE is behind the login wall; sign up with a fresh ETH address, confirm it via the dev
+// mail outbox and log in (DECISIONS D23)
+await page.goto(`${origin}/login`, { waitUntil: 'load' })
+await page.evaluate(() => fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }))
 await page.evaluate(() => localStorage.clear())
 await page.goto(url, { waitUntil: 'load' })
+if (new URL(page.url()).pathname !== '/login') throw new Error(`login wall: expected /login, got ${page.url()}`)
+const email = `smoke.${Date.now()}@student.ethz.ch`
+const password = 'smoke test passphrase'
+await page.goto(`${origin}/signup`, { waitUntil: 'load' })
+await page.waitForSelector('input[type=email]')
+await fill('input[type=email]', 'smoke@fooethz.ch')
+await fill('input[type=password]', password)
+await page.click('button.auth-primary')
+await page.waitForSelector('.auth-notice.error')
+await fill('input[type=email]', email)
+await page.click('button.auth-primary')
+await page.waitForFunction(() => document.querySelector('h1')?.textContent === 'Check your inbox')
+await shot('00-signup')
+const link = await page.evaluate(async (to) => (await (await fetch('/api/dev/outbox')).json()).mails.find((m) => m.to === to)?.link, email)
+if (!link) throw new Error('no verification mail in the dev outbox')
+await page.goto(link, { waitUntil: 'load' })
+await page.waitForSelector('a.auth-primary')
+await page.click('a.auth-primary')
+await page.waitForSelector('input[type=password]')
+await fill('input[type=password]', password)
+await page.click('button.auth-primary')
 await page.waitForSelector('.monaco-editor .view-lines')
 await sleep(800)
 await shot('01-dark')
@@ -37,6 +67,44 @@ await page.keyboard.press('Enter')
 await page.waitForFunction(() => document.querySelector('.ij-console')?.textContent?.includes('Process finished'), { timeout: 20000 })
 await sleep(300)
 await shot('02-run')
+
+// debugger: breakpoint by clicking the line number, Debug (Shift+F9), step over/into, resume
+const bpLine = await page.evaluate(() => window.__ide_editor.getModel().getLinesContent().findIndex((l) => l.includes('int[] fib = fibonacci(LIMIT);')) + 1)
+const lineNumber = async (n) => {
+  await page.evaluate((n) => window.__ide_editor.revealLineInCenter(n), n)
+  await sleep(100)
+  return page.evaluateHandle((n) => [...document.querySelectorAll('.monaco-editor .line-numbers')].find((e) => e.textContent.trim() === String(n)), n)
+}
+await (await lineNumber(bpLine)).click()
+await page.waitForSelector('.monaco-editor .line-numbers.ij-bp')
+await page.keyboard.down('Shift')
+await page.keyboard.press('F9')
+await page.keyboard.up('Shift')
+await page.waitForFunction(() => document.querySelector('.ij-debug .ij-console')?.textContent?.includes('Connected to the target VM'), { timeout: 20000 })
+await sleep(500)
+await page.keyboard.type('ETH')
+await page.keyboard.press('Enter')
+const pausedAt = (line) => page.waitForFunction((line) => {
+  const s = window.__debugger_store.getState().session
+  return s?.state === 'paused' && s.frames[s.selectedFrame]?.line === line
+}, { timeout: 20000 }, line)
+await pausedAt(bpLine)
+await page.waitForSelector('.ij-debug-var')
+const vars = await page.$$eval('.ij-debug-var .ij-tree-label', (els) => els.map((e) => e.textContent))
+if (!vars.includes('name = "ETH"')) throw new Error(`debugger variables: ${vars.join(' | ')}`)
+await page.waitForSelector('.monaco-editor .ij-exec-line')
+await page.waitForSelector('.monaco-editor .ij-inline-value')
+await shot('02a-debug-paused')
+await page.keyboard.press('F8') // step over -> for loop
+await pausedAt(bpLine + 1)
+await page.keyboard.press('F8') // -> loop body
+await pausedAt(bpLine + 2)
+await page.click('.ij-debug-var .ij-tree-chevron img') // expand the first expandable node
+await sleep(300)
+await shot('02b-debug-stepped')
+await (await lineNumber(bpLine)).click() // remove the breakpoint
+await page.keyboard.press('F9')
+await page.waitForFunction(() => document.querySelector('.ij-debug .ij-console')?.textContent?.includes('Process finished with exit code 0'), { timeout: 20000 })
 
 // completion: type "sout" in main and expand with Tab
 await page.click('.monaco-editor .view-lines')
@@ -152,6 +220,13 @@ await page.click('.ij-check-buttons .ij-button.default')
 await page.waitForSelector('.ij-check-result.correct', { timeout: 30000 })
 await sleep(500)
 await shot('10-task-solved')
+
+// everything above was saved to the account: a reload restores the solved task project from the server
+await sleep(1500)
+await page.reload({ waitUntil: 'load' })
+await page.waitForSelector('.monaco-editor .view-lines')
+if ((await page.evaluate(() => window.__ide_store.getState().projectId)) !== 'task:w03-hello') throw new Error('workspace was not restored from the server')
+if (await page.evaluate(() => Object.keys(localStorage).some((k) => k.startsWith('eprog-ide')))) throw new Error('IDE state must not stay in localStorage')
 
 console.log(errors.length ? `ERRORS:\n${errors.join('\n')}` : 'no page errors')
 await browser.close()

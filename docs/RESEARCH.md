@@ -68,6 +68,24 @@ Values may omit leading zeros (`627a` = `#00627A`). `FONT_TYPE` 1 = bold, 2 = it
 
 Full mapping lives in `web/src/theme/uiThemes.ts` and `web/src/theme/editorThemes.ts`.
 
+### Debugger (resolved through the scheme parents: Islands Dark → Darcula, Light → Default, both in
+`platform/platform-resources/src/DefaultColorSchemesManager.xml`)
+
+| Token | Islands Dark | Light | Key |
+|---|---|---|---|
+| Breakpoint line bg | `#40252B` | `#FAEAE6` | `BREAKPOINT_ATTRIBUTES` (stripe `#8C5B65` / `#FFC8C8`) |
+| Execution point bg | `#2A5091` | `#2154A6` + white text | `EXECUTIONPOINT_ATTRIBUTES` |
+| Selected caller frame | `#273552` | `#C0D0F0` | `NOT_TOP_FRAME_ATTRIBUTES` |
+| Inline values | `#666D75` italic | `#868686` italic | `DEBUGGER_INLINED_VALUES` |
+| … on the execution line | `#849FBF` | `#A9B7D6` | `DEBUGGER_INLINED_VALUES_EXECUTION_LINE` |
+| … changed values | `#B2AE60` | `#CA8021` | `DEBUGGER_INLINED_VALUES_MODIFIED` |
+| Variable name / type / changed | `#F0AC81` / `#6F737A` / `#548AF7` | `#7D3C3C` / `#818594` / `#3369D6` | theme JSON `Debugger.Variables.*` |
+
+Value colours in the Variables tree are the scheme's number/string/keyword colours (XValueTextRenderer).
+Node icons follow `java/debugger/impl/src/com/intellij/debugger/ui/impl/DebuggerTreeRenderer.java`
+(`getValueIcon`: field, parameter, enum, array → `dbArray`, primitive → `dbPrimitive`, otherwise `value`; static
+node → `nodes/static`). Breakpoint/debugger/stepping icons: `platform/icons/src/expui/{breakpoints,debugger,run}`.
+
 ## Metrics (New UI, default/non-compact)
 
 Main toolbar 40px · stripes 40px wide with 30px buttons and 20px icons · tool window header 40px ·

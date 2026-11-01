@@ -95,7 +95,11 @@ export function mainMenu(): MenuItem[] {
     },
     { type: 'submenu', text: 'Refactor', items: [a('RenameElement'), disabled('Extract Method...', 'Ctrl+Alt+M'), disabled('Introduce Variable...', 'Ctrl+Alt+V')] },
     { type: 'submenu', text: 'Build', items: [a('BuildProject')] },
-    { type: 'submenu', text: 'Run', items: [a('Run'), a('Debug'), a('RunClass'), sep, a('Stop')] },
+    {
+      type: 'submenu',
+      text: 'Run',
+      items: [a('Run'), a('Debug'), a('RunClass'), sep, a('Stop'), sep, a('StepOver'), a('StepInto'), a('StepOut'), sep, a('Pause'), a('Resume'), sep, a('ToggleLineBreakpoint'), a('MuteBreakpoints')],
+    },
     { type: 'submenu', text: 'Tools', items: [disabled('Generate JavaDoc...')] },
     { type: 'submenu', text: 'Git', items: [disabled('Commit...', 'Ctrl+K'), disabled('Push...', 'Ctrl+Shift+K')] },
     { type: 'submenu', text: 'Window', items: [a('CloseContent'), a('CloseAllEditors')] },

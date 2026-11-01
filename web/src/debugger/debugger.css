@@ -1,0 +1,173 @@
+/*
+ * Debugger colours (docs/RESEARCH.md):
+ *   editor: IslandSchemeDark.xml (parent Darcula) / Default scheme (parent of expUI_lightScheme.xml)
+ *     BREAKPOINT_ATTRIBUTES, EXECUTIONPOINT_ATTRIBUTES, NOT_TOP_FRAME_ATTRIBUTES, DEBUGGER_INLINED_VALUES(_EXECUTION_LINE|_MODIFIED)
+ *   Variables tree: ManyIslands{Dark,Light}.theme.json Debugger.Variables.*, values in the scheme's
+ *     DEFAULT_NUMBER / DEFAULT_STRING / DEFAULT_KEYWORD colours (XValueTextRenderer)
+ */
+[data-theme='dark'] {
+  --bp-line-bg: #40252b;
+  --exec-line-bg: #2a5091;
+  --exec-line-fg: inherit;
+  --frame-line-bg: #273552;
+  --inline-value: #666d75;
+  --inline-value-exec: #849fbf;
+  --inline-value-modified: #b2ae60;
+  --var-name: #f0ac81;
+  --var-type: #6f737a;
+  --var-changed: #548af7;
+  --var-number: #2aacb8;
+  --var-string: #6aab73;
+  --var-keyword: #cf8e6d;
+}
+[data-theme='light'] {
+  --bp-line-bg: #faeae6;
+  --exec-line-bg: #2154a6;
+  --exec-line-fg: #ffffff;
+  --frame-line-bg: #c0d0f0;
+  --inline-value: #868686;
+  --inline-value-exec: #a9b7d6;
+  --inline-value-modified: #ca8021;
+  --var-name: #7d3c3c;
+  --var-type: #818594;
+  --var-changed: #3369d6;
+  --var-number: #1750eb;
+  --var-string: #067d17;
+  --var-keyword: #0033b3;
+}
+
+/* ---- editor: breakpoints over line numbers (New UI) */
+.monaco-editor .line-numbers.ij-bp,
+.monaco-editor .line-numbers.ij-bp-hover {
+  color: transparent !important;
+  background-repeat: no-repeat;
+  background-position: right 1px center;
+  background-size: 14px 14px;
+}
+.monaco-editor .line-numbers.ij-bp-hover {
+  opacity: 0.45;
+}
+.monaco-editor .ij-bp-line {
+  background: var(--bp-line-bg);
+}
+.monaco-editor .ij-exec-line {
+  background: var(--exec-line-bg);
+}
+[data-theme='light'] .monaco-editor .ij-exec-text {
+  color: var(--exec-line-fg) !important;
+}
+.monaco-editor .ij-frame-line {
+  background: var(--frame-line-bg);
+}
+.monaco-editor .ij-inline-value {
+  color: var(--inline-value) !important;
+  font-style: italic;
+}
+.monaco-editor .ij-inline-value.exec {
+  color: var(--inline-value-exec) !important;
+}
+.monaco-editor .ij-inline-value.modified {
+  color: var(--inline-value-modified) !important;
+}
+
+/* ---- Debug tool window */
+.ij-debug-toolbar {
+  height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 8px;
+}
+.ij-debug-tab {
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 6px;
+  color: var(--fg);
+  white-space: nowrap;
+}
+.ij-debug-tab:hover {
+  background: var(--hover-bg);
+}
+.ij-debug-tab.selected {
+  background: var(--pressed-bg);
+}
+.ij-run-toolbar-sep.vertical {
+  width: 1px;
+  height: 18px;
+  margin: 0 6px;
+}
+.ij-debug-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+}
+.ij-debug-split {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+.ij-debug-frames {
+  width: 34%;
+  min-width: 200px;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+}
+.ij-debug-thread {
+  height: 30px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+.ij-debug-thread span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ij-debug-variables {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ij-debug-frames .ij-tree,
+.ij-debug-variables .ij-tree {
+  padding-top: 4px;
+}
+.ij-debug-frame.library .ij-tree-label {
+  color: var(--fg-muted);
+}
+.ij-debug-message,
+.ij-debug-empty {
+  color: var(--fg-muted);
+}
+.ij-debug-message {
+  padding: 12px 16px;
+}
+.ij-var-name {
+  color: var(--var-name);
+}
+.ij-var-type {
+  color: var(--var-type);
+}
+.ij-var-value.number {
+  color: var(--var-number);
+}
+.ij-var-value.string {
+  color: var(--var-string);
+}
+.ij-var-value.keyword {
+  color: var(--var-keyword);
+}
+.ij-var-value.changed {
+  color: var(--var-changed);
+}
