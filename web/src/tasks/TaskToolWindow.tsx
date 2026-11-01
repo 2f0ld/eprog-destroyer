@@ -9,6 +9,7 @@ import { LESSONS, TASKS, taskById, lessonOf } from './catalog'
 import { useTasks, type TaskProgress } from './progress'
 import { checkCurrentTask, currentTask, neighbour, nextUnsolved, openTask, resetTask } from './taskActions'
 import type { CheckOutcome, Task, TestResult } from './model'
+import { MountainView } from './MountainView'
 
 /** Hints and the solution are graded help: the solution unlocks after all hints or a few attempts. */
 const PEEK_AFTER_ATTEMPTS = 3
@@ -357,10 +358,18 @@ function TaskView({ task }: { task: Task }) {
 export function TaskToolWindow() {
   const projectId = useIde((s) => s.projectId)
   const task = currentTask(projectId)
-  const [tab, setTab] = useState<'task' | 'course'>(task ? 'task' : 'course')
+  const [tab, setTab] = useState<'task' | 'course' | 'mountain'>(task ? 'task' : 'course')
   useEffect(() => {
     setTab(task ? 'task' : 'course')
   }, [task])
+  useEffect(() => {
+    const show = () => {
+      useIde.setState({ rightTool: 'task' })
+      setTab('mountain')
+    }
+    window.addEventListener('eprog:show-mountain', show)
+    return () => window.removeEventListener('eprog:show-mountain', show)
+  }, [])
   return (
     <ToolWindow
       title="Task"
@@ -373,10 +382,15 @@ export function TaskToolWindow() {
           <div className={`ij-tw-tab${tab === 'course' ? ' selected' : ''}`} onClick={() => setTab('course')}>
             <span>Course</span>
           </div>
+          <div className={`ij-tw-tab${tab === 'mountain' ? ' selected' : ''}`} onClick={() => setTab('mountain')} data-tour="mountain-tab">
+            <span>Mountain</span>
+          </div>
         </>
       }
     >
-      {tab === 'task' && task ? (
+      {tab === 'mountain' ? (
+        <MountainView />
+      ) : tab === 'task' && task ? (
         <TaskView task={task} />
       ) : tab === 'task' ? (
         <div className="ij-empty-text">

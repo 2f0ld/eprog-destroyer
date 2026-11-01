@@ -8,6 +8,7 @@ import { useTasks } from './progress'
 import { runCheck } from './checker'
 import { completedSteps, type Task } from './model'
 import { revealPosition } from '../ide/navigation'
+import { newlyUnlocked } from './mountain'
 
 export const taskProjectId = (id: string) => `task:${id}`
 
@@ -111,12 +112,21 @@ function celebrate(t: Task) {
   const lessonDone = lesson.tasks.every((x) => progress[x.id]?.status === 'solved')
   const next = nextUnsolved(t.id)
   const actions = next ? [{ text: `Next: ${next.title}`, run: () => openTask(next.id) }] : []
+  // the mountain: what did this block reveal?
+  const lang = useTasks.getState().lang
+  const dug = newlyUnlocked(solvedCount, TASKS.length)
+  const extras = [
+    ...dug.finds.map((f) => (lang === 'de' ? `Gefunden: ${f.icon} ${f.name.de}!` : `You dug up: ${f.icon} ${f.name.en}!`)),
+    ...(dug.tool ? [lang === 'de' ? `Neues Werkzeug: ${dug.tool.icon} ${dug.tool.name.de}` : `New tool: ${dug.tool.icon} ${dug.tool.name.en}`] : []),
+  ].join(' ')
+  const mountain = { text: lang === 'de' ? 'Zum Berg' : 'Show mountain', run: () => window.dispatchEvent(new CustomEvent('eprog:show-mountain')) }
+  if (extras) actions.push(mountain)
   if (solvedCount === TASKS.length) {
-    ide.notify({ kind: 'success', title: 'Course completed!', body: `You solved all ${TASKS.length} practice tasks. Impressive work.` })
+    ide.notify({ kind: 'success', title: '💥 The mountain is gone!', body: `You solved all ${TASKS.length} practice tasks and dug through all of EProg. ${extras}`, actions: [mountain] })
   } else if (lessonDone) {
     const lessonNo = LESSONS.indexOf(lesson) + 1
-    ide.notify({ kind: 'success', title: `Lesson completed: ${lesson.title}`, body: `All ${lesson.tasks.length} tasks of lesson ${lessonNo} solved · ${solvedCount} of ${TASKS.length} tasks in total.`, actions })
+    ide.notify({ kind: 'success', title: `Lesson completed: ${lesson.title}`, body: `All ${lesson.tasks.length} tasks of lesson ${lessonNo} solved · ${solvedCount} of ${TASKS.length} tasks in total. ${extras}`.trim(), actions })
   } else {
-    ide.notify({ kind: 'success', title: 'Task solved', body: `${t.title} · ${solvedCount} of ${TASKS.length} tasks solved.`, actions })
+    ide.notify({ kind: 'success', title: 'Task solved', body: `${t.title} · ${solvedCount} of ${TASKS.length} tasks solved. ${extras}`.trim(), actions })
   }
 }
