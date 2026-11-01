@@ -105,9 +105,9 @@ last detail). Peek Solution unlocks only after all hints or 3 checks and shows a
 it yourself. Progress records attempts, hints used and peeks, and the success message acknowledges solving
 without hints. Prerequisites (`requires`) are shown as "Builds on" links but do not lock tasks.
 
-### D17 — Task texts in English for now (2026-10-31)
-The IDE is English like IntelliJ's default UI. EProg is taught in German, so a German version of the task texts
-may be preferable — open question for the course staff. The format allows adding e.g. `task.de.md` later.
+### D17 — Task texts in English and German (2026-10-31, German added 2026-11-01)
+The IDE chrome stays English like IntelliJ's default UI (tab names, menus). Task texts, hints, check feedback and
+the task UI exist in English and German (`task.de.md`), switchable at any time; German uses Swiss spelling.
 Progress lives in localStorage (`eprog-tasks`) until M4 moves it to the server.
 
 ### D18 — Task catalog follows the real EProg schedule; course material stays out of the repo (2026-10-31)
@@ -118,3 +118,20 @@ parsing, linked lists, object graphs (DFS/BFS), inheritance, a recursive-descent
 style tracing, and an "Exam practice" lesson with three staged tasks. All task texts and code are original;
 the user decided that no ETH material is published in this public repository. The EBNF task sits in week 4
 (not 2) because turning a grammar into code needs loops and String methods.
+
+### D19 — Gamified progress: dig through the EProg mountain (2026-11-01)
+Progress should feel like an achievement without cluttering the IntelliJ look. The course is a mountain of one
+block per task (Task window › Mountain). Solving any task removes the next block from the top, so the mountain
+shrinks steadily regardless of order. Tools (teaspoon → dynamite) and eight "finds" unlock at fixed fractions of
+the course (`src/tasks/mountain.ts`), and the solve balloon announces them. Emoji keep it light and need no
+assets. It lives in its own tab so the IntelliJ chrome stays untouched.
+
+### D20 — Intro tour as IntelliJ "Got It" tooltips (2026-11-01)
+IntelliJ introduces features with blue Got It tooltips (`GotItTooltip.*` theme keys), so the tour uses that
+style: spotlight on one element, bubble with Next / Back / Skip tour, Escape skips. It runs once on the first
+visit (not in automated browsers, so the smoke test is unaffected) and can be restarted from Help.
+
+### D21 — "Did you use AI?" paste check (2026-11-01)
+Pasting a code-like snippet (3+ lines or 80+ characters with `;{}()=`) that was not copied inside the IDE opens
+a tongue-in-cheek dialog: yes → "fair enough"; no → "are you sure sure?"; sure → "we know you have". It is a
+nudge, not a detector: it cannot see where text came from, it asks once per snippet, and nothing is recorded.

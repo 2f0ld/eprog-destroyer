@@ -8,6 +8,8 @@ import { revealPosition } from '../ide/navigation'
 import { getActiveEditor } from '../editor/editorRef'
 import { renameJavaFile } from '../editor/rename'
 import { PeekSolutionDialog } from '../tasks/PeekSolution'
+import { AiCheckDialog } from './AiCheckDialog'
+import { useTasks } from '../tasks/progress'
 
 function useEscape(onEsc: () => void) {
   useEffect(() => {
@@ -167,6 +169,7 @@ function SettingsDialog() {
   const theme = useIde((s) => s.theme)
   const [page, setPage] = useState<'appearance' | 'keymap' | 'about' | 'font' | 'editor'>('appearance')
   const es = useIde((s) => s.editorSettings)
+  const taskLang = useTasks((s) => s.lang)
   const setEs = useIde((s) => s.setEditorSettings)
   useEscape(close)
   return (
@@ -202,6 +205,13 @@ function SettingsDialog() {
                   <select className="ij-select" value={theme} onChange={(e) => useIde.getState().setTheme(e.target.value as typeof theme)}>
                     <option value="islands-dark">Islands Dark</option>
                     <option value="islands-light">Islands Light</option>
+                  </select>
+                </label>
+                <label className="ij-form-row">
+                  <span>Task language:</span>
+                  <select className="ij-select" value={taskLang} onChange={(e) => useTasks.getState().setLang(e.target.value as 'en' | 'de')}>
+                    <option value="en">English</option>
+                    <option value="de">Deutsch</option>
                   </select>
                 </label>
               </>
@@ -606,6 +616,8 @@ export function DialogHost() {
       return <SettingsDialog />
     case 'about':
       return <AboutDialog />
+    case 'ai-check':
+      return <AiCheckDialog />
     case 'peek-solution':
       return <PeekSolutionDialog taskId={dialog.taskId} />
     case 'choose-members':

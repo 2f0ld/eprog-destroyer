@@ -11,7 +11,8 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
    highlighting (`/api/compile`) and task checking all go through the DEV-ONLY runner. M3 must implement
    `/api/run` and `/api/compile` (incl. `code`/`args` in diagnostics, DECISIONS D10/D15).
 2. **M5 follow-ups**: theory practice (EBNF quizzes, loop invariants, weakest preconditions), interfaces/generics,
-   more exam-practice sets, German texts (D17), an IntelliJ-style test runner view for check details.
+   more exam-practice sets, an IntelliJ-style test runner view for check details.
+   Debugger and accounts are being built in parallel on branch `debugger-accounts` (separate session).
 3. **M2 leftovers**: Ctrl+Q docs, Navigate Back/Forward, Ctrl+click underline, more quick fixes, smart completion,
    bundle size (lazy-load Monaco).
 
@@ -127,6 +128,10 @@ and get stepping-stone help instead of answers. Design: DECISIONS D14–D17, aut
 - ⬜ Progress tracking per user on the server (needs M4), sync of task workspaces
 - ⬜ Serve reference solutions and hidden test expectations from the server (they ship in the JS bundle now,
   so Peek Solution gating and hidden tests are only a nudge, not a protection)
+- ✅ German texts for all tasks (`task.de.md`, `messageDe`), EN | DE switch in the Task window and Settings
+- ✅ Mountain tab: every solved task digs a block off the EProg mountain; tools and finds unlock on the way
+- ✅ Difficulty dots explained (legend in the Course tab, tooltips); skippable intro tour (Help › Show Intro Tour)
+- ✅ Tongue-in-cheek "did you use AI?" dialog when code from outside the IDE is pasted
 - ⬜ More tasks: EBNF without code (grammar quizzes), loop invariants / weakest preconditions, interfaces and
   generics, file input; more exam-practice sets; German texts
 - ⬜ IntelliJ-style test runner tool window for check details (green/red tree); JUnit-based tests (M3)

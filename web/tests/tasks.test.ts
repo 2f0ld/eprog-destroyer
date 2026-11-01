@@ -85,3 +85,27 @@ test('markdown rendering escapes HTML and supports code, lists and tables', () =
   assert.match(html, /<ul><li>one<\/li><li>two<\/li><\/ul>/)
   assert.match(html, /<table><thead><tr><th>A<\/th><th>B<\/th><\/tr><\/thead><tbody><tr><td>1<\/td><td>2<\/td><\/tr><\/tbody><\/table>/)
 })
+
+test('every task has German texts with the same steps and hints (Swiss spelling)', async () => {
+  const { textsOf, testMessage } = await import('../src/tasks/model.ts')
+  for (const t of all) {
+    assert.ok(t.de, `${t.id} has no task.de.md`)
+    const de = textsOf(t, 'de')
+    assert.ok(de.title && de.lesson && de.description.length > 50, t.id)
+    assert.equal(de.steps.length, t.steps.length)
+    assert.deepEqual(de.steps.map((s) => s.tests), t.steps.map((s) => s.tests))
+    assert.ok(!/ß/.test(de.description + de.hints.map((h) => h.body).join('')), `${t.id}: use "ss" (Swiss spelling)`)
+    for (const x of t.tests) if (x.message) assert.ok(testMessage(x, 'de'), `${t.id}/${x.name}: messageDe missing`)
+  }
+})
+
+test('feedback messages follow the language', () => {
+  const t = all.find((x) => x.id === 'w03-even-odd')!
+  const out = `##EPROG-d|even|${b64('12 is odd\n')}|\n##EPROG-d|odd|${b64('')}|${b64('timeout')}\n##EPROG-d-DONE`
+  const r = evaluate(t, t.files, out, 'd', 'de')
+  assert.equal(r.kind, 'failed')
+  if (r.kind !== 'failed') return
+  assert.match(r.results[0].message, /Zeile 1 unterscheidet sich/)
+  assert.match(r.results[1].message, /Endlosschleife/)
+  assert.match(r.results[2].message, /nicht ausgeführt/)
+})

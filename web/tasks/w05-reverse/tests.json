@@ -10,7 +10,8 @@
     "name": "reversed-copy",
     "code": "int[] a = {1, 2, 3}; Main.reversed(a); return a;",
     "expected": "[1, 2, 3]",
-    "message": "reversed must not modify its parameter: build a new array."
+    "message": "reversed must not modify its parameter: build a new array.",
+    "messageDe": "reversed darf den Parameter nicht verändern: Baue ein neues Array."
   },
   {
     "type": "code",

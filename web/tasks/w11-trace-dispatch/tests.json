@@ -5,7 +5,8 @@
     "expr": "Main.answer(1) + \"|\" + Main.answer(2) + \"|\" + Main.answer(5)",
     "expected": "Animal says Woof|Puppy! Animal says Woof|Animal says ...",
     "hidden": true,
-    "message": "Overridden methods are chosen by the class of the object at run time."
+    "message": "Overridden methods are chosen by the class of the object at run time.",
+    "messageDe": "Überschriebene Methoden werden zur Laufzeit nach der Klasse des Objekts gewählt."
   },
   {
     "type": "expr",
@@ -13,12 +14,14 @@
     "expr": "Main.answer(3) + \"|\" + Main.answer(4)",
     "expected": "hello dog|hello animal",
     "hidden": true,
-    "message": "Overloaded methods are chosen by the declared type at compile time."
+    "message": "Overloaded methods are chosen by the declared type at compile time.",
+    "messageDe": "Überladene Methoden werden zur Kompilierzeit nach dem deklarierten Typ gewählt."
   },
   {
     "type": "source",
     "name": "no-classes",
     "forbid": "\\bextends\\b|\\bclass\\s+(Animal|Dog|Puppy)\\b",
-    "message": "Predict the answers by reasoning — do not copy the classes into your project."
+    "message": "Predict the answers by reasoning — do not copy the classes into your project.",
+    "messageDe": "Sage die Antworten durch Überlegen voraus — kopiere die Klassen nicht in dein Projekt."
   }
 ]

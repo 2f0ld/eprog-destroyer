@@ -23,6 +23,7 @@
     "expr": "Main.formatDuration(90061)",
     "expected": "25 h 1 min 1 s",
     "hidden": true,
-    "message": "Check a duration longer than a day."
+    "message": "Check a duration longer than a day.",
+    "messageDe": "Prüfe eine Dauer, die länger als ein Tag ist."
   }
 ]

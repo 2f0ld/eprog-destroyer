@@ -15,6 +15,7 @@
     "type": "source",
     "name": "no-loops",
     "forbid": "\\b(for|while)\\b",
-    "message": "Solve it without loops."
+    "message": "Solve it without loops.",
+    "messageDe": "Löse es ohne Schleifen."
   }
 ]

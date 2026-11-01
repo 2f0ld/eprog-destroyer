@@ -99,6 +99,6 @@ export function mainMenu(): MenuItem[] {
     { type: 'submenu', text: 'Tools', items: [disabled('Generate JavaDoc...')] },
     { type: 'submenu', text: 'Git', items: [disabled('Commit...', 'Ctrl+K'), disabled('Push...', 'Ctrl+Shift+K')] },
     { type: 'submenu', text: 'Window', items: [a('CloseContent'), a('CloseAllEditors')] },
-    { type: 'submenu', text: 'Help', items: [a('GotoAction'), a('Keymap'), sep, a('About')] },
+    { type: 'submenu', text: 'Help', items: [a('IntroTour'), a('GotoAction'), a('Keymap'), sep, a('About')] },
   ]
 }

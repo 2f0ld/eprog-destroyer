@@ -12,6 +12,7 @@ export function ToolWindow({
   title,
   titleDropdown,
   tabs,
+  extra,
   actions = [],
   onHide,
   children,
@@ -20,6 +21,8 @@ export function ToolWindow({
   title: string
   titleDropdown?: boolean
   tabs?: ReactNode
+  /** controls next to the header actions (never shrinks) */
+  extra?: ReactNode
   actions?: HeaderAction[]
   onHide: () => void
   children: ReactNode
@@ -34,6 +37,7 @@ export function ToolWindow({
         </div>
         {tabs && <div className="ij-tw-tabs">{tabs}</div>}
         <div className="ij-tw-actions">
+          {extra}
           {actions.map((a) => (
             <button key={a.title} className="ij-icon-btn" title={a.title} onClick={a.onClick}>
               <Icon name={a.icon} />

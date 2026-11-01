@@ -10,7 +10,8 @@
     "name": "deposit",
     "code": "BankAccount a = new BankAccount(10); a.deposit(25); a.deposit(-5); return a.getBalance();",
     "expected": "35",
-    "message": "deposit should ignore amounts <= 0."
+    "message": "deposit should ignore amounts <= 0.",
+    "messageDe": "deposit soll Beträge <= 0 ignorieren."
   },
   {
     "type": "code",
@@ -29,6 +30,7 @@
     "name": "private-field",
     "require": "private\\s+\\w+\\s+\\w+\\s*[;=]",
     "message": "Keep the balance in a private field (encapsulation).",
-    "file": "src/BankAccount.java"
+    "file": "src/BankAccount.java",
+    "messageDe": "Speichere den Saldo in einem privaten Feld (Kapselung)."
   }
 ]

@@ -8,6 +8,8 @@ import { getActiveEditor } from '../editor/editorRef'
 import { currentJavaFiles } from '../ide/liveCheck'
 import { fileName } from '../ide/store'
 import { taskById } from './catalog'
+import { useTasks } from './progress'
+import { textsOf } from './model'
 
 /** EduTools' "Peek Solution": a diff window, your code on the left, the author's solution on the right. */
 export function PeekSolutionDialog({ taskId }: { taskId: string }) {
@@ -54,10 +56,13 @@ export function PeekSolutionDialog({ taskId }: { taskId: string }) {
     }
   }, [task, file])
   if (!task) return null
+  const de = useTasks.getState().lang === 'de'
   return (
     <div className="ij-overlay dim" onMouseDown={close}>
       <div className="ij-dialog ij-diff-dialog" onMouseDown={(e) => e.stopPropagation()}>
-        <div className="ij-dialog-title">Peek Solution: {task.title}</div>
+        <div className="ij-dialog-title">
+          {de ? 'Lösung ansehen' : 'Peek Solution'}: {textsOf(task, useTasks.getState().lang).title}
+        </div>
         <div className="ij-diff-header">
           {files.length > 1 ? (
             <select className="ij-select" value={file} onChange={(e) => setFile(e.target.value)}>
@@ -71,14 +76,14 @@ export function PeekSolutionDialog({ taskId }: { taskId: string }) {
             <span>{fileName(file)}</span>
           )}
           <span className="ij-diff-sides">
-            <span>Your code</span>
-            <span>Author&apos;s solution</span>
+            <span>{de ? 'Dein Code' : 'Your code'}</span>
+            <span>{de ? 'Musterlösung' : "Author's solution"}</span>
           </span>
         </div>
         <div className="ij-diff-host" ref={host} />
         <div className="ij-dialog-footer">
           <span className="ij-muted" style={{ flex: 1 }}>
-            Read it, close it, then write the solution yourself — copying teaches nothing.
+            {de ? 'Lesen, schliessen, dann selbst schreiben — Abschreiben bringt nichts.' : 'Read it, close it, then write the solution yourself — copying teaches nothing.'}
           </span>
           <button className="ij-button default" onClick={close}>
             Close

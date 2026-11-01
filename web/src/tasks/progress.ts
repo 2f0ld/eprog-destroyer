@@ -16,10 +16,18 @@ export interface TaskProgress {
   steps?: boolean[]
 }
 
+export type Lang = 'en' | 'de'
+
 export type CheckState = { taskId: string; running: true } | { taskId: string; running: false; outcome: CheckOutcome; at: number; firstSolve: boolean }
 
 interface TasksState {
   progress: Record<string, TaskProgress>
+  /** language of task texts and the Task window (easy switch in its header) */
+  lang: Lang
+  setLang(l: Lang): void
+  /** solved count the mountain was last shown with (to animate newly dug blocks) */
+  mountainSeen: number
+  setMountainSeen(n: number): void
   /** last check (not persisted) */
   check: CheckState | null
   get(id: string): TaskProgress
@@ -37,6 +45,10 @@ export const useTasks = create<TasksState>()(
     (set, get) => ({
       progress: {},
       check: null,
+      lang: 'en',
+      setLang: (lang) => set({ lang }),
+      mountainSeen: 0,
+      setMountainSeen: (mountainSeen) => set({ mountainSeen }),
       get: (id) => get().progress[id] ?? EMPTY,
       revealHint: (id) => set((s) => ({ progress: { ...s.progress, [id]: { ...(s.progress[id] ?? EMPTY), hintsShown: (s.progress[id]?.hintsShown ?? 0) + 1 } } })),
       markPeeked: (id) => set((s) => ({ progress: { ...s.progress, [id]: { ...(s.progress[id] ?? EMPTY), peeked: true } } })),
@@ -56,6 +68,6 @@ export const useTasks = create<TasksState>()(
       },
       resetAll: () => set({ progress: {}, check: null }),
     }),
-    { name: 'eprog-tasks', version: 1, partialize: (s) => ({ progress: s.progress }) },
+    { name: 'eprog-tasks', version: 1, partialize: (s) => ({ progress: s.progress, lang: s.lang, mountainSeen: s.mountainSeen }) },
   ),
 )
