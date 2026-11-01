@@ -16,6 +16,7 @@
     "name": "clamp",
     "expr": "Main.grade(70, 60) + \" \" + Main.grade(-5, 60)",
     "expected": "6.0 1.0",
-    "message": "The grade must stay between 1.0 and 6.0."
+    "message": "The grade must stay between 1.0 and 6.0.",
+    "messageDe": "Die Note muss zwischen 1.0 und 6.0 bleiben."
   }
 ]

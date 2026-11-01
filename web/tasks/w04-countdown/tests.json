@@ -3,7 +3,8 @@
     "type": "source",
     "name": "uses-for",
     "require": "\\bfor\\s*\\(",
-    "message": "Use a for loop."
+    "message": "Use a for loop.",
+    "messageDe": "Verwende eine for-Schleife."
   },
   {
     "type": "io",

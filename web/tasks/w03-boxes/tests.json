@@ -3,7 +3,8 @@
     "type": "source",
     "name": "has-method",
     "require": "static\\s+void\\s+drawBox\\s*\\(\\s*\\)",
-    "message": "Declare a method: public static void drawBox()"
+    "message": "Declare a method: public static void drawBox()",
+    "messageDe": "Deklariere eine Methode: public static void drawBox()"
   },
   {
     "type": "io",
@@ -20,6 +21,7 @@
     "type": "source",
     "name": "calls-twice",
     "require": "drawBox\\s*\\(\\s*\\)\\s*;[\\s\\S]*drawBox\\s*\\(\\s*\\)\\s*;",
-    "message": "Call drawBox() twice instead of copying the println lines."
+    "message": "Call drawBox() twice instead of copying the println lines.",
+    "messageDe": "Rufe drawBox() zweimal auf, statt die println-Zeilen zu kopieren."
   }
 ]

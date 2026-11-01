@@ -21,6 +21,7 @@
     "type": "source",
     "name": "uses-loop",
     "require": "\\bwhile\\s*\\(",
-    "message": "Use a while loop."
+    "message": "Use a while loop.",
+    "messageDe": "Verwende eine while-Schleife."
   }
 ]

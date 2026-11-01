@@ -5,7 +5,8 @@
     "expr": "Main.predictTotal()",
     "expected": "6",
     "hidden": true,
-    "message": "Trace again: write down i and total for every iteration."
+    "message": "Trace again: write down i and total for every iteration.",
+    "messageDe": "Rechne nochmals nach: Schreibe i und total für jeden Durchlauf auf."
   },
   {
     "type": "expr",
@@ -13,12 +14,14 @@
     "expr": "Main.predictIterations()",
     "expected": "4",
     "hidden": true,
-    "message": "Count the rows of your trace table."
+    "message": "Count the rows of your trace table.",
+    "messageDe": "Zähle die Zeilen deiner Tabelle."
   },
   {
     "type": "source",
     "name": "no-loop",
     "forbid": "\\b(for|while)\\b",
-    "message": "Predict the values by reasoning — return the numbers directly."
+    "message": "Predict the values by reasoning — return the numbers directly.",
+    "messageDe": "Sage die Werte durch Überlegen voraus — gib die Zahlen direkt zurück."
   }
 ]

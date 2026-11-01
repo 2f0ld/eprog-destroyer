@@ -4,7 +4,8 @@
     "name": "range",
     "code": "java.util.Random r = new java.util.Random(1); for (int i = 0; i < 5000; i++) { int x = Main.roll(r, 6); if (x < 1 || x > 6) return \"rolled \" + x; } return \"ok\";",
     "expected": "ok",
-    "message": "A six-sided die must only produce 1 … 6."
+    "message": "A six-sided die must only produce 1 … 6.",
+    "messageDe": "Ein sechsseitiger Würfel darf nur 1 … 6 liefern."
   },
   {
     "type": "code",

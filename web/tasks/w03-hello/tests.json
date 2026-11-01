@@ -4,7 +4,8 @@
     "name": "first-line",
     "expected": "Hello, ETH!",
     "match": "contains",
-    "message": "The first line should be exactly: Hello, ETH!"
+    "message": "The first line should be exactly: Hello, ETH!",
+    "messageDe": "Die erste Zeile soll genau so lauten: Hello, ETH!"
   },
   {
     "type": "io",
