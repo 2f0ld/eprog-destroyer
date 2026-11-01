@@ -8,6 +8,7 @@ import { revealPosition } from '../ide/navigation'
 import { getActiveEditor } from '../editor/editorRef'
 import { renameJavaFile } from '../editor/rename'
 import { PeekSolutionDialog } from '../tasks/PeekSolution'
+import { AiCheckDialog } from './AiCheckDialog'
 
 function useEscape(onEsc: () => void) {
   useEffect(() => {
@@ -606,6 +607,8 @@ export function DialogHost() {
       return <SettingsDialog />
     case 'about':
       return <AboutDialog />
+    case 'ai-check':
+      return <AiCheckDialog />
     case 'peek-solution':
       return <PeekSolutionDialog taskId={dialog.taskId} />
     case 'choose-members':

@@ -32,9 +32,16 @@ function Markdown({ md }: { md: string }) {
   return <div ref={ref} className="ij-md" dangerouslySetInnerHTML={{ __html: html }} />
 }
 
+/** What the difficulty dots mean (also shown as a legend in the Course tab). */
+export const DIFFICULTY = {
+  en: ['Easy: one idea, a few lines', 'Medium: combine several ideas, plan before coding', 'Hard: exam level, split it into steps'],
+  de: ['Leicht: eine Idee, wenige Zeilen', 'Mittel: mehrere Ideen kombinieren, vorher planen', 'Schwer: Prüfungsniveau, in Schritte aufteilen'],
+}
+
 function Difficulty({ level }: { level: number }) {
+  const lang = useTasks((s) => s.lang)
   return (
-    <span className="ij-task-difficulty" title={['Easy', 'Medium', 'Hard'][level - 1]}>
+    <span className="ij-task-difficulty" title={DIFFICULTY[lang][level - 1]}>
       {[1, 2, 3].map((i) => (
         <span key={i} className={i <= level ? 'on' : ''} />
       ))}
@@ -74,6 +81,14 @@ function CourseView({ current }: { current: Task | null }) {
       <CourseProgress />
       <div className="ij-course-stats ij-muted">
         {solved === 0 ? 'Start with the first task — each one builds on the ones before.' : `${solved} solved · ${withoutHints} without hints · ${LESSONS.filter((l) => l.tasks.every((t) => progress[t.id]?.status === 'solved')).length} of ${LESSONS.length} lessons completed`}
+      </div>
+      <div className="ij-difficulty-legend" data-tour="difficulty">
+        {[1, 2, 3].map((l) => (
+          <span key={l} title={DIFFICULTY[useTasks.getState().lang][l - 1]}>
+            <Difficulty level={l} />
+            {DIFFICULTY[useTasks.getState().lang][l - 1].split(':')[0]}
+          </span>
+        ))}
       </div>
       {next && (
         <button className="ij-button default ij-course-continue" onClick={() => openTask(next.id)}>
