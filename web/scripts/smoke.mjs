@@ -26,7 +26,7 @@ const fill = async (selector, text) => {
 }
 
 // accounts: the IDE is behind the login wall; sign up with a fresh ETH address, confirm it via the dev
-// mail outbox and log in (DECISIONS D20)
+// mail outbox and log in (DECISIONS D23)
 await page.goto(`${origin}/login`, { waitUntil: 'load' })
 await page.evaluate(() => fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }))
 await page.evaluate(() => localStorage.clear())

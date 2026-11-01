@@ -10,11 +10,11 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 1. **M3** (production-grade sandboxed Java execution) — now the most important gap: Run, Debug, live error
    highlighting (`/api/compile`) and task checking all go through the DEV-ONLY runner. M3 must implement
    `/api/run`, `/api/compile` (incl. `code`/`args` in diagnostics, DECISIONS D10/D15) and the debug protocol
-   (`/api/debug`, `/api/run/:id/debug`, D19), behind the login wall (`createAccounts().handle`, D20).
-2. **M4/M6 follow-ups**: a real mail provider (SMTP) for `server/main.ts`, deployment (D20), serving reference
+   (`/api/debug`, `/api/run/:id/debug`, D22), behind the login wall (`createAccounts().handle`, D23).
+2. **M4/M6 follow-ups**: a real mail provider (SMTP) for `server/main.ts`, deployment (D23), serving reference
    solutions/hidden tests from the server now that users are known.
 3. **M5 follow-ups**: theory practice (EBNF quizzes, loop invariants, weakest preconditions), interfaces/generics,
-   more exam-practice sets, German texts (D17), an IntelliJ-style test runner view for check details.
+   more exam-practice sets, an IntelliJ-style test runner view for check details.
 4. **M2 leftovers**: Ctrl+Q docs, Navigate Back/Forward, Ctrl+click underline, more quick fixes, smart completion,
    bundle size (lazy-load Monaco); debugger extras (Evaluate Expression / watches, Run to Cursor, `toString()`
    rendering, exception breakpoints, Breakpoints dialog).
@@ -89,7 +89,7 @@ Goal: a browser IDE that a student cannot easily tell apart from IntelliJ IDEA (
 - 🟡 Editor: ✅ error stripe, ✅ "unused" greying; ⬜ Ctrl+click underline, Ctrl+mouse wheel font size
 - 🟡 Settings: ✅ editor font size, soft wraps, show whitespaces; ⬜ font family, line spacing
 - ⬜ Drag & drop in project tree; multiple selection
-- ✅ Debugger (2026-11-01, D19): breakpoints over line numbers (click, hover preview, Ctrl+F8, persisted per
+- ✅ Debugger (2026-11-01, D22): breakpoints over line numbers (click, hover preview, Ctrl+F8, persisted per
   project/file, verified/invalid icons, Mute), Debug (Shift+F9) via JDWP in the dev runner, Debug tool window with
   Threads & Variables (frames, lazily expandable Variables tree with IntelliJ renderers and changed-value colour)
   and Console tabs, execution point / caller frame line highlight, inline values, Resume F9, Pause, Step Over F8,
@@ -102,7 +102,7 @@ Goal: a browser IDE that a student cannot easily tell apart from IntelliJ IDEA (
 ## M3 — Sandboxed Java execution service ⬜
 
 - ⬜ Backend service (Node or JVM) implementing the same protocol as `web/dev/devRunner.ts`
-  (`POST /api/run` NDJSON stream, `/stdin`, `/kill`, `/api/compile`, debug protocol D19) — the frontend should not
+  (`POST /api/run` NDJSON stream, `/stdin`, `/kill`, `/api/compile`, debug protocol D22) — the frontend should not
   need changes; `web/dev/jdwp.ts` + `debugSession.ts` can be reused inside the sandbox
 - ⬜ Isolation: per-run container (e.g. gVisor/nsjail/firecracker), no network, CPU/memory/time/output/pid limits,
   read-only rootfs, ephemeral workdir
@@ -111,7 +111,7 @@ Goal: a browser IDE that a student cannot easily tell apart from IntelliJ IDEA (
 - ⬜ Rate limiting per user; abuse monitoring
 - ⬜ Replace the dev runner in production builds; keep it for local dev
 
-## M4 — Accounts: ethz.ch-only sign-up & email verification 🟡 (2026-11-01, D20/D21)
+## M4 — Accounts: ethz.ch-only sign-up & email verification 🟡 (2026-11-01, D23/D24)
 
 - ✅ Sign up / log in / forgot / reset / account pages (`auth.html`, plain and neutral, no ETH branding)
 - ✅ Email must be `@ethz.ch` or a subdomain (e.g. `@student.ethz.ch`): validated on the server with
@@ -147,6 +147,10 @@ and get stepping-stone help instead of answers. Design: DECISIONS D14–D17, aut
 - ✅ Progress tracking per user on the server, sync of task workspaces (M4)
 - ⬜ Serve reference solutions and hidden test expectations from the server (they ship in the JS bundle now,
   so Peek Solution gating and hidden tests are only a nudge, not a protection)
+- ✅ German texts for all tasks (`task.de.md`, `messageDe`), EN | DE switch in the Task window and Settings
+- ✅ Mountain tab: every solved task digs a block off the EProg mountain; tools and finds unlock on the way
+- ✅ Difficulty dots explained (legend in the Course tab, tooltips); skippable intro tour (Help › Show Intro Tour)
+- ✅ Tongue-in-cheek "did you use AI?" dialog when code from outside the IDE is pasted
 - ⬜ More tasks: EBNF without code (grammar quizzes), loop invariants / weakest preconditions, interfaces and
   generics, file input; more exam-practice sets; German texts
 - ⬜ IntelliJ-style test runner tool window for check details (green/red tree); JUnit-based tests (M3)

@@ -14,7 +14,7 @@
  *   POST /api/run/:id/kill
  *   POST /api/compile          {files}  -> {diagnostics:[...]}   (background error highlighting, no execution)
  *
- * Debugging (see src/debugger/protocol.ts for the types, DECISIONS D19):
+ * Debugging (see src/debugger/protocol.ts for the types, DECISIONS D22):
  *   POST /api/debug            {files, mainClass, breakpoints:[{file, line}]} -> NDJSON stream with all run events plus
  *        {type:'attached', address}    debugger connected (before the program starts)
  *        {type:'paused', reason:'breakpoint'|'step'|'pause', thread, frames:[{method, className, file, line, startLine}],

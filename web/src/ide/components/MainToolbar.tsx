@@ -71,7 +71,7 @@ export function MainToolbar() {
         <button className="ij-tb-icon" title="Main Menu" onClick={(e) => openMenuBelow(e.currentTarget, mainMenu(), 200)}>
           <Icon name="general/menu" size={20} />
         </button>
-        <button className="ij-tb-widget ij-project-widget" title={`~/IdeaProjects/${projectName}`} onClick={(e) => openMenuBelow(e.currentTarget, projectMenu(), 260)}>
+        <button data-tour="project-widget" className="ij-tb-widget ij-project-widget" title={`~/IdeaProjects/${projectName}`} onClick={(e) => openMenuBelow(e.currentTarget, projectMenu(), 260)}>
           <span className="ij-project-avatar">{projectInitials(projectName)}</span>
           <span className="ij-project-name">{projectName}</span>
           <Icon name="general/chevronDown" />
@@ -103,7 +103,7 @@ export function MainToolbar() {
           </>
         ) : (
           <>
-            <button className="ij-tb-icon" title={`Run '${runConfig ?? ''}'  Shift+F10`} onClick={() => runAction('Run')}>
+            <button data-tour="run" className="ij-tb-icon" title={`Run '${runConfig ?? ''}'  Shift+F10`} onClick={() => runAction('Run')}>
               <Icon name="run/run" size={20} />
             </button>
             <button className="ij-tb-icon" title={`Debug '${runConfig ?? ''}'  Shift+F9`} onClick={() => runAction('Debug')}>
@@ -125,7 +125,7 @@ export function MainToolbar() {
           <Icon name="general/moreVertical" size={20} />
         </button>
         <div className="ij-tb-gap" />
-        <button className="ij-tb-icon" title="Search Everywhere  Double Shift" onClick={() => runAction('SearchEverywhere')}>
+        <button data-tour="search" className="ij-tb-icon" title="Search Everywhere  Double Shift" onClick={() => runAction('SearchEverywhere')}>
           <Icon name="general/search" size={20} />
         </button>
         <button className="ij-tb-icon" title="IDE and Project Settings" onClick={() => runAction('ShowSettings')}>

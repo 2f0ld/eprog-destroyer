@@ -1,0 +1,100 @@
+import { useTasks } from './progress'
+import type { Lang } from './model'
+
+/**
+ * UI strings of the task system in English and German. German follows Swiss spelling ("ss", no "ß"),
+ * like at ETH. Tab names stay English in both languages: they are IntelliJ UI, which is English.
+ */
+const STRINGS = {
+  en: {
+    practice: 'EProg Practice',
+    solvedOf: (s: number, n: number) => `${s} of ${n} tasks solved`,
+    startHere: 'Start with the first task — each one builds on the ones before.',
+    stats: (s: number, nh: number, l: number, ln: number) => `${s} solved · ${nh} without hints · ${l} of ${ln} lessons completed`,
+    start: 'Start',
+    continue: 'Continue',
+    lesson: (i: number, w: number) => `Lesson ${i} · Week ${w}`,
+    lessonShort: (i: number) => `Lesson ${i}`,
+    steps: 'Steps',
+    hints: 'Hints',
+    hint: (i: number) => `Hint ${i}`,
+    stuck: (n: number) => `Stuck? Show hint 1 of ${n}`,
+    showHint: (i: number, n: number) => `Show hint ${i} of ${n}`,
+    allHints: 'All hints are shown. Still stuck? Re-read the steps, then try one small change at a time and Run.',
+    input: 'Input',
+    expected: 'Expected',
+    actual: 'Actual',
+    congrats: 'Congratulations!',
+    allPassed: (n: number) => `All ${n} tests passed.`,
+    firstTry: 'First try, no hints — excellent!',
+    noHints: 'Solved without hints.',
+    withHints: (h: number) => `You used ${h} hint${h === 1 ? '' : 's'} — that is what they are for.`,
+    next: (t: string) => `Next: ${t}`,
+    previous: (t: string) => `Previous: ${t}`,
+    incorrect: 'Incorrect',
+    passedOf: (p: number, n: number) => `${p} of ${n} tests passed`,
+    moreFailing: (n: number) => `${n} more failing test${n > 1 ? 's' : ''}. Fix this one first.`,
+    compileFailed: 'Compilation Failed',
+    checkFailed: 'Check Failed',
+    buildsOn: 'Builds on:',
+    check: 'Check',
+    checking: 'Checking…',
+    reset: 'Reset Content',
+    peek: 'Peek Solution',
+    peekTip: "Compare your code with the author's solution",
+    peekLocked: (n: number) => `Available after all hints or ${n} checks — the struggle is where the learning happens.`,
+    noTask: 'No task is open. Pick one in the',
+    courseTab: 'Course',
+    tab: 'tab.',
+  },
+  de: {
+    practice: 'EProg-Übungen',
+    solvedOf: (s: number, n: number) => `${s} von ${n} Aufgaben gelöst`,
+    startHere: 'Beginne mit der ersten Aufgabe — jede baut auf den vorherigen auf.',
+    stats: (s: number, nh: number, l: number, ln: number) => `${s} gelöst · ${nh} ohne Hinweise · ${l} von ${ln} Lektionen abgeschlossen`,
+    start: 'Start',
+    continue: 'Weiter',
+    lesson: (i: number, w: number) => `Lektion ${i} · Woche ${w}`,
+    lessonShort: (i: number) => `Lektion ${i}`,
+    steps: 'Schritte',
+    hints: 'Hinweise',
+    hint: (i: number) => `Hinweis ${i}`,
+    stuck: (n: number) => `Steckst du fest? Hinweis 1 von ${n} anzeigen`,
+    showHint: (i: number, n: number) => `Hinweis ${i} von ${n} anzeigen`,
+    allHints: 'Alle Hinweise sind sichtbar. Immer noch blockiert? Lies die Schritte nochmals und ändere dann immer nur eine Kleinigkeit und führe aus.',
+    input: 'Eingabe',
+    expected: 'Erwartet',
+    actual: 'Tatsächlich',
+    congrats: 'Herzlichen Glückwunsch!',
+    allPassed: (n: number) => `Alle ${n} Tests bestanden.`,
+    firstTry: 'Beim ersten Versuch und ohne Hinweise — hervorragend!',
+    noHints: 'Ohne Hinweise gelöst.',
+    withHints: (h: number) => `Du hast ${h} ${h === 1 ? 'Hinweis' : 'Hinweise'} gebraucht — dafür sind sie da.`,
+    next: (t: string) => `Weiter: ${t}`,
+    previous: (t: string) => `Zurück: ${t}`,
+    incorrect: 'Falsch',
+    passedOf: (p: number, n: number) => `${p} von ${n} Tests bestanden`,
+    moreFailing: (n: number) => `${n} weitere${n > 1 ? '' : 'r'} fehlgeschlagene${n > 1 ? '' : 'r'} Test${n > 1 ? 's' : ''}. Behebe zuerst diesen.`,
+    compileFailed: 'Kompilierung fehlgeschlagen',
+    checkFailed: 'Prüfung fehlgeschlagen',
+    buildsOn: 'Baut auf:',
+    check: 'Prüfen',
+    checking: 'Prüfe…',
+    reset: 'Inhalt zurücksetzen',
+    peek: 'Lösung ansehen',
+    peekTip: 'Deinen Code mit der Musterlösung vergleichen',
+    peekLocked: (n: number) => `Verfügbar nach allen Hinweisen oder ${n} Prüfungen — beim Knobeln lernt man am meisten.`,
+    noTask: 'Keine Aufgabe geöffnet. Wähle eine im Tab',
+    courseTab: 'Course',
+    tab: '.',
+  },
+} satisfies Record<Lang, unknown>
+
+export type Strings = (typeof STRINGS)['en']
+
+export const strings = (lang: Lang): Strings => STRINGS[lang]
+
+/** UI strings for the current task language (re-renders on switch). */
+export function useStrings(): Strings {
+  return STRINGS[useTasks((s) => s.lang)]
+}

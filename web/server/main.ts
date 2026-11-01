@@ -1,6 +1,6 @@
 /**
  * Production server: serves the built app (dist/) behind the login wall plus the accounts API.
- *   npm run build && npm start      (PORT, PUBLIC_URL, DATA_DIR; see docs/DECISIONS.md D21)
+ *   npm run build && npm start      (PORT, PUBLIC_URL, DATA_DIR; see docs/DECISIONS.md D24)
  * Java execution is not included: /api/run, /api/compile and /api/debug answer 503 until the M3 sandbox exists
  * (the DEV-ONLY runner must never be deployed).
  */

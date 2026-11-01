@@ -25,6 +25,7 @@
     "expected": "true",
     "hidden": true,
     "timeoutMs": 4000,
-    "message": "Your loop is too slow for very large numbers: only try divisors d with d * d <= n."
+    "message": "Your loop is too slow for very large numbers: only try divisors d with d * d <= n.",
+    "messageDe": "Deine Schleife ist für sehr grosse Zahlen zu langsam: Probiere nur Teiler d mit d * d <= n."
   }
 ]

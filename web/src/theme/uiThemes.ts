@@ -54,6 +54,14 @@ export const islandsDark: UiTheme = {
     '--stop-bg': '#C54E58', // RunWidget.stopBackground
     '--editor-fg': '#BCBEC4',
     '--wrong-ref': '#F75464', // scheme WRONG_REFERENCES_ATTRIBUTES
+    '--gotit-bg': '#2E4D89', // GotItTooltip.background (intro tour)
+    '--gotit-border': '#2E4D89', // GotItTooltip.borderColor
+    '--gotit-fg': '#D1D3D9', // GotItTooltip.foreground
+    '--gotit-link': '#92B7FF', // GotItTooltip.linkForeground
+    '--gotit-step': '#8B8E94', // GotItTooltip.stepForeground
+    '--gotit-shortcut-bg': '#233558', // GotItTooltip.shortcutBackground
+    '--gotit-button-border': '#FFFFFF3B', // GotItTooltip.Button.startBorderColor
+    '--gotit-button-contrast': '#233558', // GotItTooltip.Button.contrastBackground
     '--unused-fg': '#6F737A', // scheme NOT_USED_ELEMENT_ATTRIBUTES
     '--console-fg': '#BCBEC4',
     '--console-error': '#F75464',
@@ -105,6 +113,14 @@ export const islandsLight: UiTheme = {
     '--stop-bg': '#C54E58',
     '--editor-fg': '#080808',
     '--wrong-ref': '#F50000', // scheme WRONG_REFERENCES_ATTRIBUTES (expUI_lightScheme.xml)
+    '--gotit-bg': '#FFFFFF',
+    '--gotit-border': '#D1D3D9',
+    '--gotit-fg': '#000000',
+    '--gotit-link': '#2F5EB9',
+    '--gotit-step': '#8B8E94',
+    '--gotit-shortcut-bg': '#DDDFE4',
+    '--gotit-button-border': '#00000030',
+    '--gotit-button-contrast': '#3871E1',
     '--unused-fg': '#808080', // scheme NOT_USED_ELEMENT_ATTRIBUTES (Default)
     '--console-fg': '#080808',
     '--console-error': '#E55230',

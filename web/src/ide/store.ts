@@ -59,6 +59,8 @@ interface IdeState {
   theme: ThemeId
   /** Settings > Editor (IntelliJ defaults: JetBrains Mono 13, line height 1.2 scaled to 20px here) */
   editorSettings: { fontSize: number; softWraps: boolean; showWhitespaces: boolean }
+  /** the intro tour was finished or skipped */
+  tourDone: boolean
   leftTool: LeftTool | null
   bottomTool: BottomTool | null
   rightTool: RightTool | null
@@ -155,6 +157,7 @@ export const useIde = create<IdeState>()(
 
       theme: 'islands-dark',
       editorSettings: { fontSize: 13, softWraps: false, showWhitespaces: false },
+      tourDone: false,
       leftTool: 'project',
       bottomTool: null,
       rightTool: null,
@@ -294,6 +297,7 @@ export const useIde = create<IdeState>()(
         expanded: s.expanded,
         theme: s.theme,
         editorSettings: s.editorSettings,
+        tourDone: s.tourDone,
         leftTool: s.leftTool,
         bottomTool: s.bottomTool === 'run' || s.bottomTool === 'debug' ? null : s.bottomTool,
         rightTool: s.rightTool,

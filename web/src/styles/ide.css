@@ -1657,3 +1657,243 @@ body.ij-resizing-h * {
   gap: 14px;
   margin-top: 6px;
 }
+
+/* ---------------------------------------------------------------- mountain (gamified progress) */
+:root {
+  --rock-snow: #e8ebf0;
+  --rock-grey: #8b9099;
+  --rock-brown: #8a6a4f;
+  --rock-dark: #4f4a46;
+}
+.ij-mountain {
+  padding: 12px 16px 16px;
+  overflow: auto;
+  height: 100%;
+  box-sizing: border-box;
+}
+.ij-mountain-title {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.ij-mountain-svg {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 4px auto 12px;
+}
+.ij-block rect {
+  stroke: rgba(0, 0, 0, 0.18);
+}
+.ij-block.dug rect {
+  stroke: var(--fg-disabled);
+  stroke-dasharray: 3 3;
+}
+.ij-block.next rect {
+  animation: ij-wobble 2.4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.ij-crack {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.55);
+  stroke-width: 1.4;
+}
+.ij-sparkle {
+  fill: #f2c55c;
+  animation: ij-sparkle 1.8s ease-in-out infinite;
+}
+.ij-block.crumble rect {
+  animation: ij-crumble 0.9s ease-out;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes ij-wobble {
+  0%, 90%, 100% { transform: rotate(0); }
+  93% { transform: rotate(-4deg); }
+  96% { transform: rotate(4deg); }
+}
+@keyframes ij-sparkle {
+  50% { opacity: 0.3; }
+}
+@keyframes ij-crumble {
+  from { fill: var(--rock-grey); transform: scale(1); opacity: 1; }
+  60% { transform: scale(1.15) rotate(8deg); opacity: 0.6; }
+  to { transform: scale(0.2) translateY(30px); opacity: 0; }
+}
+.ij-mountain-tool {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--hover-bg);
+  margin-bottom: 12px;
+}
+.ij-mountain-tool-icon {
+  font-size: 26px;
+}
+.ij-finds {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.ij-find {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 2px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  text-align: center;
+  font-size: 11px;
+}
+.ij-find-icon {
+  font-size: 20px;
+}
+.ij-find.locked {
+  color: var(--fg-disabled);
+}
+.ij-find.locked .ij-find-icon {
+  font-weight: 600;
+}
+.ij-mountain-hint {
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.ij-difficulty-legend {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--fg-muted);
+  margin-bottom: 10px;
+}
+.ij-difficulty-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.ij-difficulty-legend .ij-task-difficulty {
+  margin-left: 0;
+}
+
+.ij-ai-check {
+  margin-top: 20vh;
+  width: 400px;
+}
+.ij-ai-check-body {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 6px 20px 4px;
+}
+.ij-ai-check-body p {
+  margin: 0;
+  line-height: 1.5;
+}
+.ij-ai-check-icon {
+  font-size: 34px;
+  animation: ij-balloon-in 0.25s ease-out;
+}
+.ij-ai-check-body.step-know .ij-ai-check-icon {
+  animation: ij-wobble-fast 0.6s ease-in-out;
+}
+@keyframes ij-wobble-fast {
+  25% { transform: rotate(-12deg); }
+  75% { transform: rotate(12deg); }
+}
+
+/* ---------------------------------------------------------------- intro tour (GotItTooltip style) */
+.ij-tour {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+}
+.ij-tour-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+.ij-tour-spot {
+  position: absolute;
+  border-radius: 10px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45), 0 0 0 2px var(--gotit-bg);
+  pointer-events: none;
+  transition: all 0.25s ease;
+}
+.ij-gotit {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 14px 16px 12px;
+  border-radius: 10px;
+  background: var(--gotit-bg);
+  border: 1px solid var(--gotit-border);
+  color: var(--gotit-fg);
+  box-shadow: var(--shadow);
+  transition: left 0.25s ease, top 0.25s ease;
+}
+.ij-gotit-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.ij-gotit-step {
+  color: var(--gotit-step);
+  font-weight: 400;
+}
+.ij-gotit-body {
+  line-height: 1.5;
+}
+.ij-gotit-body b {
+  background: var(--gotit-shortcut-bg);
+  border-radius: 4px;
+  padding: 0 4px;
+  font-weight: 500;
+}
+.ij-gotit-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+.ij-gotit-button {
+  height: 26px;
+  padding: 0 14px;
+  border-radius: 6px;
+  border: 1px solid var(--gotit-button-border);
+  background: var(--gotit-button-contrast);
+  color: var(--gotit-fg);
+}
+.ij-gotit-link {
+  color: var(--gotit-link);
+  cursor: pointer;
+}
+.ij-gotit-link.skip {
+  margin-left: auto;
+}
+
+.ij-lang-switch {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-right: 4px;
+  border: 1px solid var(--component-border);
+  border-radius: 6px;
+  overflow: hidden;
+  height: 22px;
+  align-self: center;
+}
+.ij-lang-switch button {
+  border: none;
+  background: transparent;
+  color: var(--fg-muted);
+  font-size: 11px;
+  padding: 0 7px;
+}
+.ij-lang-switch button.selected {
+  background: var(--selection-bg);
+  color: var(--fg);
+}

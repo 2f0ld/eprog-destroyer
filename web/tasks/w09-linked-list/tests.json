@@ -16,7 +16,8 @@
     "name": "remove",
     "code": "LinkedIntList l = new LinkedIntList(); l.addLast(4); l.addLast(5); int a = l.removeFirst(); int b = l.removeFirst(); l.addLast(6); return a + \" \" + b + \" \" + l + \" \" + l.size() + \" \" + l.get(0);",
     "expected": "4 5 [6] 1 6",
-    "message": "After removing the last element, both first and last must be null again."
+    "message": "After removing the last element, both first and last must be null again.",
+    "messageDe": "Nachdem das letzte Element entfernt wurde, müssen first und last wieder null sein."
   },
   {
     "type": "code",

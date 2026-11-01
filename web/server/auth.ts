@@ -1,6 +1,6 @@
 /**
  * Pure account helpers (unit-tested in tests/accounts.test.ts): ETH address check, argon2id password
- * hashes, random tokens, cookies. Uses only node:crypto, so there are no native dependencies (DECISIONS D20).
+ * hashes, random tokens, cookies. Uses only node:crypto, so there are no native dependencies (DECISIONS D23).
  */
 import { argon2, createHash, randomBytes, timingSafeEqual } from 'node:crypto'
 import { ETH_EMAIL } from '../src/auth/email.ts'

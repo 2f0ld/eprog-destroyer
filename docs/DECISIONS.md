@@ -33,7 +33,7 @@ stdin and kill are separate POSTs. The dev middleware (`web/dev/devRunner.ts`) r
 
 ### D6 — State in zustand, persisted to localStorage for now (2026-10-31)
 One store (`src/ide/store.ts`) holds files, tabs, layout, run state. Persisted parts are selected in
-`partialize`. M4 moves file storage to the server. *Update: done, see D21.*
+`partialize`. M4 moves file storage to the server. *Update: done, see D24.*
 
 ### D7 — Browser-reserved shortcuts (2026-10-31)
 Pages cannot intercept Ctrl+N, Ctrl+T, Ctrl+W, Ctrl+Shift+N, Ctrl+Tab, Ctrl+F4 in Chrome (Firefox is similar).
@@ -105,9 +105,9 @@ last detail). Peek Solution unlocks only after all hints or 3 checks and shows a
 it yourself. Progress records attempts, hints used and peeks, and the success message acknowledges solving
 without hints. Prerequisites (`requires`) are shown as "Builds on" links but do not lock tasks.
 
-### D17 — Task texts in English for now (2026-10-31)
-The IDE is English like IntelliJ's default UI. EProg is taught in German, so a German version of the task texts
-may be preferable — open question for the course staff. The format allows adding e.g. `task.de.md` later.
+### D17 — Task texts in English and German (2026-10-31, German added 2026-11-01)
+The IDE chrome stays English like IntelliJ's default UI (tab names, menus). Task texts, hints, check feedback and
+the task UI exist in English and German (`task.de.md`), switchable at any time; German uses Swiss spelling.
 Progress lives in localStorage (`eprog-tasks`) until M4 moves it to the server.
 
 ### D18 — Task catalog follows the real EProg schedule; course material stays out of the repo (2026-10-31)
@@ -119,7 +119,23 @@ style tracing, and an "Exam practice" lesson with three staged tasks. All task t
 the user decided that no ETH material is published in this public repository. The EBNF task sits in week 4
 (not 2) because turning a grammar into code needs loops and String methods.
 
-### D19 — Debugger: JDWP spoken from Node, protocol next to the run protocol (2026-11-01)
+### D19 — Gamified progress: dig through the EProg mountain (2026-11-01)
+Progress should feel like an achievement without cluttering the IntelliJ look. The course is a mountain of one
+block per task (Task window › Mountain). Solving any task removes the next block from the top, so the mountain
+shrinks steadily regardless of order. Tools (teaspoon → dynamite) and eight "finds" unlock at fixed fractions of
+the course (`src/tasks/mountain.ts`), and the solve balloon announces them. Emoji keep it light and need no
+assets. It lives in its own tab so the IntelliJ chrome stays untouched.
+
+### D20 — Intro tour as IntelliJ "Got It" tooltips (2026-11-01)
+IntelliJ introduces features with blue Got It tooltips (`GotItTooltip.*` theme keys), so the tour uses that
+style: spotlight on one element, bubble with Next / Back / Skip tour, Escape skips. It runs once on the first
+visit (not in automated browsers, so the smoke test is unaffected) and can be restarted from Help.
+
+### D21 — "Did you use AI?" paste check (2026-11-01)
+Pasting a code-like snippet (3+ lines or 80+ characters with `;{}()=`) that was not copied inside the IDE opens
+a tongue-in-cheek dialog: yes → "fair enough"; no → "are you sure sure?"; sure → "we know you have". It is a
+nudge, not a detector: it cannot see where text came from, it asks once per snippet, and nothing is recorded.
+### D22 — Debugger: JDWP spoken from Node, protocol next to the run protocol (2026-11-01)
 Debug runs start `java -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=127.0.0.1:0` and the dev
 runner talks JDWP over the socket itself (`web/dev/jdwp.ts`, ~25 commands; session logic in `dev/debugSession.ts`).
 Scripting `jdb` was the alternative, but its output is free text interleaved with prompts and program output, and
@@ -137,7 +153,7 @@ Editor look follows the New UI: breakpoints are drawn over line numbers (click /
 inline values after executed lines of the current method (only variables mentioned on the line).
 Breakpoints live in their own store (`eprog-debugger`, per project and file) to keep `ide/store.ts` changes small.
 
-### D20 — Accounts: own small backend in `web/server/`, node:sqlite + argon2id from node:crypto (2026-11-01)
+### D23 — Accounts: own small backend in `web/server/`, node:sqlite + argon2id from node:crypto (2026-11-01)
 No framework and no native dependency: Node 24+ ships `crypto.argon2` and `node:sqlite`, so the accounts backend
 needs no `npm install` of native modules (bcrypt/argon2 packages need build tools). Passwords: argon2id with the
 OWASP minimum (m=19 MiB, t=2, p=1) as PHC strings; length rule (≥10) instead of composition rules (NIST 800-63B),
@@ -155,7 +171,7 @@ In `npm run dev` the same handler is a Vite plugin (`server/devPlugin.ts`, regis
 page `/dev/mail`. `npm start` (`server/main.ts`) serves `dist/` + the API for production; it has no SMTP yet
 (links are logged — M6) and no runner (503 until M3).
 
-### D21 — Auth pages are a second Vite page; IDE state lives on the server (2026-11-01)
+### D24 — Auth pages are a second Vite page; IDE state lives on the server (2026-11-01)
 `auth.html` (`src/auth/`) is a separate small bundle with a plain, neutral look (no IDE styling, no ETH logos), so
 the login pages load fast and the IDE bundle is only served to logged-in users (`/` redirects to `/login`
 otherwise). The persisted zustand stores (`eprog-ide` workspaces + layout, `eprog-tasks` progress,

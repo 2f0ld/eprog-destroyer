@@ -12,6 +12,7 @@ import { DialogHost } from '../ui/DialogHost'
 import { installGlobalShortcuts } from './shortcuts'
 import { installLiveCheck } from './liveCheck'
 import { Balloon } from './components/Balloon'
+import { IntroTour } from '../ui/IntroTour'
 import { TaskToolWindow } from '../tasks/TaskToolWindow'
 import { DebugToolWindow } from '../debugger/DebugToolWindow'
 
@@ -98,6 +99,7 @@ export function IdeWindow() {
       </div>
       <StatusBar />
       <Balloon />
+      <IntroTour />
       <MenuHost />
       <DialogHost />
     </div>

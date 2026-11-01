@@ -14,6 +14,7 @@ import { installInplaceRename } from '../../editor/rename'
 import { installEditorActions } from '../../editor/editorActions'
 import { installDebuggerEditor } from '../../debugger/editorDebug'
 import { startDebug } from '../../debugger/debugClient'
+import { installPasteCheck } from '../../editor/pasteCheck'
 
 function EditorTabs() {
   const openTabs = useIde((s) => s.openTabs)
@@ -257,6 +258,7 @@ export function EditorArea() {
     const disposeRename = installInplaceRename(ed)
     installEditorActions(ed)
     const disposeDebugger = installDebuggerEditor(ed)
+    const disposePasteCheck = installPasteCheck(ed)
 
     const cursorSub = ed.onDidChangeCursorSelection((ev) => {
       const sel = ev.selection
@@ -350,6 +352,7 @@ export function EditorArea() {
     return () => {
       disposeRename()
       disposeDebugger()
+      disposePasteCheck()
       cursorSub.dispose()
       contentSub.dispose()
       modelSub.dispose()
@@ -422,7 +425,7 @@ export function EditorArea() {
   }, [problems, activeTab])
 
   return (
-    <div className="ij-editor-island">
+    <div className="ij-editor-island" data-tour="editor">
       <EditorTabs />
       <div className="ij-editor-body">
         <div ref={hostRef} className="ij-monaco-host" style={{ visibility: activeTab ? 'visible' : 'hidden' }} />

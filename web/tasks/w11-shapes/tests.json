@@ -10,7 +10,8 @@
     "name": "square",
     "code": "Shape s = new Square(4); return s.area() + \" \" + s.name() + \" \" + (s instanceof Rectangle) + \" \" + s;",
     "expected": "16.0 Square true Square(16.00)",
-    "message": "Square must extend Rectangle and call super(side, side)."
+    "message": "Square must extend Rectangle and call super(side, side).",
+    "messageDe": "Square muss Rectangle erweitern und super(side, side) aufrufen."
   },
   {
     "type": "code",
@@ -29,6 +30,7 @@
     "name": "square-extends",
     "file": "src/Square.java",
     "require": "extends\\s+Rectangle",
-    "message": "Square should extend Rectangle."
+    "message": "Square should extend Rectangle.",
+    "messageDe": "Square sollte Rectangle erweitern."
   }
 ]

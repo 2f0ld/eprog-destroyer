@@ -10,7 +10,8 @@
     "name": "plus",
     "code": "int[] arr = {1, -2, 3}; Polynomial p = new Polynomial(arr); arr[0] = 99; Polynomial q = new Polynomial(0, 2); Polynomial s = p.plus(q); return s.evaluate(1) + \" \" + p.evaluate(1) + \" \" + q.evaluate(1) + \" \" + s.degree();",
     "expected": "4 2 2 2",
-    "message": "Store a copy of the array, and let plus create a new Polynomial."
+    "message": "Store a copy of the array, and let plus create a new Polynomial.",
+    "messageDe": "Speichere eine Kopie des Arrays, und lass plus ein neues Polynomial erzeugen."
   },
   {
     "type": "code",

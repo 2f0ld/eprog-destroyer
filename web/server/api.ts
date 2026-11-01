@@ -1,6 +1,6 @@
 /**
  * Accounts API (M4), framework-free so the same handler runs as Vite middleware in development
- * (devPlugin.ts) and in the production server (main.ts). DECISIONS D20/D21.
+ * (devPlugin.ts) and in the production server (main.ts). DECISIONS D23/D24.
  *
  *   POST /api/auth/signup   {email, password}   always 200 (no account enumeration); sends a verification mail
  *   POST /api/auth/resend   {email}             new verification mail for an unverified account

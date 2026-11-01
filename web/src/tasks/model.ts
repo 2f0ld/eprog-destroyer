@@ -22,11 +22,11 @@ export interface TaskHint {
 
 export type TaskTest =
   /** runs main() with `stdin`; output must equal `expected` (or contain it with match: 'contains') */
-  | { type: 'io'; name: string; stdin?: string; expected: string; match?: 'exact' | 'contains'; message?: string; hidden?: boolean; timeoutMs?: number }
-  | { type: 'expr'; name: string; expr: string; expected: string; message?: string; hidden?: boolean; timeoutMs?: number }
-  | { type: 'code'; name: string; code: string; expected: string; message?: string; hidden?: boolean; timeoutMs?: number }
+  | { type: 'io'; name: string; stdin?: string; expected: string; match?: 'exact' | 'contains'; message?: string; messageDe?: string; hidden?: boolean; timeoutMs?: number }
+  | { type: 'expr'; name: string; expr: string; expected: string; message?: string; messageDe?: string; hidden?: boolean; timeoutMs?: number }
+  | { type: 'code'; name: string; code: string; expected: string; message?: string; messageDe?: string; hidden?: boolean; timeoutMs?: number }
   /** regex checks on the student's source (comments and strings removed); `file` defaults to the main class */
-  | { type: 'source'; name: string; require?: string; forbid?: string; file?: string; message: string; hidden?: boolean }
+  | { type: 'source'; name: string; require?: string; forbid?: string; file?: string; message: string; messageDe?: string; hidden?: boolean }
 
 export interface Task {
   id: string
@@ -49,7 +49,29 @@ export interface Task {
   solution: Record<string, string>
   /** file opened in the editor when the task is opened */
   openFile: string
+  /** German texts from task.de.md (same steps and hints, in the same order) */
+  de?: TaskTexts
 }
+
+export type Lang = 'en' | 'de'
+
+export interface TaskTexts {
+  title: string
+  lesson: string
+  concepts: string[]
+  description: string
+  steps: TaskStep[]
+  hints: TaskHint[]
+}
+
+/** The task's texts in `lang`, falling back to English when there is no translation. */
+export function textsOf(t: Task, lang: Lang): TaskTexts {
+  if (lang === 'de' && t.de) return t.de
+  return { title: t.title, lesson: t.lesson, concepts: t.concepts, description: t.description, steps: t.steps, hints: t.hints }
+}
+
+/** The failure message of a test in `lang`. */
+export const testMessage = (t: TaskTest, lang: Lang) => (lang === 'de' && t.messageDe) || t.message
 
 // ------------------------------------------------------------------ parsing
 
@@ -93,8 +115,33 @@ export function parseTaskFolder(id: string, folder: Record<string, string>): Tas
     solution,
     openFile: meta.open || (`src/${mainClass}.java` in files ? `src/${mainClass}.java` : Object.keys(files)[0] ?? ''),
   }
+  if (folder['task.de.md'] !== undefined) task.de = parseTranslation(task, folder['task.de.md'])
   validateTask(task)
   return task
+}
+
+/** task.de.md: front matter (title, lesson, concepts), description, Steps and Hints like task.md. */
+function parseTranslation(task: Task, md: string): TaskTexts {
+  const fm = /^---\n([\s\S]*?)\n---\n?/.exec(md)
+  const meta: Record<string, string> = {}
+  for (const line of (fm?.[1] ?? '').split('\n')) {
+    const m = /^(\w+)\s*:\s*(.*)$/.exec(line.trim())
+    if (m) meta[m[1]] = m[2].trim()
+  }
+  const sec = splitSections(fm ? md.slice(fm[0].length) : md)
+  const steps = parseSteps(sec.steps)
+  const hints = parseHints(sec.hints)
+  if (steps.length !== task.steps.length) throw new Error(`task ${task.id}: task.de.md has ${steps.length} steps, task.md has ${task.steps.length}`)
+  if (hints.length !== task.hints.length) throw new Error(`task ${task.id}: task.de.md has ${hints.length} hints, task.md has ${task.hints.length}`)
+  return {
+    title: meta.title || task.title,
+    lesson: meta.lesson || task.lesson,
+    concepts: meta.concepts ? meta.concepts.split(',').map((x) => x.trim()).filter(Boolean) : task.concepts,
+    description: sec.description.trim(),
+    // the tests that prove a step come from task.md
+    steps: steps.map((s, i) => ({ text: s.text, tests: task.steps[i].tests })),
+    hints,
+  }
 }
 
 function splitSections(body: string) {
@@ -337,49 +384,53 @@ function sameValue(expected: string, actual: string) {
 }
 
 /** Beginner-friendly explanation of why two outputs differ. */
-export function explainDifference(expected: string, actual: string): string {
+export function explainDifference(expected: string, actual: string, lang: Lang = 'en'): string {
+  const de = lang === 'de'
   const e = normalizeOutput(expected)
   const a = normalizeOutput(actual)
-  if (!a) return 'Your program printed nothing.'
-  if (e.toLowerCase() === a.toLowerCase()) return 'The text matches except for upper/lower case letters.'
-  if (e.replace(/\s+/g, '') === a.replace(/\s+/g, '')) return 'The text matches except for spaces or line breaks. Check where you use print vs. println and the spaces around values.'
+  if (!a) return de ? 'Dein Programm hat nichts ausgegeben.' : 'Your program printed nothing.'
+  if (e.toLowerCase() === a.toLowerCase()) return de ? 'Der Text stimmt bis auf Gross-/Kleinschreibung überein.' : 'The text matches except for upper/lower case letters.'
+  if (e.replace(/\s+/g, '') === a.replace(/\s+/g, '')) return de ? 'Der Text stimmt bis auf Leerzeichen oder Zeilenumbrüche überein. Prüfe, wo du print bzw. println verwendest und die Leerzeichen um Werte.' : 'The text matches except for spaces or line breaks. Check where you use print vs. println and the spaces around values.'
   const el = e.split('\n')
   const al = a.split('\n')
   for (let i = 0; i < Math.max(el.length, al.length); i++) {
     if (el[i] === al[i]) continue
-    if (al[i] === undefined) return `Your output stops after line ${i}; expected another line: "${el[i]}".`
-    if (el[i] === undefined) return `Your output has extra line ${i + 1}: "${al[i]}".`
-    return `Line ${i + 1} differs: expected "${el[i]}" but your program printed "${al[i]}".`
+    if (al[i] === undefined) return de ? `Deine Ausgabe endet nach Zeile ${i}; erwartet wurde noch die Zeile "${el[i]}".` : `Your output stops after line ${i}; expected another line: "${el[i]}".`
+    if (el[i] === undefined) return de ? `Deine Ausgabe hat eine zusätzliche Zeile ${i + 1}: "${al[i]}".` : `Your output has extra line ${i + 1}: "${al[i]}".`
+    return de ? `Zeile ${i + 1} unterscheidet sich: erwartet "${el[i]}", dein Programm gab "${al[i]}" aus.` : `Line ${i + 1} differs: expected "${el[i]}" but your program printed "${al[i]}".`
   }
-  return 'The output differs from the expected output.'
+  return de ? 'Die Ausgabe unterscheidet sich von der erwarteten Ausgabe.' : 'The output differs from the expected output.'
 }
 
-function explainError(error: string) {
-  if (error === 'timeout') return 'Your program did not finish within the time limit. Is there an infinite loop (a loop condition that never becomes false)?'
+const ERROR_TIPS: Record<string, { en: string; de: string }> = {
+  ArrayIndexOutOfBoundsException: { en: 'An array index was outside 0 … length - 1. Check your loop bounds (< vs <=).', de: 'Ein Array-Index lag ausserhalb von 0 … length - 1. Prüfe deine Schleifengrenzen (< vs. <=).' },
+  StringIndexOutOfBoundsException: { en: 'A String index was outside 0 … length() - 1.', de: 'Ein String-Index lag ausserhalb von 0 … length() - 1.' },
+  NullPointerException: { en: 'Something was null when it was used. Did you create the object with new?', de: 'Etwas war null, als es verwendet wurde. Hast du das Objekt mit new erzeugt?' },
+  ArithmeticException: { en: 'Division by zero.', de: 'Division durch null.' },
+  InputMismatchException: { en: 'Scanner read something of the wrong type (e.g. nextInt() on text).', de: 'Scanner hat etwas vom falschen Typ gelesen (z. B. nextInt() auf Text).' },
+  NoSuchElementException: { en: 'Scanner tried to read more input than there is.', de: 'Scanner wollte mehr Eingabe lesen, als vorhanden ist.' },
+  StackOverflowError: { en: 'The recursion never stops. Check your base case.', de: 'Die Rekursion hört nie auf. Prüfe deinen Basisfall.' },
+  NumberFormatException: { en: 'A String could not be converted to a number.', de: 'Ein String konnte nicht in eine Zahl umgewandelt werden.' },
+}
+
+function explainError(error: string, lang: Lang = 'en') {
+  const de = lang === 'de'
+  if (error === 'timeout') return de ? 'Dein Programm ist nicht innerhalb der Zeitlimite fertig geworden. Gibt es eine Endlosschleife (eine Bedingung, die nie falsch wird)?' : 'Your program did not finish within the time limit. Is there an infinite loop (a loop condition that never becomes false)?'
   const first = error.split('\n')[0]
   const where = /\n\tat .*\((\w+\.java:\d+)\)/.exec(error)?.[1]
-  const name = /^([\w.$]+)(?::|$)/.exec(first)?.[1]?.replace(/^.*\./, '') ?? 'An exception'
-  const tips: Record<string, string> = {
-    ArrayIndexOutOfBoundsException: 'An array index was outside 0 … length - 1. Check your loop bounds (< vs <=).',
-    StringIndexOutOfBoundsException: 'A String index was outside 0 … length() - 1.',
-    NullPointerException: 'Something was null when it was used. Did you create the object with new?',
-    ArithmeticException: 'Division by zero.',
-    InputMismatchException: 'Scanner read something of the wrong type (e.g. nextInt() on text).',
-    NoSuchElementException: 'Scanner tried to read more input than there is.',
-    StackOverflowError: 'The recursion never stops. Check your base case.',
-    NumberFormatException: 'A String could not be converted to a number.',
-  }
-  return `${name} was thrown${where ? ` at ${where}` : ''}. ${tips[name] ?? ''}`.trim()
+  const name = /^([\w.$]+)(?::|$)/.exec(first)?.[1]?.replace(/^.*\./, '') ?? (de ? 'Eine Exception' : 'An exception')
+  const tip = ERROR_TIPS[name]?.[lang] ?? ''
+  return (de ? `${name} wurde geworfen${where ? ` bei ${where}` : ''}. ${tip}` : `${name} was thrown${where ? ` at ${where}` : ''}. ${tip}`).trim()
 }
 
 /** Source checks run on the student's main file (comments and strings stripped). */
-export function runSourceTests(task: Task, files: Record<string, string>): TestResult[] {
+export function runSourceTests(task: Task, files: Record<string, string>, lang: Lang = 'en'): TestResult[] {
   return task.tests.flatMap((t) => {
     if (t.type !== 'source') return []
     const src = stripCommentsAndStrings(files[t.file ?? `src/${task.mainClass}.java`] ?? Object.values(files).join('\n'))
     const okReq = !t.require || new RegExp(t.require, 'm').test(src)
     const okForbid = !t.forbid || !new RegExp(t.forbid, 'm').test(src)
-    return [{ name: t.name, passed: okReq && okForbid, message: okReq && okForbid ? '' : t.message }]
+    return [{ name: t.name, passed: okReq && okForbid, message: okReq && okForbid ? '' : (testMessage(t, lang) ?? '') }]
   })
 }
 
@@ -392,9 +443,10 @@ export function stripCommentsAndStrings(src: string) {
 }
 
 /** Combine harness output and source checks into per-test results, in task order. */
-export function evaluate(task: Task, files: Record<string, string>, stdout: string, nonce: string): CheckOutcome {
+export function evaluate(task: Task, files: Record<string, string>, stdout: string, nonce: string, lang: Lang = 'en'): CheckOutcome {
+  const de = lang === 'de'
   const { results: raw, done } = parseHarnessOutput(stdout, nonce)
-  const source = new Map(runSourceTests(task, files).map((r) => [r.name, r]))
+  const source = new Map(runSourceTests(task, files, lang).map((r) => [r.name, r]))
   const results: TestResult[] = []
   for (const t of task.tests) {
     if (t.type === 'source') {
@@ -403,19 +455,27 @@ export function evaluate(task: Task, files: Record<string, string>, stdout: stri
     }
     const r = raw.get(t.name)
     if (!r) {
-      results.push({ name: t.name, passed: false, message: done ? 'The test did not run.' : 'The check stopped before this test ran (the program exited or crashed).' })
+      results.push({ name: t.name, passed: false, message: de ? (done ? 'Der Test wurde nicht ausgeführt.' : 'Die Prüfung brach ab, bevor dieser Test lief (das Programm wurde beendet oder ist abgestürzt).') : done ? 'The test did not run.' : 'The check stopped before this test ran (the program exited or crashed).' })
       continue
     }
     if (r.error) {
-      results.push({ name: t.name, passed: false, message: t.message ? `${explainError(r.error)}\n${t.message}` : explainError(r.error), error: r.error, actual: t.type === 'io' && !t.hidden ? r.actual : undefined, stdin: t.type === 'io' && !t.hidden ? t.stdin : undefined, expected: t.hidden ? undefined : t.expected })
+      results.push({ name: t.name, passed: false, message: testMessage(t, lang) ? `${explainError(r.error, lang)}\n${testMessage(t, lang)}` : explainError(r.error, lang), error: r.error, actual: t.type === 'io' && !t.hidden ? r.actual : undefined, stdin: t.type === 'io' && !t.hidden ? t.stdin : undefined, expected: t.hidden ? undefined : t.expected })
       continue
     }
     const passed = t.type === 'io' ? (t.match === 'contains' ? normalizeOutput(r.actual).includes(normalizeOutput(t.expected)) : normalizeOutput(r.actual) === normalizeOutput(t.expected)) : sameValue(t.expected, r.actual)
-    const what = t.type === 'io' ? (t.match === 'contains' ? `Expected your output to contain "${normalizeOutput(t.expected)}".` : explainDifference(t.expected, r.actual)) : t.type === 'expr' ? `${t.expr} returned ${r.actual}${t.hidden ? '' : `, expected ${t.expected}`}.` : `Returned ${r.actual}${t.hidden ? '' : `, expected ${t.expected}`}.`
+    const exp = t.hidden ? '' : de ? `, erwartet ${t.expected}` : `, expected ${t.expected}`
+    const what =
+      t.type === 'io'
+        ? t.match === 'contains'
+          ? de ? `Deine Ausgabe sollte "${normalizeOutput(t.expected)}" enthalten.` : `Expected your output to contain "${normalizeOutput(t.expected)}".`
+          : explainDifference(t.expected, r.actual, lang)
+        : t.type === 'expr'
+          ? de ? `${t.expr} ergab ${r.actual}${exp}.` : `${t.expr} returned ${r.actual}${exp}.`
+          : de ? `Ergebnis ${r.actual}${exp}.` : `Returned ${r.actual}${exp}.`
     results.push({
       name: t.name,
       passed,
-      message: passed ? '' : [t.hidden ? '' : what, t.message ?? ''].filter(Boolean).join('\n') || 'A hidden test failed.',
+      message: passed ? '' : [t.hidden ? '' : what, testMessage(t, lang) ?? ''].filter(Boolean).join('\n') || (de ? 'Ein versteckter Test ist fehlgeschlagen.' : 'A hidden test failed.'),
       expected: t.hidden ? undefined : t.expected,
       actual: t.hidden ? undefined : r.actual,
       stdin: t.type === 'io' && !t.hidden ? t.stdin : undefined,

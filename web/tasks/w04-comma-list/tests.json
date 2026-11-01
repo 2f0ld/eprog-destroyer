@@ -10,7 +10,8 @@
     "name": "many",
     "expr": "\"[\" + Main.countTo(4) + \"]\"",
     "expected": "[1, 2, 3, 4]",
-    "message": "No comma after the last number, and a space after each comma."
+    "message": "No comma after the last number, and a space after each comma.",
+    "messageDe": "Kein Komma nach der letzten Zahl, und nach jedem Komma ein Leerzeichen."
   },
   {
     "type": "expr",

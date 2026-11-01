@@ -22,6 +22,7 @@
     "name": "hotspots",
     "code": "int[][] g = {{1, 2, 1, 0}, {2, 9, 2, 0}, {1, 2, 1, 7}}; String r = Heatmap.hotspots(g, 5) + \" \" + Heatmap.hotspots(g, 8) + \" \" + Heatmap.hotspots(new int[][] {{4, 4}}, 0) + \" \" + Heatmap.hotspots(new int[][] {{3}}, 3); try { Heatmap.hotspots(new int[][] {{1}, {}}, 0); r += \" ok\"; } catch (IllegalArgumentException e) { r += \" E\"; } return r;",
     "expected": "2 1 0 1 E",
-    "message": "Equal neighbours do not count: a hotspot must be strictly greater than all of them."
+    "message": "Equal neighbours do not count: a hotspot must be strictly greater than all of them.",
+    "messageDe": "Gleiche Nachbarn zählen nicht: Ein Hotspot muss strikt grösser als alle sein."
   }
 ]

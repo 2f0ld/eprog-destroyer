@@ -7,6 +7,7 @@ import { PLAYGROUND } from './store'
 import { command, isPaused, startDebug, stopDebug } from '../debugger/debugClient'
 import { isDebugging, useDebugger } from '../debugger/store'
 import { toggleBreakpointAtCaret } from '../debugger/editorDebug'
+import { startTour } from '../ui/IntroTour'
 
 /**
  * Central action registry, like IntelliJ's ActionManager. Menus, keyboard
@@ -272,6 +273,7 @@ export const ACTIONS: Record<string, Action> = {
       s.setTheme(s.theme === 'islands-dark' ? 'islands-light' : 'islands-dark')
     },
   },
+  IntroTour: { id: 'IntroTour', text: 'Show Intro Tour', run: () => startTour() },
   About: {
     id: 'About',
     text: 'About',

@@ -16,7 +16,8 @@
     "name": "negative",
     "stdin": "-3\n",
     "expected": "-3 is odd\n",
-    "message": "Remember: -3 % 2 is -1 in Java."
+    "message": "Remember: -3 % 2 is -1 in Java.",
+    "messageDe": "Denk daran: -3 % 2 ergibt in Java -1."
   },
   {
     "type": "io",

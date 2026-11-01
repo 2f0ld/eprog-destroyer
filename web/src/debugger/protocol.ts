@@ -1,6 +1,6 @@
 /**
  * Debug protocol shared by the IDE and the runner (DEV-ONLY web/dev/debugSession.ts now, the M3 sandbox
- * later). See the header of web/dev/devRunner.ts and docs/DECISIONS.md (D19) for the wire format.
+ * later). See the header of web/dev/devRunner.ts and docs/DECISIONS.md (D22) for the wire format.
  */
 
 export interface DebugBreakpoint {

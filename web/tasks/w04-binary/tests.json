@@ -21,6 +21,7 @@
     "type": "source",
     "name": "no-library",
     "forbid": "Integer\\s*\\.\\s*(toBinaryString|parseInt|toString)",
-    "message": "Implement the conversion yourself instead of using Integer.toBinaryString / Integer.parseInt."
+    "message": "Implement the conversion yourself instead of using Integer.toBinaryString / Integer.parseInt.",
+    "messageDe": "Implementiere die Umwandlung selbst statt mit Integer.toBinaryString / Integer.parseInt."
   }
 ]

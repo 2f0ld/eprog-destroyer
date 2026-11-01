@@ -15,12 +15,14 @@
     "type": "source",
     "name": "no-loops",
     "forbid": "\\b(for|while)\\b",
-    "message": "Solve it without for/while loops — call power from inside power."
+    "message": "Solve it without for/while loops — call power from inside power.",
+    "messageDe": "Löse es ohne for/while-Schleifen — rufe power in power auf."
   },
   {
     "type": "source",
     "name": "is-recursive",
     "require": "power\\s*\\([^;]*\\)[\\s\\S]*power\\s*\\(",
-    "message": "power should call itself."
+    "message": "power should call itself.",
+    "messageDe": "power sollte sich selbst aufrufen."
   }
 ]

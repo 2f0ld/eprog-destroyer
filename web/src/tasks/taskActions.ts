@@ -6,8 +6,9 @@ import { pathForUri } from '../editor/monacoSetup'
 import { TASKS, taskById, lessonOf, LESSONS } from './catalog'
 import { useTasks } from './progress'
 import { runCheck } from './checker'
-import { completedSteps, type Task } from './model'
+import { completedSteps, textsOf, type Task } from './model'
 import { revealPosition } from '../ide/navigation'
+import { newlyUnlocked } from './mountain'
 
 export const taskProjectId = (id: string) => `task:${id}`
 
@@ -64,7 +65,9 @@ export function openPlayground() {
 export function resetTask() {
   const t = currentTask()
   if (!t) return
-  if (!confirm(`Reset "${t.title}" to the starter code? Your changes to the files will be lost.`)) return
+  const de = useTasks.getState().lang === 'de'
+  const title = textsOf(t, useTasks.getState().lang).title
+  if (!confirm(de ? `"${title}" auf den Startcode zurücksetzen? Deine Änderungen an den Dateien gehen verloren.` : `Reset "${title}" to the starter code? Your changes to the files will be lost.`)) return
   const ws = taskWorkspace(t)
   useIde.setState({ files: ws.files, dirs: ws.dirs, openTabs: ws.openTabs, activeTab: ws.activeTab })
   useTasks.getState().setCheck(null)
@@ -106,17 +109,30 @@ export async function checkCurrentTask() {
 function celebrate(t: Task) {
   const ide = useIde.getState()
   const progress = useTasks.getState().progress
+  const lang = useTasks.getState().lang
+  const de = lang === 'de'
+  const title = (x: Task) => textsOf(x, lang).title
   const solvedCount = TASKS.filter((x) => progress[x.id]?.status === 'solved').length
   const lesson = lessonOf(t)
   const lessonDone = lesson.tasks.every((x) => progress[x.id]?.status === 'solved')
   const next = nextUnsolved(t.id)
-  const actions = next ? [{ text: `Next: ${next.title}`, run: () => openTask(next.id) }] : []
+  const actions = next ? [{ text: de ? `Weiter: ${title(next)}` : `Next: ${title(next)}`, run: () => openTask(next.id) }] : []
+  // the mountain: what did this block reveal?
+  const dug = newlyUnlocked(solvedCount, TASKS.length)
+  const extras = [
+    ...dug.finds.map((f) => (de ? `Gefunden: ${f.icon} ${f.name.de}!` : `You dug up: ${f.icon} ${f.name.en}!`)),
+    ...(dug.tool ? [de ? `Neues Werkzeug: ${dug.tool.icon} ${dug.tool.name.de}` : `New tool: ${dug.tool.icon} ${dug.tool.name.en}`] : []),
+  ].join(' ')
+  const mountain = { text: de ? 'Zum Berg' : 'Show mountain', run: () => window.dispatchEvent(new CustomEvent('eprog:show-mountain')) }
+  if (extras) actions.push(mountain)
+  const tally = de ? `${solvedCount} von ${TASKS.length} Aufgaben gelöst.` : `${solvedCount} of ${TASKS.length} tasks solved.`
   if (solvedCount === TASKS.length) {
-    ide.notify({ kind: 'success', title: 'Course completed!', body: `You solved all ${TASKS.length} practice tasks. Impressive work.` })
+    ide.notify({ kind: 'success', title: de ? '💥 Der Berg ist weg!' : '💥 The mountain is gone!', body: `${de ? `Du hast alle ${TASKS.length} Aufgaben gelöst und dich durch ganz EProg gegraben.` : `You solved all ${TASKS.length} practice tasks and dug through all of EProg.`} ${extras}`.trim(), actions: [mountain] })
   } else if (lessonDone) {
     const lessonNo = LESSONS.indexOf(lesson) + 1
-    ide.notify({ kind: 'success', title: `Lesson completed: ${lesson.title}`, body: `All ${lesson.tasks.length} tasks of lesson ${lessonNo} solved · ${solvedCount} of ${TASKS.length} tasks in total.`, actions })
+    const name = textsOf(lesson.tasks[0], lang).lesson
+    ide.notify({ kind: 'success', title: de ? `Lektion abgeschlossen: ${name}` : `Lesson completed: ${name}`, body: `${de ? `Alle ${lesson.tasks.length} Aufgaben von Lektion ${lessonNo} gelöst` : `All ${lesson.tasks.length} tasks of lesson ${lessonNo} solved`} · ${tally} ${extras}`.trim(), actions })
   } else {
-    ide.notify({ kind: 'success', title: 'Task solved', body: `${t.title} · ${solvedCount} of ${TASKS.length} tasks solved.`, actions })
+    ide.notify({ kind: 'success', title: de ? 'Aufgabe gelöst' : 'Task solved', body: `${title(t)} · ${tally} ${extras}`.trim(), actions })
   }
 }
