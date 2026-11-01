@@ -1878,7 +1878,8 @@ body.ij-resizing-h * {
 
 .ij-lang-switch {
   display: inline-flex;
-  margin-left: 6px;
+  flex-shrink: 0;
+  margin-right: 4px;
   border: 1px solid var(--component-border);
   border-radius: 6px;
   overflow: hidden;

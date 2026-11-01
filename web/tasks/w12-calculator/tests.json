@@ -10,7 +10,8 @@
     "name": "plus-minus",
     "expr": "Calculator.eval(\"2+3\") + \" \" + Calculator.eval(\"10-2-3\") + \" \" + Calculator.eval(\"1+2+3+4\")",
     "expected": "5 5 10",
-    "message": "10-2-3 must be (10-2)-3 = 5: apply the operators from left to right."
+    "message": "10-2-3 must be (10-2)-3 = 5: apply the operators from left to right.",
+    "messageDe": "10-2-3 muss (10-2)-3 = 5 sein: Wende die Operatoren von links nach rechts an."
   },
   {
     "type": "expr",
@@ -29,6 +30,7 @@
     "name": "errors",
     "code": "String r = \"\"; for (String bad : new String[] {\"2+\", \"(1\", \"1)\", \"\", \"+1\", \"2**3\", \"a\"}) { try { Calculator.eval(bad); r += \"[\" + bad + \" ok]\"; } catch (IllegalArgumentException e) { r += \"E\"; } } return r;",
     "expected": "EEEEEEE",
-    "message": "Throw an IllegalArgumentException for every input the grammar does not describe."
+    "message": "Throw an IllegalArgumentException for every input the grammar does not describe.",
+    "messageDe": "Wirf eine IllegalArgumentException für jede Eingabe, die die Grammatik nicht beschreibt."
   }
 ]

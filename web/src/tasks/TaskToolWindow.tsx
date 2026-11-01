@@ -432,9 +432,9 @@ export function TaskToolWindow() {
           <div className={`ij-tw-tab${tab === 'mountain' ? ' selected' : ''}`} onClick={() => setTab('mountain')} data-tour="mountain-tab">
             <span>Mountain</span>
           </div>
-          <LangSwitch />
         </>
       }
+      extra={<LangSwitch />}
     >
       {tab === 'mountain' ? (
         <MountainView />

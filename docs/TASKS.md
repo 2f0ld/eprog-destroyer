@@ -16,6 +16,13 @@ web/tasks/w04-even-odd/
 
 The folder name is the task id. Prefix it with the week (`w04-`) so folders sort in course order.
 
+## German texts: task.de.md
+
+Every task also has `task.de.md` with the same structure: front matter `title`, `lesson`, `concepts`, the
+description, and **the same number of steps and hints in the same order** (the tests of each step come from
+`task.md`). Test failure messages get a German version as `messageDe` in `tests.json`. Use Swiss spelling
+(`ss`, never `ß`); `npm test` checks all of this. Students switch with EN | DE in the Task window header.
+
 ## task.md
 
 ```markdown

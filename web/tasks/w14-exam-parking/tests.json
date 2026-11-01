@@ -28,6 +28,7 @@
     "name": "no-instanceof",
     "file": "src/Garage.java",
     "forbid": "\\binstanceof\\b",
-    "message": "Let each vehicle class decide its units and fee (polymorphism) instead of checking instanceof in Garage."
+    "message": "Let each vehicle class decide its units and fee (polymorphism) instead of checking instanceof in Garage.",
+    "messageDe": "Lass jede Fahrzeugklasse ihre Einheiten und Gebühr selbst bestimmen (Polymorphie), statt in Garage mit instanceof zu prüfen."
   }
 ]
