@@ -14,6 +14,19 @@
  *   POST /api/run/:id/kill
  *   POST /api/compile          {files}  -> {diagnostics:[...]}   (background error highlighting, no execution)
  *
+ * Debugging (see src/debugger/protocol.ts for the types, DECISIONS D19):
+ *   POST /api/debug            {files, mainClass, breakpoints:[{file, line}]} -> NDJSON stream with all run events plus
+ *        {type:'attached', address}    debugger connected (before the program starts)
+ *        {type:'paused', reason:'breakpoint'|'step', thread, frames:[{method, className, file, line, startLine}],
+ *                        variables:[{name, type?, value, style, icon, ref?, inline}]}   variables of the top frame
+ *        {type:'resumed'}
+ *        {type:'breakpoint', file, line, status:'verified'|'invalid'}
+ *   POST /api/run/:id/debug    {cmd:'resume'|'stepOver'|'stepInto'|'stepOut'|'stop'}     -> 204
+ *                              {cmd:'frame', frame:n}                                    -> {variables}
+ *                              {cmd:'children', ref}                                     -> {variables}
+ *                              {cmd:'breakpoints', breakpoints:[{file, line}]}           -> 204 (live update)
+ *   /stdin and /kill work for debug sessions as well.
+ *
  * Diagnostics: {file, line, column, severity, message, code?, args?}. `code`/`args` are javac's raw
  * diagnostic key and arguments (e.g. "compiler.err.cant.resolve.location", ["kindname.variable", "y", ...]);
  * the frontend turns them into IntelliJ's wording (src/java/diagnostics.ts) and falls back to `message`.
@@ -24,8 +37,12 @@ import { mkdir, rm, writeFile } from 'node:fs/promises'
 import { randomUUID } from 'node:crypto'
 import path from 'node:path'
 import type { IncomingMessage, ServerResponse } from 'node:http'
+import { DebugSession, compiledClasses } from './debugSession.ts'
+import type { DebugBreakpoint, DebugCommand } from '../src/debugger/protocol.ts'
 
 const MAX_RUNTIME_MS = 10 * 60 * 1000
+const MAX_DEBUG_MS = 30 * 60 * 1000
+const JAVA_FLAGS = ['-Dfile.encoding=UTF-8', '-Dsun.stdout.encoding=UTF-8', '-Dsun.stderr.encoding=UTF-8', '-XX:+UseSerialGC', '-Xmx256m']
 const MAX_OUTPUT_BYTES = 2 * 1024 * 1024
 
 interface Diagnostic {
@@ -151,6 +168,7 @@ async function writeSources(dir: string, files: Record<string, string>) {
 
 export function devRunner(): Plugin {
   const procs = new Map<string, ChildProcess>()
+  const sessions = new Map<string, DebugSession>()
   let tmpRoot = ''
 
   return {
@@ -162,7 +180,7 @@ export function devRunner(): Plugin {
     configureServer(server) {
       server.middlewares.use(async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
         const url = req.url ?? ''
-        if (!url.startsWith('/api/run') && !url.startsWith('/api/compile')) return next()
+        if (!url.startsWith('/api/run') && !url.startsWith('/api/compile') && url !== '/api/debug') return next()
         try {
           const stdinMatch = /^\/api\/run\/([\w-]+)\/(stdin|kill)$/.exec(url)
           if (stdinMatch && req.method === 'POST') {
@@ -180,6 +198,41 @@ export function devRunner(): Plugin {
             res.statusCode = 204
             return res.end()
           }
+          const debugMatch = /^\/api\/run\/([\w-]+)\/debug$/.exec(url)
+          if (debugMatch && req.method === 'POST') {
+            const session = sessions.get(debugMatch[1])
+            const command = JSON.parse(await readBody(req)) as DebugCommand
+            if (!session) {
+              res.statusCode = 404
+              return res.end()
+            }
+            const json = (v: object) => {
+              res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' })
+              res.end(JSON.stringify(v))
+            }
+            switch (command.cmd) {
+              case 'resume':
+                await session.resume()
+                break
+              case 'stepOver':
+              case 'stepInto':
+              case 'stepOut':
+                await session.step(command.cmd)
+                break
+              case 'stop':
+                session.kill()
+                break
+              case 'frame':
+                return json({ variables: await session.frameVariablesAt(command.frame) })
+              case 'children':
+                return json({ variables: await session.children(command.ref) })
+              case 'breakpoints':
+                await session.setBreakpoints(command.breakpoints)
+                break
+            }
+            res.statusCode = 204
+            return res.end()
+          }
           if (url === '/api/compile' && req.method === 'POST') {
             const { files } = JSON.parse(await readBody(req)) as { files: Record<string, string> }
             const dir = path.join(tmpRoot, 'check-' + randomUUID())
@@ -192,9 +245,10 @@ export function devRunner(): Plugin {
               rm(dir, { recursive: true, force: true }).catch(() => {})
             }
           }
-          if (url !== '/api/run' || req.method !== 'POST') return next()
+          const debug = url === '/api/debug'
+          if ((url !== '/api/run' && !debug) || req.method !== 'POST') return next()
 
-          const { files, mainClass } = JSON.parse(await readBody(req)) as { files: Record<string, string>; mainClass: string }
+          const { files, mainClass, breakpoints = [] } = JSON.parse(await readBody(req)) as { files: Record<string, string>; mainClass: string; breakpoints?: DebugBreakpoint[] }
           if (!/^[\w.$]+$/.test(mainClass)) throw new Error('invalid main class')
           const id = randomUUID()
           const dir = path.join(tmpRoot, id)
@@ -213,10 +267,8 @@ export function devRunner(): Plugin {
             return cleanup()
           }
 
-          const java = spawn('java', ['-Dfile.encoding=UTF-8', '-Dsun.stdout.encoding=UTF-8', '-Dsun.stderr.encoding=UTF-8', '-XX:+UseSerialGC', '-Xmx256m', '-cp', outDir, mainClass], { cwd: dir })
-          procs.set(id, java)
-          send({ type: 'started', id })
           let bytes = 0
+          let java: ChildProcess
           const forward = (type: 'stdout' | 'stderr') => (d: Buffer) => {
             bytes += d.length
             if (bytes > MAX_OUTPUT_BYTES) {
@@ -225,13 +277,35 @@ export function devRunner(): Plugin {
             }
             send({ type, data: d.toString('utf8') })
           }
-          java.stdout.on('data', forward('stdout'))
-          java.stderr.on('data', forward('stderr'))
-          const timer = setTimeout(() => java.kill('SIGKILL'), MAX_RUNTIME_MS)
+          if (debug) {
+            send({ type: 'started', id })
+            const session = await DebugSession.start({
+              cwd: dir,
+              classpath: outDir,
+              mainClass,
+              javaArgs: JAVA_FLAGS,
+              userClasses: await compiledClasses(outDir),
+              projectFiles: Object.keys(files),
+              breakpoints,
+              send,
+              onStdout: forward('stdout'),
+            })
+            java = session.proc
+            sessions.set(id, session)
+          } else {
+            java = spawn('java', [...JAVA_FLAGS, '-cp', outDir, mainClass], { cwd: dir })
+            java.stdout!.on('data', forward('stdout'))
+            send({ type: 'started', id })
+          }
+          procs.set(id, java)
+          java.stderr!.on('data', forward('stderr'))
+          const timer = setTimeout(() => java.kill('SIGKILL'), debug ? MAX_DEBUG_MS : MAX_RUNTIME_MS)
           res.on('close', () => java.kill('SIGKILL'))
           java.on('close', (code, signal) => {
             clearTimeout(timer)
             procs.delete(id)
+            sessions.get(id)?.kill()
+            sessions.delete(id)
             send({ type: 'exit', code: code ?? (signal === 'SIGKILL' ? 137 : 130) })
             res.end()
             cleanup()
