@@ -8,7 +8,8 @@ import { renderMarkdown } from './markdown'
 import { LESSONS, TASKS, taskById, lessonOf } from './catalog'
 import { useTasks, type TaskProgress } from './progress'
 import { checkCurrentTask, currentTask, neighbour, nextUnsolved, openTask, resetTask } from './taskActions'
-import type { CheckOutcome, Task, TestResult } from './model'
+import { textsOf, type CheckOutcome, type Task, type TestResult } from './model'
+import { useStrings } from './i18n'
 import { MountainView } from './MountainView'
 
 /** Hints and the solution are graded help: the solution unlocks after all hints or a few attempts. */
@@ -53,12 +54,13 @@ const statusIcon = (p: TaskProgress | undefined) => (p?.status === 'solved' ? 'e
 
 export function CourseProgress({ compact }: { compact?: boolean }) {
   const progress = useTasks((s) => s.progress)
+  const S = useStrings()
   const solved = TASKS.filter((t) => progress[t.id]?.status === 'solved').length
   const pct = TASKS.length ? Math.round((solved / TASKS.length) * 100) : 0
   return (
-    <div className={`ij-course-progress${compact ? ' compact' : ''}`} title={`${solved} of ${TASKS.length} tasks solved`}>
+    <div className={`ij-course-progress${compact ? ' compact' : ''}`} title={S.solvedOf(solved, TASKS.length)}>
       <div className="ij-course-progress-label">
-        <span>EProg Practice</span>
+        <span>{S.practice}</span>
         <span className="ij-muted">
           {solved}/{TASKS.length}
         </span>
@@ -76,23 +78,25 @@ function CourseView({ current }: { current: Task | null }) {
   const withoutHints = TASKS.filter((t) => progress[t.id]?.status === 'solved' && !progress[t.id]?.hintsAtSolve && !progress[t.id]?.peeked).length
   const solved = TASKS.filter((t) => progress[t.id]?.status === 'solved').length
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set())
+  const S = useStrings()
+  const lang = useTasks((s) => s.lang)
   return (
     <div className="ij-course">
       <CourseProgress />
       <div className="ij-course-stats ij-muted">
-        {solved === 0 ? 'Start with the first task — each one builds on the ones before.' : `${solved} solved · ${withoutHints} without hints · ${LESSONS.filter((l) => l.tasks.every((t) => progress[t.id]?.status === 'solved')).length} of ${LESSONS.length} lessons completed`}
+        {solved === 0 ? S.startHere : S.stats(solved, withoutHints, LESSONS.filter((l) => l.tasks.every((t) => progress[t.id]?.status === 'solved')).length, LESSONS.length)}
       </div>
       <div className="ij-difficulty-legend" data-tour="difficulty">
         {[1, 2, 3].map((l) => (
-          <span key={l} title={DIFFICULTY[useTasks.getState().lang][l - 1]}>
+          <span key={l} title={DIFFICULTY[lang][l - 1]}>
             <Difficulty level={l} />
-            {DIFFICULTY[useTasks.getState().lang][l - 1].split(':')[0]}
+            {DIFFICULTY[lang][l - 1].split(':')[0]}
           </span>
         ))}
       </div>
       {next && (
         <button className="ij-button default ij-course-continue" onClick={() => openTask(next.id)}>
-          {solved === 0 ? 'Start' : 'Continue'}: {next.title}
+          {solved === 0 ? S.start : S.continue}: {textsOf(next, lang).title}
         </button>
       )}
       {LESSONS.map((l, i) => {
@@ -117,8 +121,8 @@ function CourseView({ current }: { current: Task | null }) {
               <span className="ij-tree-icon">
                 <Icon name={done === l.tasks.length ? 'edu/eduLessonDone' : 'edu/eduLessonDefault'} />
               </span>
-              <span className="ij-tree-label" title={`Lesson ${i + 1} · Week ${l.week}`}>
-                {l.title}
+              <span className="ij-tree-label" title={S.lesson(i + 1, l.week)}>
+                {textsOf(l.tasks[0], lang).lesson}
               </span>
               <span className="ij-tree-secondary">
                 {done}/{l.tasks.length}
@@ -126,11 +130,11 @@ function CourseView({ current }: { current: Task | null }) {
             </div>
             {open &&
               l.tasks.map((t) => (
-                <div key={t.id} className={`ij-tree-row ij-task-row${current?.id === t.id ? ' selected' : ''}`} onClick={() => openTask(t.id)} title={t.concepts.join(', ')}>
+                <div key={t.id} className={`ij-tree-row ij-task-row${current?.id === t.id ? ' selected' : ''}`} onClick={() => openTask(t.id)} title={textsOf(t, lang).concepts.join(', ')}>
                   <span className="ij-tree-icon">
                     <Icon name={statusIcon(progress[t.id])} />
                   </span>
-                  <span className="ij-tree-label">{t.title}</span>
+                  <span className="ij-tree-label">{textsOf(t, lang).title}</span>
                   <Difficulty level={t.difficulty} />
                 </div>
               ))}
@@ -142,13 +146,15 @@ function CourseView({ current }: { current: Task | null }) {
 }
 
 function Steps({ task, progress }: { task: Task; progress: TaskProgress }) {
-  if (!task.steps.length) return null
+  const S = useStrings()
+  const steps = textsOf(task, useTasks((s) => s.lang)).steps
+  if (!steps.length) return null
   const checked = progress.steps && progress.steps.length === task.steps.length
   return (
     <div className="ij-task-section">
-      <div className="ij-task-section-title">Steps</div>
+      <div className="ij-task-section-title">{S.steps}</div>
       <ol className="ij-task-steps">
-        {task.steps.map((s, i) => {
+        {steps.map((s, i) => {
           const ok = checked ? progress.steps![i] : progress.status === 'solved'
           return (
             <li key={i} className={ok ? 'done' : checked ? 'open' : ''}>
@@ -165,22 +171,24 @@ function Steps({ task, progress }: { task: Task; progress: TaskProgress }) {
 }
 
 function Hints({ task, progress }: { task: Task; progress: TaskProgress }) {
-  const shown = Math.min(progress.hintsShown, task.hints.length)
+  const S = useStrings()
+  const hints = textsOf(task, useTasks((s) => s.lang)).hints
+  const shown = Math.min(progress.hintsShown, hints.length)
   const [open, setOpen] = useState<number | null>(null)
   useEffect(() => {
     setOpen(shown > 0 ? shown - 1 : null)
   }, [shown, task.id])
-  if (!task.hints.length) return null
+  if (!hints.length) return null
   return (
     <div className="ij-task-section">
-      <div className="ij-task-section-title">Hints</div>
-      {task.hints.slice(0, shown).map((h, i) => (
+      <div className="ij-task-section-title">{S.hints}</div>
+      {hints.slice(0, shown).map((h, i) => (
         <div key={i} className={`ij-hint${open === i ? ' open' : ''}`}>
           <div className="ij-hint-header" onClick={() => setOpen(open === i ? null : i)}>
             <Icon name={open === i ? 'general/chevronDown' : 'general/chevronRight'} />
             <Icon name="actions/realIntentionBulb" />
             <span>
-              Hint {i + 1} · {h.title}
+              {S.hint(i + 1)} · {h.title}
             </span>
           </div>
           {open === i && (
@@ -190,19 +198,20 @@ function Hints({ task, progress }: { task: Task; progress: TaskProgress }) {
           )}
         </div>
       ))}
-      {shown < task.hints.length ? (
+      {shown < hints.length ? (
         <button className="ij-link-button" onClick={() => useTasks.getState().revealHint(task.id)}>
           <Icon name="actions/realIntentionBulb" />
-          {shown === 0 ? `Stuck? Show hint 1 of ${task.hints.length}` : `Show hint ${shown + 1} of ${task.hints.length}`}
+          {shown === 0 ? S.stuck(hints.length) : S.showHint(shown + 1, hints.length)}
         </button>
       ) : (
-        <div className="ij-muted ij-hint-note">All hints are shown. Still stuck? Re-read the steps, then try one small change at a time and Run.</div>
+        <div className="ij-muted ij-hint-note">{S.allHints}</div>
       )}
     </div>
   )
 }
 
 function ResultDetails({ r }: { r: TestResult }) {
+  const S = useStrings()
   return (
     <div className="ij-check-test">
       <div className="ij-check-message">{r.message}</div>
@@ -210,19 +219,19 @@ function ResultDetails({ r }: { r: TestResult }) {
         <div className="ij-check-compare">
           {r.stdin ? (
             <div>
-              <div className="ij-check-label">Input</div>
+              <div className="ij-check-label">{S.input}</div>
               <pre>{r.stdin}</pre>
             </div>
           ) : null}
           {r.expected !== undefined && (
             <div>
-              <div className="ij-check-label">Expected</div>
+              <div className="ij-check-label">{S.expected}</div>
               <pre>{r.expected || ' '}</pre>
             </div>
           )}
           {r.actual !== undefined && (
             <div>
-              <div className="ij-check-label">Actual</div>
+              <div className="ij-check-label">{S.actual}</div>
               <pre>{r.actual || ' '}</pre>
             </div>
           )}
@@ -233,22 +242,24 @@ function ResultDetails({ r }: { r: TestResult }) {
 }
 
 function CheckResult({ outcome, task, firstSolve, progress }: { outcome: CheckOutcome; task: Task; firstSolve: boolean; progress: TaskProgress }) {
+  const S = useStrings()
+  const lang = useTasks((s) => s.lang)
   if (outcome.kind === 'passed') {
     const next = nextUnsolved(task.id)
     const hints = progress.hintsAtSolve ?? 0
-    const praise = progress.attemptsAtSolve === 1 && !hints ? 'First try, no hints — excellent!' : !hints ? 'Solved without hints.' : `You used ${hints} hint${hints === 1 ? '' : 's'} — that is what they are for.`
+    const praise = progress.attemptsAtSolve === 1 && !hints ? S.firstTry : !hints ? S.noHints : S.withHints(hints)
     return (
       <div className={`ij-check-result correct${firstSolve ? ' celebrate' : ''}`}>
         <div className="ij-check-title">
           <Icon name="edu/resultCorrect" />
-          <span>Congratulations!</span>
+          <span>{S.congrats}</span>
         </div>
         <div className="ij-check-message">
-          All {outcome.results.length} tests passed. {firstSolve ? praise : ''}
+          {S.allPassed(outcome.results.length)} {firstSolve ? praise : ''}
         </div>
         {next && (
           <button className="ij-button default" onClick={() => openTask(next.id)}>
-            Next: {next.title}
+            {S.next(textsOf(next, lang).title)}
           </button>
         )}
       </div>
@@ -261,13 +272,11 @@ function CheckResult({ outcome, task, firstSolve, progress }: { outcome: CheckOu
       <div className="ij-check-result incorrect">
         <div className="ij-check-title">
           <Icon name="edu/resultIncorrect" />
-          <span>Incorrect</span>
-          <span className="ij-muted">
-            {passed} of {outcome.results.length} tests passed
-          </span>
+          <span>{S.incorrect}</span>
+          <span className="ij-muted">{S.passedOf(passed, outcome.results.length)}</span>
         </div>
         <ResultDetails r={failed[0]} />
-        {failed.length > 1 && <div className="ij-muted">{failed.length - 1} more failing test{failed.length > 2 ? 's' : ''}. Fix this one first.</div>}
+        {failed.length > 1 && <div className="ij-muted">{S.moreFailing(failed.length - 1)}</div>}
       </div>
     )
   }
@@ -275,7 +284,7 @@ function CheckResult({ outcome, task, firstSolve, progress }: { outcome: CheckOu
     <div className="ij-check-result incorrect">
       <div className="ij-check-title">
         <Icon name="edu/resultIncorrect" />
-        <span>{outcome.kind === 'compile-error' ? 'Compilation Failed' : 'Check Failed'}</span>
+        <span>{outcome.kind === 'compile-error' ? S.compileFailed : S.checkFailed}</span>
       </div>
       <div className="ij-check-message">{outcome.message}</div>
     </div>
@@ -283,6 +292,9 @@ function CheckResult({ outcome, task, firstSolve, progress }: { outcome: CheckOu
 }
 
 function TaskView({ task }: { task: Task }) {
+  const S = useStrings()
+  const lang = useTasks((s) => s.lang)
+  const texts = textsOf(task, lang)
   const progress = useTasks((s) => s.progress[task.id]) ?? { status: 'new', attempts: 0, hintsShown: 0 }
   const check = useTasks((s) => (s.check?.taskId === task.id ? s.check : null))
   const lesson = lessonOf(task)
@@ -299,16 +311,16 @@ function TaskView({ task }: { task: Task }) {
     <div className="ij-task">
       <div className="ij-task-nav">
         <span className="ij-muted">
-          Lesson {LESSONS.indexOf(lesson) + 1} · {lesson.title}
+          {S.lessonShort(LESSONS.indexOf(lesson) + 1)} · {texts.lesson}
         </span>
         <span className="ij-task-nav-buttons">
-          <button className="ij-icon-btn small" title={prev ? `Previous: ${prev.title}` : 'Previous'} disabled={!prev} onClick={() => prev && openTask(prev.id)}>
+          <button className="ij-icon-btn small" title={prev ? S.previous(textsOf(prev, lang).title) : ''} disabled={!prev} onClick={() => prev && openTask(prev.id)}>
             <Icon name="general/chevronLeft" />
           </button>
           <span className="ij-muted">
             {index + 1}/{lesson.tasks.length}
           </span>
-          <button className="ij-icon-btn small" title={next ? `Next: ${next.title}` : 'Next'} disabled={!next} onClick={() => next && openTask(next.id)}>
+          <button className="ij-icon-btn small" title={next ? S.next(textsOf(next, lang).title) : ''} disabled={!next} onClick={() => next && openTask(next.id)}>
             <Icon name="general/chevronRight" />
           </button>
         </span>
@@ -316,11 +328,11 @@ function TaskView({ task }: { task: Task }) {
       <div className="ij-task-scroll" ref={scrollRef}>
         <div className="ij-task-header">
           <Icon name={statusIcon(progress)} />
-          <h1>{task.title}</h1>
+          <h1>{texts.title}</h1>
           <Difficulty level={task.difficulty} />
         </div>
         <div className="ij-task-concepts">
-          {task.concepts.map((c) => (
+          {texts.concepts.map((c) => (
             <span key={c} className="ij-chip">
               {c}
             </span>
@@ -328,18 +340,18 @@ function TaskView({ task }: { task: Task }) {
         </div>
         {builds.length > 0 && (
           <div className="ij-task-builds ij-muted">
-            Builds on:{' '}
+            {S.buildsOn}{' '}
             {builds.map((b, i) => (
               <span key={b.id}>
                 {i > 0 && ', '}
                 <a className="ij-link" onClick={() => openTask(b.id)}>
-                  {b.title}
+                  {textsOf(b, lang).title}
                 </a>
               </span>
             ))}
           </div>
         )}
-        <Markdown md={task.description} />
+        <Markdown md={texts.description} />
         <Steps task={task} progress={progress} />
         <Hints task={task} progress={progress} />
       </div>
@@ -347,22 +359,22 @@ function TaskView({ task }: { task: Task }) {
         {check && !check.running && <CheckResult outcome={check.outcome} task={task} firstSolve={check.firstSolve} progress={progress} />}
         <div className="ij-check-buttons">
           <button className="ij-button default" disabled={!!check?.running} onClick={() => void checkCurrentTask()}>
-            {check?.running ? 'Checking…' : 'Check'}
+            {check?.running ? S.checking : S.check}
           </button>
-          <button className="ij-icon-btn" title="Reset Content" onClick={resetTask}>
+          <button className="ij-icon-btn" title={S.reset} onClick={resetTask}>
             <Icon name="edu/resetTask" />
           </button>
           <span style={{ flex: 1 }} />
           <button
             className="ij-link-button"
             disabled={!canPeek}
-            title={canPeek ? "Compare your code with the author's solution" : `Available after all hints or ${PEEK_AFTER_ATTEMPTS} checks — the struggle is where the learning happens.`}
+            title={canPeek ? S.peekTip : S.peekLocked(PEEK_AFTER_ATTEMPTS)}
             onClick={() => {
               useTasks.getState().markPeeked(task.id)
               openDialog({ kind: 'peek-solution', taskId: task.id })
             }}
           >
-            Peek Solution
+            {S.peek}
           </button>
         </div>
       </div>
@@ -388,6 +400,7 @@ export function TaskToolWindow() {
   const projectId = useIde((s) => s.projectId)
   const task = currentTask(projectId)
   const [tab, setTab] = useState<'task' | 'course' | 'mountain'>(task ? 'task' : 'course')
+  const S = useStrings()
   useEffect(() => {
     setTab(task ? 'task' : 'course')
   }, [task])
@@ -429,7 +442,7 @@ export function TaskToolWindow() {
         <TaskView task={task} />
       ) : tab === 'task' ? (
         <div className="ij-empty-text">
-          No task is open. Pick one in the <a className="ij-link" onClick={() => setTab('course')}>Course</a> tab.
+          {S.noTask} <a className="ij-link" onClick={() => setTab('course')}>{S.courseTab}</a> {S.tab}
         </div>
       ) : (
         <CourseView current={task} />

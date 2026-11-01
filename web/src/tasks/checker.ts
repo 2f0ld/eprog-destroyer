@@ -1,5 +1,6 @@
 import { buildHarness, evaluate, HARNESS_CLASS, HARNESS_PATH, type CheckOutcome, type Task } from './model'
 import { toProblem, type JavacDiagnostic } from '../java/diagnostics'
+import { useTasks } from './progress'
 
 const CHECK_TIMEOUT_MS = 30_000
 
@@ -51,7 +52,7 @@ export async function runCheck(task: Task, files: Record<string, string>): Promi
   } finally {
     window.clearTimeout(timer)
   }
-  return evaluate(task, files, stdout, nonce)
+  return evaluate(task, files, stdout, nonce, useTasks.getState().lang)
 }
 
 function compileError(diags: JavacDiagnostic[], files: Record<string, string>, text: string): CheckOutcome {
@@ -65,7 +66,13 @@ function compileError(diags: JavacDiagnostic[], files: Record<string, string>, t
   if (h) {
     // the harness calls something the student's code doesn't have (renamed method, changed parameters, ...)
     const p = toProblem(h, files[HARNESS_PATH] ?? '')
-    return { kind: 'compile-error', message: `The tests could not call your code: ${p.message}. Keep the class, method names and parameter types from the task description.` }
+    return {
+      kind: 'compile-error',
+      message:
+        useTasks.getState().lang === 'de'
+          ? `Die Tests konnten deinen Code nicht aufrufen: ${p.message}. Behalte die Klassen, Methodennamen und Parametertypen aus der Aufgabenstellung bei.`
+          : `The tests could not call your code: ${p.message}. Keep the class, method names and parameter types from the task description.`,
+    }
   }
   return { kind: 'compile-error', message: text.split('\n')[0] || 'Compilation failed' }
 }
